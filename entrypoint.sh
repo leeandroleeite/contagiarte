@@ -15,6 +15,19 @@ export LITESTREAM_CAMINHO="${LITESTREAM_CAMINHO:-${APP_ENV:-local}}"
 
 mkdir -p "$DADOS_DIR"
 
+# A cache das imagens sobrevive aos deploys.
+#
+# O Next guarda as versões redimensionadas em .next/cache, que vive no
+# disco do contentor e desaparece a cada versão nova. Redimensionar uma
+# fotografia custa entre 400 e 600ms de CPU, e a máquina é um vCPU
+# partilhado: com nove imagens numa página, o primeiro visitante depois
+# de cada deploy esperava segundos por todas. No volume, paga-se uma vez
+# só na vida.
+CACHE="$DADOS_DIR/cache-next"
+mkdir -p "$CACHE"
+rm -rf /app/.next/cache
+ln -sfn "$CACHE" /app/.next/cache
+
 if [ -n "$LITESTREAM_BUCKET" ]; then
   if [ ! -f "$DADOS_DIR/contagiarte.db" ]; then
     echo "sem base local: a tentar restaurar de $LITESTREAM_BUCKET/$LITESTREAM_CAMINHO"

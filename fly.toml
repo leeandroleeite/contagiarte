@@ -12,7 +12,10 @@ kill_timeout = 30
 [build.args]
   # Domínio público do bucket R2. Tem de entrar na compilação porque é
   # uma variável NEXT_PUBLIC_*.
-  NEXT_PUBLIC_R2_PUBLIC_URL = "https://media.contagiarte.pt"
+  # Vazio enquanto media.contagiarte.pt não existir: as fotografias
+  # saem por /api/media/..., que funciona. Assim que o domínio do bucket
+  # estiver ligado, pôr aqui e voltar a compilar.
+  NEXT_PUBLIC_R2_PUBLIC_URL = ""
 
 [deploy]
   # As migrações correm no arranque, dentro do entrypoint, depois de o
@@ -22,7 +25,12 @@ kill_timeout = 30
 
 [env]
   APP_ENV = "producao"
-  PUBLIC_URL = "https://www.contagiarte.pt"
+  # Enquanto o DNS não aponta para cá, o endereço público é o do Fly.
+  # Isto alimenta canonicals, sitemap e os links de confirmação da
+  # newsletter: apontar para um domínio que ainda não responde só criava
+  # links partidos. Trocar para https://www.contagiarte.pt no dia em que
+  # o DNS mudar.
+  PUBLIC_URL = "https://contagiarte.fly.dev"
   NODE_ENV = "production"
   DADOS_DIR = "/dados"
   # O Litestream lê estes nomes. Ficam no ambiente da máquina, e não só

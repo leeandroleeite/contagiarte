@@ -191,7 +191,13 @@ fly secrets set --app contagiarte \
   EMAIL_PARA=galeria@contagiarte.pt
 ```
 
-Segredos de staging, com o muro de password por cima de tudo:
+O muro de password não é uma coisa de staging: havendo
+`PALAVRA_PASSE_ENTRADA` definida, o ambiente pede-a antes de qualquer
+página, e o `robots.txt` passa a proibir tudo. Serve a staging, que tem
+uma cópia do conteúdo real, e serve a uma produção que já está de pé mas
+ainda não abriu portas. Abrir é tirar o segredo e apontar o DNS.
+
+Segredos de staging:
 
 ```bash
 fly secrets set --app contagiarte-staging \

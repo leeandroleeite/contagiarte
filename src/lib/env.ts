@@ -88,9 +88,13 @@ export const env = {
     },
   },
 
-  /** Password única que protege o ambiente de staging. Vazio = aberto. */
-  get palavraPasseStaging(): string {
-    return opcional("STAGING_PASSWORD");
+  /**
+   * Password única à entrada do ambiente. Vazio significa aberto ao
+   * público. Serve a staging, e serve a uma produção que ainda não abriu
+   * portas.
+   */
+  get muroDeEntrada(): string {
+    return opcional("PALAVRA_PASSE_ENTRADA") || opcional("STAGING_PASSWORD");
   },
 
   get analiticaId(): string {

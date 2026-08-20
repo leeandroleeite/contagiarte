@@ -9,7 +9,7 @@ function pedirPalavraPasse() {
   return new NextResponse("Acesso restrito.", {
     status: 401,
     headers: {
-      "WWW-Authenticate": 'Basic realm="Contagiarte staging", charset="UTF-8"',
+      "WWW-Authenticate": 'Basic realm="Contagiarte", charset="UTF-8"',
     },
   });
 }
@@ -31,8 +31,13 @@ export default async function proxy(pedido: NextRequest) {
     return NextResponse.next();
   }
 
-  // --- Muro do staging -------------------------------------------------
-  const palavraPasse = process.env.STAGING_PASSWORD;
+  // --- Muro de entrada -------------------------------------------------
+  //
+  // Não é uma coisa de staging: é um muro. Serve a um staging com uma
+  // cópia do conteúdo real, e serve a uma produção que ainda não abriu
+  // portas. Havendo password definida, nada passa sem ela.
+  const palavraPasse =
+    process.env.PALAVRA_PASSE_ENTRADA ?? process.env.STAGING_PASSWORD;
   if (palavraPasse) {
     const cabecalho = pedido.headers.get("authorization");
     if (!cabecalho?.startsWith("Basic ")) return pedirPalavraPasse();

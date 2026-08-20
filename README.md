@@ -19,7 +19,7 @@ dados para a galeria poder acrescentar obras sem programador.
 | Estilo | Tailwind 4 | Tokens da marca definidos em `@theme`, sem folha de estilo paralela |
 | Base de dados | PostgreSQL + Drizzle ORM | Migrações versionadas, tipos gerados do esquema |
 | Ficheiros | Cloudflare R2 | Sem custo de saída, CDN à frente, separado da aplicação |
-| Alojamento | Fly.io (região `mad`) | Perto de Portugal, Postgres gerido, dois ambientes fáceis |
+| Alojamento | Fly.io (região `cdg`) | A mais perto de Portugal, dois ambientes fáceis |
 | Email | Resend ou SMTP | Opcional: sem ele os pedidos ficam na base de dados na mesma |
 
 ## Pôr a correr localmente
@@ -167,12 +167,14 @@ fly auth login
 
 # Produção
 fly apps create contagiarte
-fly postgres create --name contagiarte-db --region mad
+fly postgres create --name contagiarte-db --region cdg \
+  --initial-cluster-size 1 --vm-size shared-cpu-1x --volume-size 3
 fly postgres attach contagiarte-db --app contagiarte
 
 # Staging
 fly apps create contagiarte-staging
-fly postgres create --name contagiarte-db-staging --region mad
+fly postgres create --name contagiarte-db-staging --region cdg \
+  --initial-cluster-size 1 --vm-size shared-cpu-1x --volume-size 1
 fly postgres attach contagiarte-db-staging --app contagiarte-staging
 ```
 

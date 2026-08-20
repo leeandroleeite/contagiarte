@@ -1,7 +1,8 @@
 # Produção: www.contagiarte.pt
 # Deploy com:  fly deploy --config fly.toml
 app = "contagiarte"
-primary_region = "mad"          # Madrid: o mais perto de Portugal
+primary_region = "cdg"          # Paris: a mais perto de Portugal desde
+                                # que o Fly fechou Madrid
 kill_signal = "SIGINT"
 kill_timeout = 30
 

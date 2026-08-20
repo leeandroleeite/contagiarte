@@ -50,3 +50,6 @@ copia-*.json
 /blob-report
 /.playwright
 .cache/
+
+# base de dados local
+/var/

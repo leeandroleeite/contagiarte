@@ -1,19 +1,12 @@
 {
   "version": "7",
-  "dialect": "postgresql",
+  "dialect": "sqlite",
   "entries": [
     {
       "idx": 0,
-      "version": "7",
-      "when": 1787236541649,
-      "tag": "0000_previous_plazm",
-      "breakpoints": true
-    },
-    {
-      "idx": 1,
-      "version": "7",
-      "when": 1787240648286,
-      "tag": "0001_right_triton",
+      "version": "6",
+      "when": 1787258511976,
+      "tag": "0000_chemical_fallen_one",
       "breakpoints": true
     }
   ]

@@ -4,9 +4,10 @@
  *
  * Nunca correr contra produção: só mexe na base do DATABASE_URL local.
  */
+import path from "node:path";
 import bcrypt from "bcryptjs";
 import { eq, like, or, sql as bruto } from "drizzle-orm";
-import { db, sql } from "../src/lib/db";
+import { caminhoDaBase, db, fecharBase } from "../src/lib/db";
 import { TEXTOS } from "./textos";
 import {
   artistas,
@@ -26,13 +27,17 @@ const EMAIL = "galeria@contagiarte.pt";
 const PALAVRA_PASSE = process.env.E2E_ADMIN_PASSWORD ?? "teste-e2e-12345";
 
 async function principal() {
-  const url = process.env.DATABASE_URL ?? "";
-  if (!/localhost|127\.0\.0\.1|@postgres[:/]/.test(url)) {
+  // Este script apaga e reescreve conteúdo. Se alguma vez apontar para
+  // o volume de produção, apaga o trabalho da galeria. Por isso recusa
+  // qualquer coisa que não seja a pasta de dados local.
+  const dir = path.resolve(process.env.DADOS_DIR ?? "var");
+  if (!dir.startsWith(path.resolve("var"))) {
     console.error(
-      "Recusado: os testes só preparam bases de dados locais. DATABASE_URL aponta para fora.",
+      `Recusado: os testes só preparam a base local. DADOS_DIR aponta para ${dir}.`,
     );
     process.exit(1);
   }
+  console.log(`Base de teste: ${caminhoDaBase()}`);
 
   const [existente] = await db
     .select()
@@ -103,7 +108,7 @@ async function principal() {
       "salas",
       db
         .delete(salas)
-        .where(bruto`${salas.nome}->>'pt' like 'Sala de teste %'`)
+        .where(bruto`json_extract(${salas.nome}, '$.pt') like 'Sala de teste %'`)
         .returning({ id: salas.id }),
     ],
   ];
@@ -155,12 +160,12 @@ async function principal() {
     });
 
   console.log(`Pronto para os testes: ${EMAIL}`);
-  await sql.end();
+  fecharBase();
   process.exit(0);
 }
 
 principal().catch(async (erro) => {
   console.error(erro);
-  await sql.end({ timeout: 5 }).catch(() => {});
+  fecharBase();
   process.exit(1);
 });

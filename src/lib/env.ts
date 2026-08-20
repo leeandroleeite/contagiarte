@@ -33,8 +33,9 @@ export const env = {
     return v.replace(/\/$/, "");
   },
 
-  get baseDados(): string {
-    return obrigatoria("DATABASE_URL");
+  /** Pasta onde a base de dados vive. Em produção é o volume montado. */
+  get dadosDir(): string {
+    return opcional("DADOS_DIR", "var");
   },
 
   get segredoSessao(): string {

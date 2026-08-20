@@ -36,6 +36,13 @@ RUN npm run build
 FROM base AS runner
 WORKDIR /app
 
+# O Litestream segue o WAL do SQLite e replica para o R2.
+ARG LITESTREAM_VERSION=0.3.13
+RUN apk add --no-cache ca-certificates \
+  && wget -qO /tmp/ls.tar.gz "https://github.com/benbjohnson/litestream/releases/download/v${LITESTREAM_VERSION}/litestream-v${LITESTREAM_VERSION}-linux-amd64.tar.gz" \
+  && tar -xzf /tmp/ls.tar.gz -C /usr/local/bin litestream \
+  && rm /tmp/ls.tar.gz
+
 ENV NODE_ENV=production
 ENV NEXT_TELEMETRY_DISABLED=1
 ENV PORT=3000
@@ -52,11 +59,23 @@ COPY --from=build --chown=nextjs:nodejs /app/drizzle ./drizzle
 COPY --from=build --chown=nextjs:nodejs /app/scripts/migrar.mjs ./scripts/migrar.mjs
 
 # O migrador corre fora do bundle do Next, por isso precisa dos módulos
-# a sério. São dois, e nenhum deles tem dependências próprias.
+# a sério. O better-sqlite3 traz binário compilado, e por isso vem com
+# as suas dependências em vez de sozinho.
 COPY --from=deps --chown=nextjs:nodejs /app/node_modules/drizzle-orm ./node_modules/drizzle-orm
-COPY --from=deps --chown=nextjs:nodejs /app/node_modules/postgres ./node_modules/postgres
+COPY --from=deps --chown=nextjs:nodejs /app/node_modules/better-sqlite3 ./node_modules/better-sqlite3
+COPY --from=deps --chown=nextjs:nodejs /app/node_modules/bindings ./node_modules/bindings
+COPY --from=deps --chown=nextjs:nodejs /app/node_modules/file-uri-to-path ./node_modules/file-uri-to-path
+COPY --from=deps --chown=nextjs:nodejs /app/node_modules/prebuild-install ./node_modules/prebuild-install
+
+COPY --chown=nextjs:nodejs litestream.yml /etc/litestream.yml
+COPY --chown=nextjs:nodejs entrypoint.sh ./entrypoint.sh
+RUN chmod +x ./entrypoint.sh
+
+# A base vive num volume, não na imagem.
+ENV DADOS_DIR=/dados
+RUN mkdir -p /dados && chown nextjs:nodejs /dados
 
 USER nextjs
 EXPOSE 3000
 
-CMD ["node", "server.js"]
+CMD ["./entrypoint.sh"]

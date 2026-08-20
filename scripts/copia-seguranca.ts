@@ -1,21 +1,18 @@
 /**
- * Cópia de segurança do conteúdo para o R2.
+ * Exporta o conteúdo todo para um JSON no R2.
  *
- * Exporta todas as tabelas para um único JSON e guarda-o no bucket, em
- * `copias/<ambiente>/<data>.json`. É uma segunda linha de defesa: a
- * primeira são as snapshots de volume da Fly, que cobrem a base de
- * dados inteira. Esta cópia é a que se lê e se restaura à mão sem
- * depender da Fly, e é a que serve para levar produção para staging.
+ * Não substitui o Litestream: são coisas diferentes. O Litestream copia
+ * a base tal e qual, alteração a alteração, e por isso copia também um
+ * engano fielmente. Este export é a rede por baixo dessa: um retrato
+ * legível de um dia, que se pode abrir e ler sem SQLite nenhum.
  *
- * Os ficheiros em si (fotografias, PDFs) já vivem no R2 e não são
- * copiados outra vez; o que se guarda aqui são os registos que
- * apontam para eles.
+ * Corre-se à mão, de dentro da máquina, porque a base vive num volume
+ * a que mais ninguém chega:
  *
- *   npm run copia
- *   npm run copia -- --restaurar copias/producao/2026-08-20.json
+ *   fly ssh console -a contagiarte -C "npx tsx scripts/copia-seguranca.ts"
  */
 import { sql as raw } from "drizzle-orm";
-import { db, sql } from "../src/lib/db";
+import { db, fecharBase } from "../src/lib/db";
 import { env } from "../src/lib/env";
 import { guardar } from "../src/lib/media/r2";
 
@@ -44,10 +41,8 @@ async function exportar() {
 
   for (const tabela of TABELAS) {
     // O nome vem de uma lista fixa neste ficheiro, nunca de fora.
-    const linhas = await db.execute(
-      raw.raw(`select * from "${tabela}" order by 1`),
-    );
-    conteudo[tabela] = Array.from(linhas as Iterable<unknown>);
+    const linhas = await db.all(raw.raw(`select * from "${tabela}"`));
+    conteudo[tabela] = linhas as unknown[];
     console.log(`· ${tabela}: ${conteudo[tabela].length} linhas`);
   }
 
@@ -80,12 +75,12 @@ async function exportar() {
 async function principal() {
   console.log(`A copiar o conteúdo de ${env.ambiente}…`);
   await exportar();
-  await sql.end();
+  fecharBase();
   process.exit(0);
 }
 
 principal().catch(async (erro) => {
   console.error("Falhou a cópia de segurança:", erro);
-  await sql.end({ timeout: 5 }).catch(() => {});
+  fecharBase();
   process.exit(1);
 });

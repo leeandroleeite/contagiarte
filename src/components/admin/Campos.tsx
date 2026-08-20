@@ -145,10 +145,20 @@ export function CampoLocalizado({
   const [activo, setActivo] = useState<Idioma>("pt");
 
   return (
-    <div className={cx("flex flex-col", largo && "sm:col-span-2")}>
+    // `data-campo` identifica este campo sem depender da estrutura à
+    // volta: serve para os testes e para qualquer código que precise
+    // de chegar a um campo traduzível em concreto.
+    <div
+      data-campo={nome}
+      className={cx("flex flex-col", largo && "sm:col-span-2")}
+    >
       <div className="mb-1.5 flex items-baseline justify-between gap-3">
         <span className="adm-rotulo mb-0">{rotulo}</span>
-        <div className="flex gap-1" role="group" aria-label="Idioma do campo">
+        <div
+          className="flex gap-1"
+          role="group"
+          aria-label={`Idioma de ${rotulo}`}
+        >
           {IDIOMAS.map((id) => {
             const preenchido = Boolean(valor?.[id]?.trim());
             return (

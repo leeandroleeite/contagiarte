@@ -40,7 +40,7 @@ export default defineConfig({
     {
       name: "telemovel",
       use: { ...devices["iPhone 13"] },
-      testIgnore: /admin\.spec\.ts/,
+      testIgnore: /(admin|backoffice)\.spec\.ts/,
     },
   ],
 
@@ -48,7 +48,10 @@ export default defineConfig({
     // O mesmo servidor que a imagem de produção corre: a saída
     // standalone, não o `next start`, que avisa e não é o que vai para
     // o ar.
-    command: `npm run build && npm run prestart && node .next/standalone/server.js`,
+    // A preparação corre aqui e não só no `npm run e2e`: assim, uma
+    // corrida directa do Playwright encontra sempre a base limpa dos
+    // restos de uma corrida anterior interrompida.
+    command: `npm run e2e:preparar && npm run build && npm run prestart && node .next/standalone/server.js`,
     url: `${BASE}/api/saude`,
     reuseExistingServer: !process.env.CI,
     timeout: 240_000,

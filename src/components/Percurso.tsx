@@ -61,7 +61,12 @@ export function Percurso({ salas }: { salas: Sala[] }) {
   const numero = (n: number) => String(n).padStart(2, "0");
 
   return (
-    <div ref={raiz} className="percurso">
+    <div
+      ref={raiz}
+      className="percurso"
+      // Quantas etapas tem o percurso, para quem lê a página de fora.
+      data-etapas={salas.length}
+    >
       {/* Lista: base semântica, e o que vê quem não tem o palco. */}
       <div className="percurso-lista gap-20 px-7 pb-28">
         {salas.map((s, i) => (

@@ -5,9 +5,19 @@
  * Nunca correr contra produção: só mexe na base do DATABASE_URL local.
  */
 import bcrypt from "bcryptjs";
-import { eq, like, or } from "drizzle-orm";
+import { eq, like, or, sql as bruto } from "drizzle-orm";
 import { db, sql } from "../src/lib/db";
-import { definicoes, obras, utilizadores } from "../src/lib/db/schema";
+import {
+  artistas,
+  definicoes,
+  descarregaveis,
+  exposicoes,
+  lugares,
+  media as tMedia,
+  obras,
+  salas,
+  utilizadores,
+} from "../src/lib/db/schema";
 import { DEFINICOES_OMISSAO } from "../src/lib/db/omissoes";
 
 const EMAIL = "galeria@contagiarte.pt";
@@ -45,13 +55,77 @@ async function principal() {
   }
 
   // Restos de corridas anteriores. Um teste interrompido antes de
-  // apagar o que criou deixava obras de teste visíveis no site.
-  const limpos = await db
-    .delete(obras)
-    .where(or(like(obras.slug, "obra-de-teste-%"), like(obras.slug, "rascunho-%")))
-    .returning({ id: obras.id });
-  if (limpos.length > 0) {
-    console.log(`Limpas ${limpos.length} obras de teste que tinham ficado.`);
+  // apagar o que criou deixava conteúdo de teste visível no site e,
+  // pior, fazia falhar os testes seguintes que contam quantas obras ou
+  // salas existem. Tudo o que os testes criam segue um padrão de nome,
+  // e é por aí que se apanha.
+  const restos: Array<[string, Promise<Array<{ id: string }>>]> = [
+    [
+      "obras",
+      db
+        .delete(obras)
+        .where(
+          or(like(obras.slug, "obra-de-teste-%"), like(obras.slug, "rascunho-%")),
+        )
+        .returning({ id: obras.id }),
+    ],
+    [
+      "artistas",
+      db
+        .delete(artistas)
+        .where(like(artistas.slug, "artista-teste-%"))
+        .returning({ id: artistas.id }),
+    ],
+    [
+      "exposições",
+      db
+        .delete(exposicoes)
+        .where(like(exposicoes.slug, "exposicao-teste-%"))
+        .returning({ id: exposicoes.id }),
+    ],
+    [
+      "lugares",
+      db
+        .delete(lugares)
+        .where(like(lugares.slug, "lugar-teste-%"))
+        .returning({ id: lugares.id }),
+    ],
+    [
+      "descarregáveis",
+      db
+        .delete(descarregaveis)
+        .where(like(descarregaveis.slug, "documento-teste-%"))
+        .returning({ id: descarregaveis.id }),
+    ],
+    [
+      "salas",
+      db
+        .delete(salas)
+        .where(bruto`${salas.nome}->>'pt' like 'Sala de teste %'`)
+        .returning({ id: salas.id }),
+    ],
+  ];
+
+  for (const [nome, promessa] of restos) {
+    const apagados = await promessa;
+    if (apagados.length > 0) {
+      console.log(`Limpos ${apagados.length} ${nome} de teste que tinham ficado.`);
+    }
+  }
+
+  // As imagens de teste ficam para o fim: só depois de apagado o que
+  // as usava é que a chave estrangeira deixa removê-las.
+  const media = await db
+    .delete(tMedia)
+    .where(
+      or(
+        like(tMedia.nomeOriginal, "teste-%"),
+        like(tMedia.nomeOriginal, "media-%"),
+      ),
+    )
+    .returning({ id: tMedia.id });
+  if (media.length > 0) {
+    console.log(`Limpos ${media.length} ficheiros de teste que tinham ficado.`);
   }
 
   // As definições voltam ao estado conhecido. Sem isto, um teste

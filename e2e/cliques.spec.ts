@@ -20,7 +20,14 @@ const TEMPO_ABERTURA = 3000;
 /** Liga a vigilância de erros. Tem de ser antes de navegar. */
 function vigiarErros(page: Page) {
   const erros: string[] = [];
-  page.on("pageerror", (e) => erros.push(`pageerror: ${e.message}`));
+  page.on("pageerror", (e) => {
+    // O WebKit dá como erro da página um prefetch RSC que ele próprio
+    // cancelou porque entretanto se navegou para outro sítio. Ficou
+    // verificado que, sem sair da página, esses mesmos pedidos
+    // respondem todos 200: é ruído do navegador, não do site.
+    if (/_rsc=.*access control checks/.test(e.message)) return;
+    erros.push(`pageerror: ${e.message}`);
+  });
   page.on("console", (m) => {
     if (m.type() === "error") {
       const texto = m.text();

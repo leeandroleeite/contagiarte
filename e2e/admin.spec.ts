@@ -1,7 +1,6 @@
 import { expect, test } from "@playwright/test";
 import {
   ADMIN_EMAIL,
-  ADMIN_PALAVRA_PASSE,
   entrarNoBackoffice,
 } from "./ajudas";
 

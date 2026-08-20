@@ -43,7 +43,12 @@ export default async function ListaDescarregaveis() {
                 className="flex flex-wrap items-center justify-between gap-4 border border-adm-fio bg-adm-cartao p-[18px]"
               >
                 <div className="flex flex-col gap-1">
-                  <span className="text-[16px]">{d.nome.pt}</span>
+                  <Link
+                    href={`/admin/descarregaveis/${d.id}`}
+                    className="text-[16px]"
+                  >
+                    {d.nome.pt}
+                  </Link>
                   <span className="text-[13px] text-[rgba(14,12,11,0.5)]">
                     {d.ficheiro
                       ? `${d.ficheiro.nomeOriginal} · ${(d.ficheiro.tamanho / 1024 / 1024).toFixed(1)} MB · ${d.descargas} descargas`

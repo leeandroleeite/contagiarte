@@ -13,13 +13,6 @@ export LITESTREAM_REGION="${LITESTREAM_REGION:-auto}"
 # de staging nunca poder ir buscar a base de produção.
 export LITESTREAM_CAMINHO="${LITESTREAM_CAMINHO:-${APP_ENV:-local}}"
 
-# As chaves do R2 servem para os ficheiros e para a cópia. Quem escrever
-# os nomes LITESTREAM_ à mão manda sempre.
-export LITESTREAM_BUCKET="${LITESTREAM_BUCKET:-$R2_BUCKET_COPIAS}"
-export LITESTREAM_ENDPOINT="${LITESTREAM_ENDPOINT:-https://${R2_ACCOUNT_ID}.r2.cloudflarestorage.com}"
-export LITESTREAM_ACCESS_KEY_ID="${LITESTREAM_ACCESS_KEY_ID:-$R2_ACCESS_KEY_ID}"
-export LITESTREAM_SECRET_ACCESS_KEY="${LITESTREAM_SECRET_ACCESS_KEY:-$R2_SECRET_ACCESS_KEY}"
-
 mkdir -p "$DADOS_DIR"
 
 if [ -n "$LITESTREAM_BUCKET" ]; then

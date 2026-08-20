@@ -271,10 +271,14 @@ Duas linhas, e fazem coisas diferentes.
    fly ssh console -a contagiarte -C "litestream snapshots /dados/contagiarte.db"
    # restaurar para um ficheiro à parte, sem tocar no que está a correr
    fly ssh console -a contagiarte -C "litestream restore -o /dados/prova.db /dados/contagiarte.db"
+   # e conferir o que lá está dentro, que é a parte que interessa
+   fly ssh console -a contagiarte -C "node -e \"const D=require('/app/node_modules/better-sqlite3');const d=new D('/dados/prova.db',{readonly:true});for(const t of ['obras','artistas','media','textos'])console.log(t,d.prepare('select count(*) as n from '+t).get().n)\""
    ```
 
-   Um backup que nunca foi restaurado ainda não é um backup: o ensaio
-   acima faz-se de vez em quando, e confirma-se o conteúdo lá dentro.
+   Um backup que nunca foi restaurado ainda não é um backup. Ensaiado em
+   staging a 20 de agosto de 2026: a base voltou do bucket com as 13
+   obras, os 4 artistas, os 95 ficheiros de media e as 388 linhas de
+   registo todas lá.
 
 2. **Exportação para JSON**, à mão. O Litestream copia a base tal e
    qual, e por isso copia um engano com a mesma fidelidade. O export é a

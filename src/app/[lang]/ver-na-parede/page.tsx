@@ -56,17 +56,35 @@ export default async function PaginaVerNaParede({
           idioma={idioma}
           whatsapp={def.whatsapp}
           obraInicial={obraInicial}
-          obras={obras.map((o) => ({
-            slug: o.slug,
-            titulo: texto(o.titulo, idioma) || t("obra.sem_titulo", idioma),
-            autor: o.artista?.nome ?? "",
-            chave: o.fotografia?.chave ?? null,
-            larguraCm: o.larguraCm,
-            // Sem medidas reais, assume-se quadrado: é a proporção mais
-            // neutra e não engana ninguém sobre o formato da peça.
-            proporcao:
-              o.larguraCm && o.alturaCm ? o.alturaCm / o.larguraCm : 1,
-          }))}
+          obras={obras.map((o) => {
+            // A forma da obra sai das medidas da ficha quando existem.
+            // Quando não existem, sai dos pixéis da fotografia, que é
+            // uma fotografia da peça e por isso tem a forma dela.
+            //
+            // O quadrado por omissão que aqui estava antes não era
+            // neutro: fazia a Censored Hero, que é um retrato 0,64:1,
+            // aparecer quadrada, e essa medida errada seguia dentro da
+            // mensagem de WhatsApp para a galeria.
+            const porMedidas = Boolean(o.larguraCm && o.alturaCm);
+            const foto = o.fotografia;
+            const porFoto = Boolean(foto?.largura && foto?.altura);
+            return {
+              slug: o.slug,
+              titulo: texto(o.titulo, idioma) || t("obra.sem_titulo", idioma),
+              autor: o.artista?.nome ?? "",
+              chave: foto?.chave ?? null,
+              larguraCm: o.larguraCm,
+              alturaCm: o.alturaCm,
+              proporcao: porMedidas
+                ? o.alturaCm! / o.larguraCm!
+                : porFoto
+                  ? foto!.altura! / foto!.largura!
+                  : 1,
+              origemProporcao: (porMedidas ? "medidas" : "fotografia") as
+                | "medidas"
+                | "fotografia",
+            };
+          })}
           molduras={molduras.map((m) => ({
             slug: m.slug,
             nome: texto(m.nome, idioma),

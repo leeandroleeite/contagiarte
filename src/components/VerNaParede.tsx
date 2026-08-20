@@ -11,8 +11,16 @@ export type ObraParede = {
   autor: string;
   chave: string | null;
   larguraCm: number | null;
+  alturaCm: number | null;
   /** Altura a dividir pela largura. 1 é quadrado, >1 é mais alta. */
   proporcao: number;
+  /**
+   * De onde veio a proporção. Com medidas reais na ficha, é a verdade;
+   * com os pixéis da fotografia, é a forma certa mas o tamanho é o que
+   * o visitante escolher. Nunca mais o quadrado por omissão, que era o
+   * que fazia a Censored Hero, um retrato, aparecer quadrada.
+   */
+  origemProporcao: "medidas" | "fotografia";
 };
 
 export type MolduraParede = {
@@ -21,6 +29,11 @@ export type MolduraParede = {
   cor: string;
   espessuraMm: number;
 };
+
+/** A perfilaria em centímetros, que é a unidade de tudo o resto aqui. */
+function molduraCm(m: MolduraParede | undefined): number {
+  return (m?.espessuraMm ?? 0) / 10;
+}
 
 /**
  * Simulador "a obra na sua parede".
@@ -45,6 +58,8 @@ export function VerNaParede({
 }) {
   const palco = useRef<HTMLDivElement>(null);
   const arrasto = useRef(false);
+  /** Meia peça, em fracção do palco. Alimenta os limites do arrasto. */
+  const limites = useRef({ x: 0.06, y: 0.06 });
 
   const [parede, setParede] = useState<string | null>(null);
   const [obraSlug, setObraSlug] = useState(
@@ -52,8 +67,10 @@ export function VerNaParede({
       ? obraInicial
       : (obras[0]?.slug ?? ""),
   );
+  // Começa sem moldura: primeiro a obra como ela é, e depois a moldura
+  // como uma escolha que se vê acrescentar.
   const [molduraSlug, setMolduraSlug] = useState(
-    molduras.find((m) => m.espessuraMm > 0)?.slug ??
+    molduras.find((m) => m.espessuraMm === 0)?.slug ??
       molduras[0]?.slug ??
       "sem-moldura",
   );
@@ -62,6 +79,12 @@ export function VerNaParede({
   const [larguraEscolhida, setLarguraEscolhida] = useState<number | null>(null);
   const [larguraParede, setLarguraParede] = useState(320);
   const [pos, setPos] = useState({ x: 0.5, y: 0.45 });
+  const [erroFicheiro, setErroFicheiro] = useState<string | null>(null);
+  // O palco toma a forma da fotografia. Fixo em 4:3, uma foto de
+  // telemóvel na vertical perdia o tecto e o chão, que são justamente
+  // as referências que dão credibilidade à simulação.
+  const [formaParede, setFormaParede] = useState(4 / 3);
+  const [aArrastarFicheiro, setAArrastarFicheiro] = useState(false);
 
   const obra = obras.find((o) => o.slug === obraSlug) ?? obras[0];
   const moldura =
@@ -74,9 +97,12 @@ export function VerNaParede({
     const mover = (e: PointerEvent) => {
       if (!arrasto.current || !palco.current) return;
       const r = palco.current.getBoundingClientRect();
+      // Metade da peça, para o centro nunca sair tanto que a obra
+      // desapareça pela borda e fique sem forma de a trazer de volta.
+      const meia = limites.current;
       setPos({
-        x: Math.min(0.98, Math.max(0.02, (e.clientX - r.left) / r.width)),
-        y: Math.min(0.98, Math.max(0.02, (e.clientY - r.top) / r.height)),
+        x: Math.min(1 - meia.x, Math.max(meia.x, (e.clientX - r.left) / r.width)),
+        y: Math.min(1 - meia.y, Math.max(meia.y, (e.clientY - r.top) / r.height)),
       });
     };
     const largar = () => {
@@ -98,24 +124,98 @@ export function VerNaParede({
     };
   }, [parede]);
 
-  const escolherFicheiro = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const ficheiro = e.target.files?.[0];
+
+  /**
+   * Aceita a fotografia depois de a conseguir descodificar.
+   *
+   * O `accept="image/*"` só filtra o selector de ficheiros: não protege
+   * de arrastar e largar, de um HEIC que o navegador não leia, nem de um
+   * ficheiro corrompido. Antes, um .txt dava um ecrã preto sem uma
+   * palavra e sem forma de voltar atrás.
+   */
+  const aceitarFicheiro = (ficheiro: File | undefined) => {
     if (!ficheiro) return;
-    if (parede) URL.revokeObjectURL(parede);
-    setParede(URL.createObjectURL(ficheiro));
+
+    const recusar = () =>
+      setErroFicheiro(
+        idioma === "en"
+          ? "We could not read that file. Try a JPG or a PNG."
+          : idioma === "es"
+            ? "No pudimos leer ese archivo. Pruebe un JPG o un PNG."
+            : "Não conseguimos ler esse ficheiro. Tente um JPG ou um PNG.",
+      );
+
+    if (!ficheiro.type.startsWith("image/")) return recusar();
+
+    const url = URL.createObjectURL(ficheiro);
+    const teste = new Image();
+    teste.onload = () => {
+      if (parede) URL.revokeObjectURL(parede);
+      setErroFicheiro(null);
+      // Entre 3:4 e 16:9: respeita a forma da fotografia sem deixar o
+      // palco ficar tão alto que os controlos saiam do ecrã.
+      const forma = teste.naturalWidth / teste.naturalHeight;
+      setFormaParede(Math.min(16 / 9, Math.max(3 / 4, forma)));
+      setParede(url);
+      // Fotografia nova, obra ao centro: sem isto ela ficava no canto
+      // onde tivesse sido largada na fotografia anterior.
+      setPos({ x: 0.5, y: 0.45 });
+    };
+    teste.onerror = () => {
+      URL.revokeObjectURL(url);
+      recusar();
+    };
+    teste.src = url;
+  };
+
+  const escolherFicheiro = (e: React.ChangeEvent<HTMLInputElement>) => {
+    aceitarFicheiro(e.target.files?.[0]);
     e.target.value = "";
   };
 
-  const fraccao = Math.min(0.92, larguraObra / Math.max(larguraParede, 1));
   const alturaCm = Math.round(larguraObra * (obra?.proporcao ?? 1));
+
+  // A moldura acrescenta-se por fora, como na parede. Antes era um
+  // padding para dentro, e escolher madeira natural encolhia a obra de
+  // 100 para 81 cm: a ferramenta invertia exactamente aquilo que o
+  // visitante ali foi perceber.
+  const perfil = molduraCm(moldura);
+  const conjuntoLargura = larguraObra + perfil * 2;
+  const conjuntoAltura = alturaCm + perfil * 2;
+
+  const fraccao = conjuntoLargura / Math.max(larguraParede, 1);
+  // Percentagem da largura do conjunto que a perfilaria ocupa de cada
+  // lado. É o que desenha a moldura à escala certa.
+  const perfilPct = conjuntoLargura > 0 ? (perfil / conjuntoLargura) * 100 : 0;
+  const naoCabe = conjuntoLargura > larguraParede;
+
   const srcObra = urlMedia(obra?.chave);
 
+  // Metade da peça em fracção do palco, nas duas direcções. O palco é
+  // mais largo do que alto, por isso a altura em fracção não é igual.
+  // Vive num ref porque quem a lê é o arrasto, não o render.
+  useEffect(() => {
+    limites.current = {
+      x: Math.min(0.45, fraccao / 2),
+      y: Math.min(
+        0.45,
+        (fraccao * (conjuntoAltura / conjuntoLargura) * formaParede) / 2,
+      ),
+    };
+  }, [fraccao, conjuntoAltura, conjuntoLargura, formaParede]);
+
+
+
+  const medidas = perfil
+    ? `${larguraObra} × ${alturaCm} cm · com moldura ${Math.round(conjuntoLargura)} × ${Math.round(conjuntoAltura)} cm`
+    : `${larguraObra} × ${alturaCm} cm`;
+
   const legenda = obra
-    ? `${obra.titulo} · ${larguraObra} × ${alturaCm} cm · ${(moldura?.nome ?? "").toLowerCase()}`
+    ? `${obra.titulo} · ${medidas} · ${(moldura?.nome ?? "").toLowerCase()}`
     : "";
 
   const mensagem = obra
-    ? `Olá, experimentei no site: “${obra.titulo}”${obra.autor ? ` de ${obra.autor}` : ""}, a ${larguraObra} × ${alturaCm} cm, com ${(moldura?.nome ?? "sem moldura").toLowerCase()}. Podem dizer-me o preço?`
+    ? `Olá, experimentei no site: “${obra.titulo}”${obra.autor ? ` de ${obra.autor}` : ""}, a ${larguraObra} × ${alturaCm} cm${perfil ? `, que com ${(moldura?.nome ?? "").toLowerCase()} fica ${Math.round(conjuntoLargura)} × ${Math.round(conjuntoAltura)} cm` : ", sem moldura"}. Podem dizer-me o preço?`
     : "Olá, queria saber o preço de uma obra com moldura.";
 
   return (
@@ -127,25 +227,51 @@ export function VerNaParede({
           /* `w-full` é obrigatório: com `aspect-[4/3]` e `min-h`, sem
              largura explícita o browser deduz a largura a partir da
              altura mínima e o palco fica maior do que o ecrã. */
-          className="relative aspect-[4/3] min-h-[260px] w-full touch-none overflow-hidden bg-tinta-obra"
-          style={
-            parede
+          /* Sem `touch-none` aqui: o dedo tem de poder deslizar a
+             página por cima da pré-visualização. Só a peça arrastável o
+             leva. */
+          className="relative min-h-[260px] w-full overflow-hidden bg-tinta-obra"
+          onDragOver={(e) => {
+            e.preventDefault();
+            setAArrastarFicheiro(true);
+          }}
+          onDragLeave={() => setAArrastarFicheiro(false)}
+          onDrop={(e) => {
+            e.preventDefault();
+            setAArrastarFicheiro(false);
+            aceitarFicheiro(e.dataTransfer.files?.[0]);
+          }}
+          style={{
+            aspectRatio: String(formaParede),
+            ...(parede
               ? {
                   backgroundImage: `url(${parede})`,
                   backgroundSize: "cover",
                   backgroundPosition: "center",
                 }
-              : undefined
-          }
+              : undefined),
+          }}
         >
           {!parede && (
-            <label className="absolute inset-0 flex cursor-pointer flex-col items-center justify-center gap-3 border border-dashed border-[rgba(242,237,228,0.2)] p-6 text-center">
+            <label
+              className={cx(
+                "absolute inset-0 flex cursor-pointer flex-col items-center justify-center gap-3 border border-dashed p-6 text-center transition-colors focus-within:border-ouro",
+                aArrastarFicheiro
+                  ? "border-ouro bg-[rgba(180,136,74,0.08)]"
+                  : "border-[rgba(242,237,228,0.2)]",
+              )}
+            >
               <span className="text-[11px] tracking-[0.24em] text-[rgba(242,237,228,0.55)] uppercase">
                 {t("parede.carregar", idioma)}
               </span>
               <span className="max-w-[34ch] text-[13px] text-[rgba(242,237,228,0.55)]">
                 {t("parede.privado", idioma)}
               </span>
+              {erroFicheiro && (
+                <span role="alert" className="text-[13px] text-[#E0765C]">
+                  {erroFicheiro}
+                </span>
+              )}
               <input
                 type="file"
                 accept="image/*"
@@ -168,39 +294,47 @@ export function VerNaParede({
                 left: `${pos.x * 100}%`,
                 top: `${pos.y * 100}%`,
                 width: `${fraccao * 100}%`,
-                filter: "drop-shadow(0 18px 34px rgba(0,0,0,0.45))",
+                // Duas sombras: uma curta de contacto, que diz que a
+                // peça assenta na parede, e uma longa e difusa, que diz
+                // a que distância. É o sinal que o olho usa para
+                // decidir se algo está pendurado ou colado por cima.
+                filter:
+                  "drop-shadow(0 2px 3px rgba(0,0,0,0.5)) drop-shadow(0 18px 34px rgba(0,0,0,0.38))",
               }}
             >
+              {/* A moldura envolve a obra: o padding é uma percentagem
+                  da largura do conjunto, por isso mantém-se à escala
+                  com o resto. */}
               <div
                 style={{
                   width: "100%",
-                  aspectRatio: `1 / ${obra.proporcao}`,
-                  padding: moldura?.espessuraMm
-                    ? `${moldura.espessuraMm}px`
-                    : 0,
-                  background:
-                    moldura?.cor === "transparent"
-                      ? "transparent"
-                      : (moldura?.cor ?? "transparent"),
-                  boxShadow: moldura?.espessuraMm
-                    ? "inset 0 0 0 1px rgba(0,0,0,0.35)"
+                  padding: perfil ? `${perfilPct}%` : 0,
+                  background: perfil ? (moldura?.cor ?? "transparent") : "transparent",
+                  // Bisel: uma aresta clara e a oposta escura, para a
+                  // perfilaria ter espessura em vez de ser cor chapada.
+                  boxShadow: perfil
+                    ? "inset 0 0 0 1px rgba(0,0,0,0.35), inset 2px 2px 3px rgba(255,255,255,0.14), inset -2px -2px 3px rgba(0,0,0,0.3)"
                     : undefined,
                 }}
               >
                 <div
-                  className="h-full w-full"
-                  style={
-                    srcObra
+                  className="w-full"
+                  style={{
+                    aspectRatio: `1 / ${obra.proporcao}`,
+                    ...(srcObra
                       ? {
                           backgroundImage: `url(${srcObra})`,
-                          backgroundSize: "cover",
+                          // `contain` e não `cover`: a obra tem uma
+                          // forma e não se corta para caber numa caixa.
+                          backgroundSize: "contain",
+                          backgroundRepeat: "no-repeat",
                           backgroundPosition: "center",
                         }
                       : {
                           background: "#1b1715",
                           border: "1px dashed rgba(242,237,228,0.25)",
-                        }
-                  }
+                        }),
+                  }}
                 />
               </div>
             </div>
@@ -208,9 +342,54 @@ export function VerNaParede({
         </div>
 
         <div className="flex flex-wrap justify-between gap-4 pt-3.5 text-[13px] text-[rgba(242,237,228,0.55)]">
-          <span>{parede ? legenda : t("parede.privado", idioma)}</span>
+          <span>
+            {parede
+              ? legenda
+              : idioma === "en"
+                ? "Choose a photograph to begin."
+                : idioma === "es"
+                  ? "Elija una fotografía para empezar."
+                  : "Escolha uma fotografia para começar."}
+          </span>
           {parede && <span>{t("parede.arraste", idioma)}</span>}
         </div>
+
+        {/* Se não cabe, o visitante tem de saber que não cabe. Antes a
+            peça era encolhida em silêncio até 92% da parede. */}
+        {naoCabe && (
+          <p role="status" className="pt-2 text-[13px] text-[#E0765C]">
+            {idioma === "en"
+              ? `At ${Math.round(conjuntoLargura)} cm framed, this does not fit a ${larguraParede} cm wall.`
+              : idioma === "es"
+                ? `Con marco mide ${Math.round(conjuntoLargura)} cm y no cabe en una pared de ${larguraParede} cm.`
+                : `Com moldura fica com ${Math.round(conjuntoLargura)} cm e não cabe numa parede de ${larguraParede} cm.`}
+          </p>
+        )}
+
+        {parede && (
+          <div className="flex flex-wrap gap-2.5 pt-3">
+            <button
+              type="button"
+              onClick={() => setPos({ x: 0.5, y: 0.45 })}
+              className="min-h-11 cursor-pointer border border-[rgba(242,237,228,0.25)] px-4 text-[11px] tracking-[0.14em] text-[rgba(242,237,228,0.7)] uppercase transition-colors hover:border-papel"
+            >
+              {idioma === "en" ? "Centre" : idioma === "es" ? "Centrar" : "Centrar"}
+            </button>
+            {/* Regra de quem pendura: o centro da obra a cerca de 150 cm
+                do chão. É a dúvida que toda a gente tem a seguir. */}
+            <button
+              type="button"
+              onClick={() => setPos((p) => ({ x: p.x, y: 0.55 }))}
+              className="min-h-11 cursor-pointer border border-[rgba(242,237,228,0.25)] px-4 text-[11px] tracking-[0.14em] text-[rgba(242,237,228,0.7)] uppercase transition-colors hover:border-papel"
+            >
+              {idioma === "en"
+                ? "Eye level"
+                : idioma === "es"
+                  ? "Altura de los ojos"
+                  : "Altura do olhar"}
+            </button>
+          </div>
+        )}
 
         {parede && (
           <label className="mt-2 inline-block cursor-pointer text-[12px] tracking-[0.18em] text-ouro uppercase">
@@ -270,6 +449,16 @@ export function VerNaParede({
               );
             })}
           </div>
+
+          {obra?.origemProporcao === "fotografia" && (
+            <span className="text-[13px] leading-[1.5] text-[rgba(242,237,228,0.55)]">
+              {idioma === "en"
+                ? "The shape comes from the photograph of the piece; the size is the one you choose. Ask us for the exact measurements."
+                : idioma === "es"
+                  ? "La forma viene de la fotografía de la pieza; el tamaño es el que usted elija. Pregúntenos las medidas exactas."
+                  : "A forma vem da fotografia da peça; o tamanho é o que escolher. Pergunte-nos as medidas exactas."}
+            </span>
+          )}
 
           <span className="text-[15px]">
             {obra?.titulo}

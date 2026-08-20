@@ -55,7 +55,11 @@ export function Cabecalho({ idioma }: { idioma: Idioma }) {
       </a>
 
       <header
-        className="fixed top-0 right-0 left-0 z-[120] flex flex-wrap items-center justify-between gap-x-4 gap-y-3 px-4 py-[18px] backdrop-blur-[6px] sm:px-7 sm:py-[22px]"
+        /* Fundo semi-opaco e não só desfocado: transparente, o
+           conteúdo passava por baixo do cabeçalho meio nítido e meio
+           desfocado, e o logótipo colidia com os títulos. Parecia um
+           erro de renderização. */
+        className="fixed top-0 right-0 left-0 z-[120] flex flex-wrap items-center justify-between gap-x-4 gap-y-3 bg-[rgba(14,12,11,0.82)] px-4 py-[18px] backdrop-blur-[10px] sm:px-7 sm:py-[22px]"
         style={{
           background:
             "linear-gradient(to bottom, rgba(14,12,11,0.75), rgba(14,12,11,0.35) 60%, transparent)",

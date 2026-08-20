@@ -1,5 +1,6 @@
 "use client";
 
+import { usePathname } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import { linkWhatsApp } from "@/lib/utils";
 
@@ -22,6 +23,12 @@ export function BotaoWhatsApp({
   rotulo: string;
   mensagem: string;
 }) {
+  // Onde a página já tem o seu próprio botão, e melhor, este só
+  // atrapalha: em "a obra na sua parede" o CTA da página leva a obra, as
+  // medidas e a moldura escolhidas, e este tapava o botão da moldura.
+  const caminho = usePathname();
+  const escondido = /\/ver-na-parede$/.test(caminho ?? "");
+
   const [recolhido, setRecolhido] = useState(false);
   const ultimo = useRef(0);
   const parado = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -52,6 +59,8 @@ export function BotaoWhatsApp({
       if (parado.current) clearTimeout(parado.current);
     };
   }, []);
+
+  if (escondido) return null;
 
   return (
     <a

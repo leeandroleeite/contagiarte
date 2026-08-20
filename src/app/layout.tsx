@@ -26,13 +26,7 @@ export const viewport: Viewport = {
 
 export const metadata: Metadata = {
   title: "Galeria Contagiarte",
-  icons: {
-    icon: [
-      { url: "/icone.svg", type: "image/svg+xml" },
-      { url: "/favicon.ico", sizes: "any" },
-    ],
-    apple: "/icone-apple.png",
-  },
+  icons: { icon: [{ url: "/icone.svg", type: "image/svg+xml" }] },
 };
 
 export default function RootLayout({

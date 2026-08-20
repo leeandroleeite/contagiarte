@@ -1,0 +1,52 @@
+# Produção: www.contagiarte.pt
+# Deploy com:  fly deploy --config fly.toml
+app = "contagiarte"
+primary_region = "mad"          # Madrid: o mais perto de Portugal
+kill_signal = "SIGINT"
+kill_timeout = 30
+
+[build]
+  dockerfile = "Dockerfile"
+
+[build.args]
+  # Domínio público do bucket R2. Tem de entrar na compilação porque é
+  # uma variável NEXT_PUBLIC_*.
+  NEXT_PUBLIC_R2_PUBLIC_URL = "https://media.contagiarte.pt"
+
+[deploy]
+  # Migra antes de a versão nova receber tráfego. Se falhar, o deploy
+  # pára e a versão anterior continua no ar.
+  release_command = "node scripts/migrar.mjs"
+  strategy = "rolling"
+
+[env]
+  APP_ENV = "producao"
+  PUBLIC_URL = "https://www.contagiarte.pt"
+  NODE_ENV = "production"
+  PORT = "3000"
+
+[http_service]
+  internal_port = 3000
+  force_https = true
+  auto_stop_machines = "suspend"
+  auto_start_machines = true
+  # Uma máquina sempre acordada: a galeria não quer o primeiro
+  # visitante do dia à espera de um arranque a frio.
+  min_machines_running = 1
+  processes = ["app"]
+
+  [http_service.concurrency]
+    type = "requests"
+    hard_limit = 200
+    soft_limit = 150
+
+[[http_service.checks]]
+  interval = "30s"
+  timeout = "5s"
+  grace_period = "20s"
+  method = "GET"
+  path = "/api/saude"
+
+[[vm]]
+  size = "shared-cpu-1x"
+  memory = "1gb"

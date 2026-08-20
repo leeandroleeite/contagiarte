@@ -1,0 +1,44 @@
+name: Publicar
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+    inputs:
+      ambiente:
+        description: Para onde publicar
+        required: true
+        default: staging
+        type: choice
+        options: [staging, producao]
+
+concurrency:
+  group: publicar-${{ github.event.inputs.ambiente || 'staging' }}
+  cancel-in-progress: false
+
+jobs:
+  staging:
+    # Cada merge em main vai para staging sem perguntar nada.
+    if: github.event_name == 'push' || github.event.inputs.ambiente == 'staging'
+    runs-on: ubuntu-latest
+    environment: staging
+    steps:
+      - uses: actions/checkout@v4
+      - uses: superfly/flyctl-actions/setup-flyctl@master
+      - run: flyctl deploy --config fly.staging.toml --remote-only
+        env:
+          FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
+
+  producao:
+    # Produção nunca sai de um push: é sempre um acto deliberado.
+    if: github.event_name == 'workflow_dispatch' && github.event.inputs.ambiente == 'producao'
+    runs-on: ubuntu-latest
+    # Ligue uma regra de aprovação a este ambiente nas definições do
+    # repositório para exigir um segundo par de olhos.
+    environment: producao
+    steps:
+      - uses: actions/checkout@v4
+      - uses: superfly/flyctl-actions/setup-flyctl@master
+      - run: flyctl deploy --config fly.toml --remote-only
+        env:
+          FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}

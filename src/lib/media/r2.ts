@@ -1,5 +1,5 @@
-import "server-only";
-
+// Sem `server-only`: os scripts de manutenção (cópias de segurança)
+// também precisam deste módulo, e correm fora do Next.
 import {
   DeleteObjectCommand,
   GetObjectCommand,

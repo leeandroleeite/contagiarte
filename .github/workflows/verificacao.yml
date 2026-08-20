@@ -1,0 +1,58 @@
+name: Verificação
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  verificar:
+    runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgres:17-alpine
+        env:
+          POSTGRES_USER: contagiarte
+          POSTGRES_PASSWORD: contagiarte
+          POSTGRES_DB: contagiarte
+        ports: ["5432:5432"]
+        options: >-
+          --health-cmd "pg_isready -U contagiarte"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+
+    env:
+      DATABASE_URL: postgres://contagiarte:contagiarte@localhost:5432/contagiarte
+      SESSION_SECRET: chave-de-teste-com-mais-de-trinta-e-dois-caracteres
+      PUBLIC_URL: http://localhost:3000
+      APP_ENV: local
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - run: npm ci
+
+      - name: Tipos
+        run: npm run tipos
+
+      - name: Lint
+        run: npm run lint -- --max-warnings=0
+
+      - name: Migrações
+        run: npm run bd:migrar
+
+      - name: Semear
+        run: npm run bd:semear-ci
+        env:
+          ADMIN_EMAIL: teste@contagiarte.pt
+          ADMIN_PASSWORD: palavra-passe-de-teste-ci
+
+      - name: Compilar
+        run: npm run build

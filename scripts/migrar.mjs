@@ -1,6 +1,12 @@
 /**
- * Aplica as migrações pendentes. É este o comando que a Fly corre em
- * cada deploy (release_command), antes de a versão nova receber tráfego.
+ * Aplica as migrações pendentes.
+ *
+ * É este o comando que a Fly corre em cada deploy (release_command),
+ * antes de a versão nova receber tráfego: se falhar, o deploy pára e a
+ * versão anterior continua no ar.
+ *
+ * Escrito em JavaScript simples de propósito, para correr dentro da
+ * imagem de produção sem precisar de TypeScript nem do drizzle-kit.
  */
 import { drizzle } from "drizzle-orm/postgres-js";
 import { migrate } from "drizzle-orm/postgres-js/migrator";
@@ -12,7 +18,7 @@ if (!url) {
   process.exit(1);
 }
 
-// Uma ligação só, sem pool: o processo morre a seguir.
+// Uma ligação só, sem pool: o processo morre logo a seguir.
 const sql = postgres(url, { max: 1 });
 
 try {
@@ -22,6 +28,6 @@ try {
   process.exit(0);
 } catch (erro) {
   console.error("Falhou a migração:", erro);
-  await sql.end({ timeout: 5 });
+  await sql.end({ timeout: 5 }).catch(() => {});
   process.exit(1);
 }

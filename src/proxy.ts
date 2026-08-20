@@ -51,10 +51,8 @@ export default async function proxy(pedido: NextRequest) {
     const token = pedido.cookies.get(COOKIE_SESSAO)?.value;
     const sessao = token ? await lerToken(token) : null;
     if (!sessao) {
-      const url = pedido.nextUrl.clone();
-      url.pathname = "/admin/entrar";
-      url.search = `?destino=${encodeURIComponent(pathname)}`;
-      return NextResponse.redirect(url);
+      const destino = `/admin/entrar?destino=${encodeURIComponent(pathname)}`;
+      return NextResponse.redirect(new URL(destino, pedido.url));
     }
     return NextResponse.next();
   }
@@ -62,20 +60,22 @@ export default async function proxy(pedido: NextRequest) {
   // --- Idioma ----------------------------------------------------------
   // O português vive na raiz. Um caminho sem prefixo é reescrito para
   // /pt sem o utilizador ver a mudança; EN e ES ficam com prefixo.
+  //
+  // Não há redireccionamento de /pt para a raiz, e é de propósito: o
+  // servidor de produção volta a passar o pedido reescrito por aqui, e
+  // um redireccionamento nesse ramo punha o site num ciclo infinito
+  // (/ reescreve para /pt, /pt redirecciona para /, e assim sem fim).
+  // A duplicação fica resolvida pelo canónico que cada página declara,
+  // que aponta sempre para o endereço sem prefixo.
   const primeiro = pathname.split("/")[1] ?? "";
-  if (eIdioma(primeiro)) {
-    if (primeiro === IDIOMA_BASE) {
-      // /pt/... é duplicado do canónico: redireccionar para a raiz.
-      const url = pedido.nextUrl.clone();
-      url.pathname = pathname.slice(3) || "/";
-      return NextResponse.redirect(url, 308);
-    }
-    return NextResponse.next();
-  }
+  if (eIdioma(primeiro)) return NextResponse.next();
 
-  const url = pedido.nextUrl.clone();
-  url.pathname = `/${IDIOMA_BASE}${pathname === "/" ? "" : pathname}`;
-  return NextResponse.rewrite(url);
+  // O endereço é construído a partir de `pedido.url`, e não de
+  // `nextUrl.clone()`, porque o `nextUrl` pode trazer outro anfitrião
+  // do que aquele por onde o pedido entrou quando há um proxy à frente,
+  // como acontece na Fly.
+  const destino = `/${IDIOMA_BASE}${pathname === "/" ? "" : pathname}${pedido.nextUrl.search}`;
+  return NextResponse.rewrite(new URL(destino, pedido.url));
 }
 
 export const config = {

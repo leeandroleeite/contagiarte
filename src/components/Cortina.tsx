@@ -10,11 +10,7 @@ const CHAVE = "contagiarte-cortina";
  * O React corre os efeitos duas vezes em desenvolvimento, e o efeito
  * marca a cortina como vista. Sem esta memória ao nível do módulo, a
  * segunda passagem lia a marca que a primeira acabara de escrever e
- * removia a cortina antes de ela chegar a aparecer.
- *
- * O módulo é recarregado a cada navegação completa, por isso uma visita
- * nova volta a decidir do zero; dentro da mesma sessão, o
- * `sessionStorage` garante que a cortina não se repete.
+ * escondia a cortina antes de ela chegar a aparecer.
  */
 let mostrarNestaPagina: boolean | null = null;
 
@@ -41,22 +37,33 @@ function deveMostrar(): boolean {
  * Cortina de abertura da homepage. Fica parada 0.9s com a palavra
  * CONTAGIARTE a pulsar e sobe em 1.1s, com origem no topo.
  *
- * A cortina é sempre desenhada no HTML, para estar lá no primeiro
- * pixel pintado; o efeito limita-se a removê-la quando não deve
- * aparecer, ou quando já acabou de subir.
+ * A cortina vem no HTML servido, para estar lá no primeiro pixel
+ * pintado. Depois de subir fica escondida por `display:none`.
+ *
+ * IMPORTANTE: nunca tirar este elemento do DOM com `remove()`. É um nó
+ * que o React desenhou; se o arrancarmos por baixo dele, a próxima
+ * reconciliação rebenta com `removeChild` e leva atrás a árvore toda
+ * do lado do cliente. Na prática, os links deixam de navegar. Só se
+ * mexe no estilo, que o React não disputa.
  */
 export function Cortina() {
   const elemento = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
+    const no = elemento.current;
+    if (!no) return;
+
     if (!deveMostrar()) {
-      elemento.current?.remove();
+      no.style.display = "none";
       return;
     }
 
-    // 0.9s de espera mais 1.1s a subir. Depois não faz falta nenhuma.
-    const no = elemento.current;
-    const fim = window.setTimeout(() => no?.remove(), 2200);
+    // 0.9s de espera mais 1.1s a subir. Depois sai da frente, mas
+    // continua a pertencer ao React.
+    const fim = window.setTimeout(() => {
+      if (elemento.current) elemento.current.style.display = "none";
+    }, 2200);
+
     return () => window.clearTimeout(fim);
   }, []);
 
@@ -64,6 +71,7 @@ export function Cortina() {
     <div
       ref={elemento}
       aria-hidden="true"
+      data-cortina=""
       className="pointer-events-none fixed inset-0 z-[200] flex items-center justify-center bg-tinta"
       style={{
         transformOrigin: "top",

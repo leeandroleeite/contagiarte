@@ -45,13 +45,18 @@ export default defineConfig({
   ],
 
   webServer: {
-    command: `npm run build && npm run start -- --port ${PORTA}`,
+    // O mesmo servidor que a imagem de produção corre: a saída
+    // standalone, não o `next start`, que avisa e não é o que vai para
+    // o ar.
+    command: `npm run build && npm run prestart && node .next/standalone/server.js`,
     url: `${BASE}/api/saude`,
     reuseExistingServer: !process.env.CI,
     timeout: 240_000,
     env: {
       APP_ENV: "local",
       PUBLIC_URL: BASE,
+      PORT: String(PORTA),
+      HOSTNAME: "127.0.0.1",
     },
   },
 });

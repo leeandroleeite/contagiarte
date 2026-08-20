@@ -22,15 +22,18 @@ test.describe("Navegação e estrutura", () => {
     await semScrollHorizontal(page);
   });
 
-  test("a cortina de abertura aparece e sai sozinha", async ({ page }) => {
+  test("a cortina de abertura aparece e sai da frente", async ({ page }) => {
     await page.goto("/");
 
     // Está no HTML servido, antes de qualquer JavaScript correr.
-    const cortina = page.locator("div.fixed.z-\\[200\\]").first();
+    const cortina = page.locator("[data-cortina]");
     await expect(cortina).toBeAttached();
+    await expect(cortina).toBeVisible();
 
-    // 0.9s parada mais 1.1s a subir: ao fim de 3s já saiu do DOM.
-    await expect(cortina).not.toBeAttached({ timeout: 6000 });
+    // 0.9s parada mais 1.1s a subir. Continua no DOM: é um nó que o
+    // React desenhou, e arrancá-lo partia a árvore do lado do cliente.
+    await expect(cortina).toBeHidden({ timeout: 6000 });
+    await expect(cortina).toBeAttached();
   });
 
   test("as páginas todas respondem", async ({ page }) => {
@@ -91,9 +94,24 @@ test.describe("Navegação e estrutura", () => {
 });
 
 test.describe("Idiomas", () => {
-  test("o português vive na raiz e /pt redirecciona", async ({ page }) => {
-    await page.goto("/pt");
-    await expect(page).toHaveURL(/\/$/);
+  test("o português vive na raiz, e /pt aponta o canónico para lá", async ({
+    page,
+    baseURL,
+  }) => {
+    // Não há redireccionamento de /pt para a raiz: na saída standalone
+    // a reescrita reentra no proxy e o site entrava em ciclo infinito.
+    // A duplicação resolve-se pelo canónico.
+    const resposta = await page.goto("/pt/obras");
+    expect(resposta?.status()).toBe(200);
+
+    await expect(page.locator('link[rel="canonical"]')).toHaveAttribute(
+      "href",
+      `${baseURL}/obras`,
+    );
+
+    // E a raiz continua a servir português sem prefixo nenhum.
+    await page.goto("/obras");
+    await expect(page.getByRole("heading", { name: "OBRAS" })).toBeVisible();
   });
 
   test("inglês e espanhol têm prefixo e traduzem o conteúdo", async ({

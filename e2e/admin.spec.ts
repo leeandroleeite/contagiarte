@@ -156,22 +156,28 @@ test.describe("Definições e textos", () => {
     const original = await page.locator('input[name="whatsapp"]').inputValue();
     const teste = "351999888777";
 
-    await page.locator('input[name="whatsapp"]').fill(teste);
-    await page.getByRole("button", { name: /^Guardar$/ }).click();
-    await expect(page.getByText("Definições guardadas.")).toBeVisible();
+    const definir = async (numero: string) => {
+      await page.goto("/admin/definicoes");
+      await page.locator('input[name="whatsapp"]').fill(numero);
+      await page.getByRole("button", { name: /^Guardar$/ }).click();
+      await expect(page.getByText("Definições guardadas.")).toBeVisible();
+    };
 
-    await page.goto("/contactos");
-    const href = await page
-      .locator('a[href*="wa.me"]')
-      .first()
-      .getAttribute("href");
-    expect(href).toContain(teste);
+    try {
+      await definir(teste);
 
-    // Repor, para não deixar o ambiente estragado.
-    await page.goto("/admin/definicoes");
-    await page.locator('input[name="whatsapp"]').fill(original);
-    await page.getByRole("button", { name: /^Guardar$/ }).click();
-    await expect(page.getByText("Definições guardadas.")).toBeVisible();
+      await page.goto("/contactos");
+      const href = await page
+        .locator('a[href*="wa.me"]')
+        .first()
+        .getAttribute("href");
+      expect(href).toContain(teste);
+    } finally {
+      // Repõe sempre, mesmo que a verificação acima falhe. Sem isto,
+      // um teste interrompido deixava o número de teste na base e
+      // envenenava todos os testes seguintes.
+      await definir(original);
+    }
 
     await page.goto("/contactos");
     const reposto = await page
@@ -189,18 +195,20 @@ test.describe("Definições e textos", () => {
     const original = await campo.inputValue();
     const novo = `Texto de teste ${Date.now().toString(36)}`;
 
-    await campo.fill(novo);
-    await page.getByRole("button", { name: /^Guardar$/ }).click();
-    await expect(page.getByText("Textos guardados.")).toBeVisible();
+    const definir = async (valor: string) => {
+      await page.goto("/admin/textos");
+      await page.locator('[name="t.lugares.intro.pt"]').first().fill(valor);
+      await page.getByRole("button", { name: /^Guardar$/ }).click();
+      await expect(page.getByText("Textos guardados.")).toBeVisible();
+    };
 
-    await page.goto("/lugares");
-    await expect(page.getByText(novo)).toBeVisible();
-
-    // Repor.
-    await page.goto("/admin/textos");
-    await page.locator('[name="t.lugares.intro.pt"]').first().fill(original);
-    await page.getByRole("button", { name: /^Guardar$/ }).click();
-    await expect(page.getByText("Textos guardados.")).toBeVisible();
+    try {
+      await definir(novo);
+      await page.goto("/lugares");
+      await expect(page.getByText(novo)).toBeVisible();
+    } finally {
+      await definir(original);
+    }
   });
 });
 

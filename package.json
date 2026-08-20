@@ -5,7 +5,7 @@
   "scripts": {
     "dev": "next dev",
     "build": "next build",
-    "start": "next start",
+    "start": "node .next/standalone/server.js",
     "lint": "eslint",
     "tipos": "tsc --noEmit",
     "bd:gerar": "drizzle-kit generate",
@@ -18,7 +18,8 @@
     "bd:semear-ci": "tsx scripts/semear.ts",
     "e2e": "tsx --env-file=.env.local scripts/preparar-e2e.ts && playwright test",
     "e2e:ver": "playwright test --ui",
-    "e2e:relatorio": "playwright show-report"
+    "e2e:relatorio": "playwright show-report",
+    "prestart": "cp -r public .next/standalone/public 2>/dev/null; mkdir -p .next/standalone/.next && cp -r .next/static .next/standalone/.next/static"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.1114.0",

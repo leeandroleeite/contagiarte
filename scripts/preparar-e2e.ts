@@ -7,7 +7,8 @@
 import bcrypt from "bcryptjs";
 import { eq } from "drizzle-orm";
 import { db, sql } from "../src/lib/db";
-import { utilizadores } from "../src/lib/db/schema";
+import { definicoes, utilizadores } from "../src/lib/db/schema";
+import { DEFINICOES_OMISSAO } from "../src/lib/db/omissoes";
 
 const EMAIL = "galeria@contagiarte.pt";
 const PALAVRA_PASSE = process.env.E2E_ADMIN_PASSWORD ?? "teste-e2e-12345";
@@ -42,6 +43,17 @@ async function principal() {
       palavraPasseHash: hash,
     });
   }
+
+  // As definições voltam ao estado conhecido. Sem isto, um teste
+  // interrompido a meio de mudar o número de WhatsApp deixava a base
+  // suja e todos os testes seguintes falhavam.
+  await db
+    .insert(definicoes)
+    .values({ id: 1, valor: DEFINICOES_OMISSAO })
+    .onConflictDoUpdate({
+      target: definicoes.id,
+      set: { valor: DEFINICOES_OMISSAO, actualizadoEm: new Date() },
+    });
 
   console.log(`Pronto para os testes: ${EMAIL}`);
   await sql.end();

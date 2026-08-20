@@ -107,26 +107,28 @@ export default async function Homepage({
           }}
         />
 
-        <div className="pointer-events-none absolute inset-x-7 bottom-24">
+        {/* Título e linha de rodapé numa coluna só: em ecrãs estreitos
+            o título ocupa três linhas e não pode tapar o "Desça". */}
+        <div className="absolute inset-x-7 bottom-9 flex flex-col gap-6">
           <h1
-            className="titulo d-hero text-papel"
+            className="titulo d-hero pointer-events-none text-papel"
             style={{ mixBlendMode: "difference" }}
           >
             {T("home.hero.titulo", "FOR THE NEXT GENERATION OF ART LOVERS")}
           </h1>
-        </div>
 
-        <div className="absolute inset-x-7 bottom-9 flex flex-wrap items-center gap-5">
-          <span className="flex items-center gap-3.5 text-[11px] tracking-[0.24em] text-[rgba(242,237,228,0.7)] uppercase">
-            <span className="h-px w-11 bg-[rgba(242,237,228,0.5)]" />
-            {t("hero.desca", idioma)}
-          </span>
-          <span className="max-w-[44ch] text-[14px] leading-relaxed text-claro-75">
-            {T(
-              "home.hero.posicionamento",
-              "Galeria de arte contemporânea. Porto, Douro e onde mais fizer sentido expor.",
-            )}
-          </span>
+          <div className="flex flex-wrap items-center gap-5">
+            <span className="flex items-center gap-3.5 text-[11px] tracking-[0.24em] text-[rgba(242,237,228,0.7)] uppercase">
+              <span className="h-px w-11 bg-[rgba(242,237,228,0.5)]" />
+              {t("hero.desca", idioma)}
+            </span>
+            <span className="max-w-[44ch] text-[14px] leading-relaxed text-claro-75">
+              {T(
+                "home.hero.posicionamento",
+                "Galeria de arte contemporânea. Porto, Douro e onde mais fizer sentido expor.",
+              )}
+            </span>
+          </div>
         </div>
       </section>
 

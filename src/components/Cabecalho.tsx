@@ -55,7 +55,7 @@ export function Cabecalho({ idioma }: { idioma: Idioma }) {
       </a>
 
       <header
-        className="fixed top-0 right-0 left-0 z-[120] flex flex-wrap items-center justify-between gap-5 px-7 py-[22px] backdrop-blur-[6px]"
+        className="fixed top-0 right-0 left-0 z-[120] flex flex-wrap items-center justify-between gap-x-4 gap-y-3 px-4 py-[18px] backdrop-blur-[6px] sm:px-7 sm:py-[22px]"
         style={{
           background:
             "linear-gradient(to bottom, rgba(14,12,11,0.75), rgba(14,12,11,0.35) 60%, transparent)",
@@ -63,7 +63,7 @@ export function Cabecalho({ idioma }: { idioma: Idioma }) {
       >
         <Link
           href={caminho(idioma, "/")}
-          className="titulo text-[14px] tracking-[0.2em] text-papel"
+          className="titulo text-[12px] tracking-[0.16em] text-papel sm:text-[14px] sm:tracking-[0.2em]"
           style={{ lineHeight: 1 }}
         >
           CONTAGIARTE®
@@ -91,8 +91,12 @@ export function Cabecalho({ idioma }: { idioma: Idioma }) {
           })}
         </nav>
 
-        <div className="flex items-center gap-3">
-          <SelectorIdioma idioma={idioma} caminhoActual={actual} />
+        <div className="flex shrink-0 items-center gap-2 sm:gap-3">
+          {/* Abaixo de 640px não cabe: os idiomas passam para dentro
+              do menu, que é onde há espaço para eles. */}
+          <div className="hidden sm:block">
+            <SelectorIdioma idioma={idioma} caminhoActual={actual} />
+          </div>
           <button
             type="button"
             onClick={() => setAberto((v) => !v)}
@@ -110,6 +114,9 @@ export function Cabecalho({ idioma }: { idioma: Idioma }) {
             aria-label={t("nav.principal", idioma)}
             className="basis-full pt-4 text-[15px] tracking-[0.14em] uppercase menu:hidden"
           >
+            <div className="mb-3 border-b border-[rgba(242,237,228,0.16)] pb-3 sm:hidden">
+              <SelectorIdioma idioma={idioma} caminhoActual={actual} />
+            </div>
             <ul className="flex max-h-[70dvh] flex-col gap-1 overflow-y-auto">
               {[...LIGACOES, ...EXTRA].map((l) => (
                 <li key={l.href}>
@@ -139,7 +146,7 @@ function SelectorIdioma({
 }) {
   return (
     <div
-      className="flex items-center gap-[10px] text-[11px] tracking-[0.16em]"
+      className="flex items-center gap-1 text-[11px] tracking-[0.12em] sm:gap-[10px] sm:tracking-[0.16em]"
       role="group"
       aria-label={t("nav.idioma", idioma)}
     >

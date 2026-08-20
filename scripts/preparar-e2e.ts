@@ -7,6 +7,7 @@
 import bcrypt from "bcryptjs";
 import { eq, like, or, sql as bruto } from "drizzle-orm";
 import { db, sql } from "../src/lib/db";
+import { TEXTOS } from "./textos";
 import {
   artistas,
   definicoes,
@@ -16,6 +17,7 @@ import {
   media as tMedia,
   obras,
   salas,
+  textos,
   utilizadores,
 } from "../src/lib/db/schema";
 import { DEFINICOES_OMISSAO } from "../src/lib/db/omissoes";
@@ -126,6 +128,19 @@ async function principal() {
     .returning({ id: tMedia.id });
   if (media.length > 0) {
     console.log(`Limpos ${media.length} ficheiros de teste que tinham ficado.`);
+  }
+
+  // Os textos voltam ao que a semente diz. Um teste interrompido a meio
+  // de traduzir deixava a frase de teste na base — e, como os textos
+  // saem directos para o site, ficava lá à vista de toda a gente.
+  for (const t of TEXTOS) {
+    await db
+      .insert(textos)
+      .values(t)
+      .onConflictDoUpdate({
+        target: textos.chave,
+        set: { valor: t.valor, actualizadoEm: new Date() },
+      });
   }
 
   // As definições voltam ao estado conhecido. Sem isto, um teste

@@ -15,8 +15,11 @@ function opcional(nome: string, omissao = ""): string {
 
 export const env = {
   get ambiente(): "producao" | "staging" | "local" {
+    // Um APP_ENV explícito manda sempre, "local" incluído. Sem isto,
+    // correr a saída de produção contra a base local guardava os
+    // ficheiros na pasta de produção, que é onde eles não devem estar.
     const a = process.env.APP_ENV;
-    if (a === "producao" || a === "staging") return a;
+    if (a === "producao" || a === "staging" || a === "local") return a;
     return process.env.NODE_ENV === "production" ? "producao" : "local";
   },
 

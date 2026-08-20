@@ -27,10 +27,14 @@ export default async function PaginaMedia() {
         )}
 
         <Aviso>
-          As imagens que aqui estão vieram do catálogo da galeria, extraídas
-          de um PDF, e são de baixa resolução. Servem para o site poder ser
-          visto como ficará. Substitua-as pelas fotografias originais: o
-          endereço de cada obra não muda.
+          Há aqui dois conjuntos. As dezasseis com nomes como
+          <code>obra-1.png</code> ou <code>artista-2.png</code> saíram do
+          catálogo em PDF e têm 440px no lado maior: dão para ver como o
+          site fica, mas num ecrã grande ficam desfocadas. As restantes
+          vieram do sítio antigo da galeria, são originais e vão até
+          2000px. Estas últimas não foram atribuídas a nenhuma obra, porque
+          só quem conhece o espólio sabe qual é qual: abra a obra, escolha
+          a fotografia certa, e o endereço dela não muda.
         </Aviso>
 
         <GaleriaMedia itens={itens} />

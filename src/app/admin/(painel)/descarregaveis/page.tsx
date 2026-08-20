@@ -49,7 +49,7 @@ export default async function ListaDescarregaveis() {
                   >
                     {d.nome.pt}
                   </Link>
-                  <span className="text-[13px] text-[rgba(14,12,11,0.5)]">
+                  <span className="text-[13px] text-[rgba(14,12,11,0.62)]">
                     {d.ficheiro
                       ? `${d.ficheiro.nomeOriginal} · ${(d.ficheiro.tamanho / 1024 / 1024).toFixed(1)} MB · ${d.descargas} descargas`
                       : "Sem PDF associado: não aparece no site."}

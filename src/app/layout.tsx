@@ -11,7 +11,8 @@ const titulo = Bricolage_Grotesque({
 
 const texto = Spline_Sans({
   subsets: ["latin"],
-  weight: ["300", "400", "500", "600"],
+  // 300 saiu: era o peso do corpo e desfazia-se no texto pequeno.
+  weight: ["400", "500", "600"],
   display: "swap",
   variable: "--fonte-texto",
 });
@@ -26,7 +27,17 @@ export const viewport: Viewport = {
 
 export const metadata: Metadata = {
   title: "Galeria Contagiarte",
-  icons: { icon: [{ url: "/icone.svg", type: "image/svg+xml" }] },
+  // O SVG primeiro, para quem o entende; os PNG de src/app entram
+  // sozinhos pela convenção do Next e cobrem o resto, incluindo o
+  // ícone de quem guarda o site no ecrã inicial do telemóvel.
+  icons: {
+    icon: [
+      { url: "/icone.svg", type: "image/svg+xml" },
+      { url: "/icon.png", type: "image/png", sizes: "512x512" },
+    ],
+    apple: [{ url: "/apple-icon.png", sizes: "180x180" }],
+  },
+  manifest: "/manifest.webmanifest",
 };
 
 export default function RootLayout({

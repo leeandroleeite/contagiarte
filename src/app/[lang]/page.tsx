@@ -10,6 +10,11 @@ import { Imagem } from "@/components/Imagem";
 import { ListaArtistas } from "@/components/ListaArtistas";
 import { Seccao, TituloSeccao } from "@/components/Seccao";
 import {
+  DadosEstruturados,
+  galeria,
+  sitio,
+} from "@/lib/dados-estruturados";
+import {
   exposicaoEmDestaque,
   listarArtistas,
   listarDescarregaveis,
@@ -70,6 +75,9 @@ export default async function Homepage({
 
   return (
     <>
+      <DadosEstruturados dados={galeria(def, idioma)} />
+      <DadosEstruturados dados={sitio(idioma)} />
+
       <Cortina />
 
       {/* 1. Herói ------------------------------------------------------ */}
@@ -150,7 +158,7 @@ export default async function Homepage({
             style={colunas(380)}
           >
             <div className="flex flex-col gap-[26px]" data-surge="">
-              <span className="text-[11px] tracking-[0.3em] text-[rgba(242,237,228,0.5)] uppercase">
+              <span className="text-[11px] tracking-[0.3em] text-[rgba(242,237,228,0.55)] uppercase">
                 {[
                   t(`estado.${situacao(expo)}`, idioma),
                   periodo(
@@ -176,7 +184,7 @@ export default async function Homepage({
                   {expo.artistas.map((ea, i) => (
                     <span key={ea.artista.id} className="flex gap-4">
                       {i > 0 && (
-                        <span className="text-[rgba(242,237,228,0.4)]">·</span>
+                        <span className="text-[rgba(242,237,228,0.55)]">·</span>
                       )}
                       {ea.artista.nome}
                     </span>
@@ -249,7 +257,7 @@ export default async function Homepage({
 
       {/* 5. Porque se compra arte --------------------------------------- */}
       <Seccao claro className="px-7 py-[140px]">
-        <span className="text-[11px] tracking-[0.3em] text-[rgba(14,12,11,0.5)] uppercase">
+        <span className="text-[11px] tracking-[0.3em] text-[rgba(14,12,11,0.62)] uppercase">
           {T("home.porque.etiqueta", "PORQUE SE COMPRA ARTE")}
         </span>
         <h2 className="titulo mt-7 max-w-[16ch] text-[clamp(38px,6.5vw,110px)] leading-[0.9]">
@@ -289,7 +297,7 @@ export default async function Homepage({
         <blockquote className="titulo mx-auto max-w-[22ch] text-center text-[clamp(30px,5vw,80px)] leading-[1.02]">
           {T("home.citacao")}
         </blockquote>
-        <p className="mt-9 text-center text-[11px] tracking-[0.24em] text-[rgba(242,237,228,0.45)]">
+        <p className="mt-9 text-center text-[11px] tracking-[0.24em] text-[rgba(242,237,228,0.55)]">
           {T("home.citacao.autor")}
         </p>
       </Seccao>
@@ -299,7 +307,7 @@ export default async function Homepage({
         <Seccao id="artistas">
           <div className="mb-3 flex flex-wrap items-baseline gap-5" data-surge="">
             <h2 className="titulo d-2">{t("nav.artistas", idioma)}</h2>
-            <span className="text-[13px] tracking-[0.2em] text-[rgba(242,237,228,0.45)]">
+            <span className="text-[13px] tracking-[0.2em] text-[rgba(242,237,228,0.55)]">
               {String(artistas.length).padStart(2, "0")}
             </span>
           </div>
@@ -324,10 +332,10 @@ export default async function Homepage({
           style={colunas(360)}
         >
           <div className="flex flex-col gap-[26px]" data-surge="">
-            <span className="text-[11px] tracking-[0.3em] text-[rgba(242,237,228,0.5)] uppercase">
+            <span className="text-[11px] tracking-[0.3em] text-[rgba(242,237,228,0.55)] uppercase">
               {T("molduras.etiqueta", "PARCERIA MOLDARTPÓVOA")}
             </span>
-            <h2 className="titulo d-2">{t("faixa.molduras", idioma)}</h2>
+            <h2 className="titulo d-apoio">{t("faixa.molduras", idioma)}</h2>
             <p className="max-w-[48ch] text-[18px] leading-[1.6] text-[rgba(242,237,228,0.8)]">
               {T("molduras.texto")}
             </p>
@@ -349,7 +357,7 @@ export default async function Homepage({
             </div>
 
             <div className="mt-3 flex flex-col gap-4 border border-[rgba(242,237,228,0.2)] p-7">
-              <span className="text-[10px] tracking-[0.24em] text-[rgba(242,237,228,0.5)] uppercase">
+              <span className="text-[10px] tracking-[0.24em] text-[rgba(242,237,228,0.55)] uppercase">
                 {t("acao.orcamento", idioma)}
               </span>
               <FormularioPedido
@@ -376,6 +384,7 @@ export default async function Homepage({
         <Seccao id="lugares">
           <TituloSeccao
             nivel={2}
+            escala="apoio"
             nota={
               <span className="max-w-[40ch] text-[16px] leading-relaxed normal-case">
                 {T("lugares.intro")}
@@ -416,6 +425,7 @@ export default async function Homepage({
         <Seccao id="arquivo">
           <TituloSeccao
             nivel={2}
+            escala="apoio"
             nota={
               idioma === "pt"
                 ? "EXPOSIÇÕES E CURADORIAS"
@@ -434,7 +444,7 @@ export default async function Homepage({
                 href={caminho(idioma, `/exposicoes/${e.slug}`)}
                 className="grid grid-cols-[54px_minmax(0,1fr)_auto] items-baseline gap-4 border-t border-[rgba(242,237,228,0.16)] py-6 text-papel transition-colors hover:text-ouro sm:gap-7 sm:py-[30px] lg:grid-cols-[90px_minmax(0,1.7fr)_minmax(0,1fr)_auto]"
               >
-                <span className="text-[13px] tracking-[0.1em] text-[rgba(242,237,228,0.45)]">
+                <span className="text-[13px] tracking-[0.1em] text-[rgba(242,237,228,0.55)]">
                   {anos(e.dataInicio, e.dataFim)}
                 </span>
                 <span className="titulo-med text-[clamp(20px,2.4vw,34px)] leading-none">
@@ -445,12 +455,12 @@ export default async function Homepage({
                     ? `${e.lugar.nome} · ${texto(e.lugar.localidade, idioma)}`
                     : ""}
                 </span>
-                <span className="text-[11px] tracking-[0.2em] text-[rgba(242,237,228,0.4)] uppercase">
+                <span className="text-[11px] tracking-[0.2em] text-[rgba(242,237,228,0.55)] uppercase">
                   {t(`estado.${situacao(e)}`, idioma)}
                 </span>
               </Link>
             ))}
-            <span className="border-t border-[rgba(242,237,228,0.16)] pt-6 text-[13px] text-[rgba(242,237,228,0.4)]">
+            <span className="border-t border-[rgba(242,237,228,0.16)] pt-6 text-[13px] text-[rgba(242,237,228,0.55)]">
               {T("arquivo.nota")}
             </span>
           </div>
@@ -471,14 +481,14 @@ export default async function Homepage({
             sizes="(max-width: 900px) 100vw, 45vw"
           />
           <div className="flex flex-col justify-center gap-[26px]" data-surge="">
-            <span className="text-[11px] tracking-[0.3em] text-[rgba(242,237,228,0.5)] uppercase">
+            <span className="text-[11px] tracking-[0.3em] text-[rgba(242,237,228,0.55)] uppercase">
               {t("nav.galeria", idioma).toUpperCase()}
             </span>
-            <h2 className="titulo d-2">{T("home.galeria.titulo")}</h2>
+            <h2 className="titulo d-apoio">{T("home.galeria.titulo")}</h2>
             <p className="max-w-[48ch] text-[18px] leading-[1.6] text-[rgba(242,237,228,0.8)]">
               {T("home.galeria.texto")}
             </p>
-            <p className="text-[14px] tracking-[0.06em] text-[rgba(242,237,228,0.5)]">
+            <p className="text-[14px] tracking-[0.06em] text-[rgba(242,237,228,0.55)]">
               {T("home.galeria.assinatura")}
             </p>
           </div>
@@ -488,7 +498,7 @@ export default async function Homepage({
       {/* 12. Descarregar -------------------------------------------------- */}
       {ficheiros.length > 0 && (
         <Seccao id="descarregar">
-          <h2 className="titulo d-2 mb-12">
+          <h2 className="titulo d-apoio mb-12">
             {t("nav.descarregar", idioma).toUpperCase()}
           </h2>
           <ul
@@ -502,7 +512,7 @@ export default async function Homepage({
                   href={`/api/descarregar/${f.slug}`}
                   className="flex flex-col gap-4 border border-[rgba(242,237,228,0.2)] p-8 text-papel transition-colors hover:border-ouro hover:bg-[rgba(180,136,74,0.08)]"
                 >
-                  <span className="text-[10px] tracking-[0.24em] text-[rgba(242,237,228,0.5)] uppercase">
+                  <span className="text-[10px] tracking-[0.24em] text-[rgba(242,237,228,0.55)] uppercase">
                     {texto(f.etiqueta, idioma)}
                   </span>
                   <span className="titulo-med text-[24px]">
@@ -528,10 +538,10 @@ export default async function Homepage({
           style={colunas(340)}
         >
           <div className="flex flex-col gap-5">
-            <span className="text-[11px] tracking-[0.3em] text-[rgba(14,12,11,0.5)] uppercase">
+            <span className="text-[11px] tracking-[0.3em] text-[rgba(14,12,11,0.62)] uppercase">
               NEWSLETTER
             </span>
-            <h2 className="titulo max-w-[14ch] text-[clamp(34px,5.5vw,88px)] leading-[0.9]">
+            <h2 className="titulo d-apoio max-w-[14ch]">
               {T("newsletter.titulo")}
             </h2>
             <p className="max-w-[44ch] text-[17px] leading-[1.6] text-[rgba(14,12,11,0.7)]">

@@ -7,6 +7,7 @@ import { t, texto, type Idioma } from "@/lib/i18n";
 import { caminho } from "@/lib/i18n/config";
 import { comMarca, metadados } from "@/lib/metadados";
 import { colunas, cx } from "@/lib/utils";
+import { DadosEstruturados, lista } from "@/lib/dados-estruturados";
 
 export const dynamic = "force-dynamic";
 
@@ -66,7 +67,19 @@ export default async function PaginaObras({
   };
 
   return (
-    <Seccao className="pt-[160px]" semFio>
+    <>
+      <DadosEstruturados
+        dados={lista(
+          idioma,
+          "Obras",
+          obras.map((o) => ({
+            nome: texto(o.titulo, idioma) || t("obra.sem_titulo", idioma),
+            path: `/obras/${o.slug}`,
+          })),
+        )}
+      />
+
+      <Seccao className="pt-[160px]" semFio>
       <TituloSeccao nota={`${String(obras.length).padStart(2, "0")}`}>
         {t("nav.obras", idioma).toUpperCase()}
       </TituloSeccao>
@@ -124,6 +137,7 @@ export default async function PaginaObras({
         </p>
       )}
     </Seccao>
+    </>
   );
 }
 

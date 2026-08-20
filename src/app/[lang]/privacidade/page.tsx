@@ -22,6 +22,12 @@ export async function generateMetadata({
           ? "Privacy policy"
           : "Política de privacidad",
     ),
+    descricao:
+      lang === "pt"
+        ? "Que dados a galeria guarda quando alguém envia um pedido ou subscreve a newsletter, durante quanto tempo, e como se pedem apagados."
+        : lang === "en"
+          ? "What the gallery stores when someone sends an enquiry or subscribes, for how long, and how to ask for it to be deleted."
+          : "Qué datos guarda la galería cuando alguien envía una solicitud o se suscribe, durante cuánto tiempo, y cómo pedir que se borren.",
     semIndice: true,
   });
 }
@@ -41,7 +47,7 @@ export default async function PaginaPrivacidade({
   return (
     <Seccao className="pt-[160px]" semFio>
       <div className="mb-12 flex flex-col gap-4">
-        <span className="text-[11px] tracking-[0.28em] text-[rgba(242,237,228,0.5)] uppercase">
+        <span className="text-[11px] tracking-[0.28em] text-[rgba(242,237,228,0.55)] uppercase">
           {idioma === "pt"
             ? "Documento legal"
             : idioma === "en"
@@ -56,7 +62,7 @@ export default async function PaginaPrivacidade({
               : "POLÍTICA DE PRIVACIDAD"}
         </h1>
         {/* Aviso do design. Sai quando um advogado rever o texto. */}
-        <p className="text-[14px] text-[rgba(242,237,228,0.5)]">
+        <p className="text-[14px] text-[rgba(242,237,228,0.55)]">
           {idioma === "pt"
             ? "Rascunho por rever juridicamente. Última atualização: por definir."
             : idioma === "en"

@@ -80,7 +80,7 @@ export default async function LayoutPainel({
           >
             CONTAGIARTE®
           </Link>
-          <span className="text-[11px] tracking-[0.16em] text-[rgba(242,237,228,0.45)]">
+          <span className="text-[11px] tracking-[0.16em] text-[rgba(242,237,228,0.55)]">
             GESTÃO DE CONTEÚDO
           </span>
         </div>
@@ -88,11 +88,11 @@ export default async function LayoutPainel({
         <NavAdmin papel={sessao.papel} contagens={contagens} />
 
         <div className="mt-auto flex flex-col gap-2.5 border border-[rgba(242,237,228,0.18)] p-4">
-          <span className="text-[11px] tracking-[0.16em] text-[rgba(242,237,228,0.45)]">
+          <span className="text-[11px] tracking-[0.16em] text-[rgba(242,237,228,0.55)]">
             SESSÃO
           </span>
           <span className="text-[14px]">{sessao.nome}</span>
-          <span className="text-[12px] text-[rgba(242,237,228,0.45)]">
+          <span className="text-[12px] text-[rgba(242,237,228,0.55)]">
             {env.ambiente === "producao" ? "Produção" : env.ambiente}
           </span>
           <Link

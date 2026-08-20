@@ -8,6 +8,7 @@ import { caminho } from "@/lib/i18n/config";
 import { comMarca, metadados } from "@/lib/metadados";
 import Link from "next/link";
 import { colunas } from "@/lib/utils";
+import { DadosEstruturados, lista } from "@/lib/dados-estruturados";
 
 export const dynamic = "force-dynamic";
 
@@ -40,6 +41,14 @@ export default async function PaginaArtistas({
 
   return (
     <>
+      <DadosEstruturados
+        dados={lista(
+          idioma,
+          "Artistas",
+          artistas.map((a) => ({ nome: a.nome, path: `/artistas/${a.slug}` })),
+        )}
+      />
+
       <Seccao className="pt-[160px]">
         <TituloSeccao nota={String(artistas.length).padStart(2, "0")}>
           {t("nav.artistas", idioma).toUpperCase()}

@@ -1,0 +1,101 @@
+import type { Definicoes } from "@/lib/db/schema";
+import { env } from "@/lib/env";
+import { caminho, type Idioma } from "@/lib/i18n/config";
+
+/**
+ * O que o site declara a quem o lê por máquina.
+ *
+ * As fichas de obra, artista e exposição já se identificavam. As
+ * páginas principais não diziam nada: nem que isto é uma galeria, nem
+ * onde fica, nem como se fala com ela. É informação que existe e que
+ * estava a ser guardada só para olhos humanos.
+ */
+
+/** Desenha o bloco. Um só sítio a saber a etiqueta e o formato. */
+export function DadosEstruturados({ dados }: { dados: object }) {
+  return (
+    <script
+      type="application/ld+json"
+      dangerouslySetInnerHTML={{ __html: JSON.stringify(dados) }}
+    />
+  );
+}
+
+/** A galeria em si: quem é, onde está, como se fala com ela. */
+export function galeria(def: Definicoes, idioma: Idioma) {
+  const base = env.urlPublico;
+  const redes = [
+    def.instagram ? `https://instagram.com/${def.instagram}` : null,
+  ].filter(Boolean);
+
+  return {
+    "@context": "https://schema.org",
+    "@type": "ArtGallery",
+    "@id": `${base}/#galeria`,
+    name: "Galeria Contagiarte",
+    url: `${base}${caminho(idioma, "/")}`,
+    email: def.email,
+    telephone: def.telefone,
+    address: {
+      "@type": "PostalAddress",
+      addressLocality: def.morada,
+      addressCountry: "PT",
+    },
+    ...(redes.length ? { sameAs: redes } : {}),
+    ...(def.responsavel
+      ? { employee: { "@type": "Person", name: def.responsavel } }
+      : {}),
+  };
+}
+
+/** O site, para a caixa de pesquisa e o nome nos resultados. */
+export function sitio(idioma: Idioma) {
+  const base = env.urlPublico;
+  return {
+    "@context": "https://schema.org",
+    "@type": "WebSite",
+    "@id": `${base}/#sitio`,
+    name: "Galeria Contagiarte",
+    url: `${base}${caminho(idioma, "/")}`,
+    inLanguage: idioma,
+  };
+}
+
+/** Migalhas, para os resultados mostrarem o caminho e não o endereço. */
+export function migalhas(
+  idioma: Idioma,
+  degraus: Array<{ nome: string; path: string }>,
+) {
+  const base = env.urlPublico;
+  return {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    itemListElement: degraus.map((d, i) => ({
+      "@type": "ListItem",
+      position: i + 1,
+      name: d.nome,
+      item: `${base}${caminho(idioma, d.path)}`,
+    })),
+  };
+}
+
+/** Uma lista de páginas, para a ordem em que a galeria as mostra contar. */
+export function lista(
+  idioma: Idioma,
+  nome: string,
+  itens: Array<{ nome: string; path: string }>,
+) {
+  const base = env.urlPublico;
+  return {
+    "@context": "https://schema.org",
+    "@type": "ItemList",
+    name: nome,
+    numberOfItems: itens.length,
+    itemListElement: itens.map((it, i) => ({
+      "@type": "ListItem",
+      position: i + 1,
+      name: it.nome,
+      url: `${base}${caminho(idioma, it.path)}`,
+    })),
+  };
+}

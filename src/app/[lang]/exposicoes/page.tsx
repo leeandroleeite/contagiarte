@@ -106,7 +106,7 @@ export default async function PaginaExposicoes({
                 href={caminho(idioma, `/exposicoes/${e.slug}`)}
                 className="grid grid-cols-[54px_minmax(0,1fr)] items-baseline gap-4 border-t border-[rgba(242,237,228,0.16)] py-6 text-papel transition-colors hover:text-ouro sm:grid-cols-[90px_minmax(0,2fr)_minmax(0,1fr)] sm:gap-7 sm:py-7"
               >
-                <span className="text-[13px] tracking-[0.1em] text-[rgba(242,237,228,0.45)]">
+                <span className="text-[13px] tracking-[0.1em] text-[rgba(242,237,228,0.55)]">
                   {e.dataInicio ? new Date(e.dataInicio).getFullYear() : ""}
                 </span>
                 <span className="titulo-med text-[clamp(18px,2vw,28px)]">

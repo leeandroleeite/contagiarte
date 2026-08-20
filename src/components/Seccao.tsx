@@ -44,11 +44,19 @@ export function TituloSeccao({
   nota,
   className,
   nivel = 1,
+  escala = "principal",
 }: {
   children: React.ReactNode;
   nota?: React.ReactNode;
   className?: string;
   nivel?: 1 | 2;
+  /**
+   * "apoio" para as secções que não vendem obra: molduras, lugares,
+   * arquivo, newsletter. Sem isto, tudo grita no mesmo volume e o olho
+   * não sabe o que é a exposição em destaque e o que é a caixa de
+   * subscrição.
+   */
+  escala?: "principal" | "apoio";
 }) {
   const Titulo = nivel === 1 ? "h1" : "h2";
   return (
@@ -59,7 +67,9 @@ export function TituloSeccao({
       )}
       data-surge=""
     >
-      <Titulo className="titulo d-2">{children}</Titulo>
+      <Titulo className={cx("titulo", escala === "apoio" ? "d-apoio" : "d-2")}>
+        {children}
+      </Titulo>
       {nota && <span className="etiqueta">{nota}</span>}
     </div>
   );

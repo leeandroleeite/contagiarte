@@ -86,7 +86,7 @@ export default async function PaginaAtivo({
     <>
       {/* Abertura. */}
       <Seccao semFio className="px-7 pt-[130px] pb-[72px]">
-        <span className="text-[11px] tracking-[0.3em] text-[rgba(242,237,228,0.5)] uppercase">
+        <span className="text-[11px] tracking-[0.3em] text-[rgba(242,237,228,0.55)] uppercase">
           {T("ativo.etiqueta")}
         </span>
         <h1 className="titulo my-5 max-w-[18ch] text-[clamp(38px,7.5vw,124px)] leading-[0.84]">
@@ -108,7 +108,7 @@ export default async function PaginaAtivo({
               key={n}
               className="flex flex-col gap-3.5 border-t border-[rgba(242,237,228,0.25)] pt-[22px]"
             >
-              <span className="text-[11px] tracking-[0.2em] text-[rgba(242,237,228,0.45)]">
+              <span className="text-[11px] tracking-[0.2em] text-[rgba(242,237,228,0.55)]">
                 {String(n).padStart(2, "0")}
               </span>
               <span className="titulo-med text-[19px]" style={{ fontWeight: 800 }}>
@@ -175,7 +175,7 @@ export default async function PaginaAtivo({
             {SERIE.map((p) => (
               <span
                 key={p.ano}
-                className="flex-1 text-center text-[11px] tracking-[0.06em] text-[rgba(242,237,228,0.45)] sm:text-[12px]"
+                className="flex-1 text-center text-[11px] tracking-[0.06em] text-[rgba(242,237,228,0.55)] sm:text-[12px]"
               >
                 {p.ano}
               </span>
@@ -189,7 +189,7 @@ export default async function PaginaAtivo({
               key={m.ano}
               className="flex flex-col gap-2.5 border-t border-[rgba(242,237,228,0.2)] pt-5"
             >
-              <span className="text-[12px] tracking-[0.18em] text-[rgba(242,237,228,0.5)]">
+              <span className="text-[12px] tracking-[0.18em] text-[rgba(242,237,228,0.55)]">
                 {m.ano}
               </span>
               <span className="text-[16px] leading-[1.55] text-[rgba(242,237,228,0.75)]">
@@ -258,7 +258,7 @@ export default async function PaginaAtivo({
                     : ""
                 }`}
               >
-                <dt className="text-[rgba(242,237,228,0.5)]">{rotulo}</dt>
+                <dt className="text-[rgba(242,237,228,0.55)]">{rotulo}</dt>
                 <dd className="m-0 text-right">{valor}</dd>
               </div>
             ))}

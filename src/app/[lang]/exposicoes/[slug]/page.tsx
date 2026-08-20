@@ -16,6 +16,7 @@ import { periodo, t, texto, type Idioma } from "@/lib/i18n";
 import { caminho } from "@/lib/i18n/config";
 import { comMarca, metadados } from "@/lib/metadados";
 import { colunas, linkWhatsApp, resumir } from "@/lib/utils";
+import { DadosEstruturados, migalhas } from "@/lib/dados-estruturados";
 
 export const dynamic = "force-dynamic";
 export const dynamicParams = true;
@@ -36,6 +37,7 @@ export async function generateMetadata({
     titulo: comMarca(texto(expo.titulo, lang)),
     descricao: resumir(texto(expo.texto, lang)),
     imagemChave: expo.imagem?.chave ?? null,
+    cartaoSub: expo.lugar?.nome ?? "Exposição",
   });
 }
 
@@ -112,6 +114,13 @@ export default async function PaginaExposicao({
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
 
+      <DadosEstruturados
+        dados={migalhas(idioma, [
+          { nome: t("nav.exposicoes", idioma), path: "/exposicoes" },
+          { nome: titulo, path: `/exposicoes/${slug}` },
+        ])}
+      />
+
       {/* Herói: imagem a toda a largura, título por cima do degradê. */}
       <section
         className="relative min-h-[480px] overflow-hidden"
@@ -135,7 +144,7 @@ export default async function PaginaExposicao({
           }}
         />
         <div className="pointer-events-none absolute inset-x-7 bottom-10 sm:inset-x-10">
-          <span className="text-[11px] tracking-[0.28em] text-[rgba(242,237,228,0.5)] uppercase">
+          <span className="text-[11px] tracking-[0.28em] text-[rgba(242,237,228,0.55)] uppercase">
             {[
               t(`estado.${estado}`, idioma),
               periodo(expo.dataInicio, expo.dataFim, idioma, expo.permanente),
@@ -166,7 +175,7 @@ export default async function PaginaExposicao({
               </p>
             ))}
             {expo.curadoria && (
-              <p className="text-[14px] tracking-[0.06em] text-[rgba(242,237,228,0.5)]">
+              <p className="text-[14px] tracking-[0.06em] text-[rgba(242,237,228,0.55)]">
                 {expo.curadoria}
               </p>
             )}
@@ -183,7 +192,7 @@ export default async function PaginaExposicao({
                       : ""
                   }`}
                 >
-                  <dt className="text-[10px] tracking-[0.22em] text-[rgba(242,237,228,0.45)]">
+                  <dt className="text-[10px] tracking-[0.22em] text-[rgba(242,237,228,0.55)]">
                     {rotulo}
                   </dt>
                   <dd className="m-0 text-[16px]">{valor}</dd>
@@ -242,7 +251,7 @@ export default async function PaginaExposicao({
             {texto(expo.citacao, idioma)}
           </blockquote>
           {expo.citacaoAutor && (
-            <p className="mt-7 text-center text-[12px] tracking-[0.2em] text-[rgba(14,12,11,0.55)]">
+            <p className="mt-7 text-center text-[12px] tracking-[0.2em] text-[rgba(14,12,11,0.62)]">
               {expo.citacaoAutor}
             </p>
           )}
@@ -302,7 +311,7 @@ export default async function PaginaExposicao({
                   ? "WORKS ON SHOW"
                   : "OBRAS EN EXPOSICIÓN"}
             </h2>
-            <span className="text-[12px] tracking-[0.18em] text-[rgba(242,237,228,0.5)] uppercase">
+            <span className="text-[12px] tracking-[0.18em] text-[rgba(242,237,228,0.55)] uppercase">
               {t("obra.sob_consulta", idioma)}
             </span>
           </div>
@@ -324,7 +333,7 @@ export default async function PaginaExposicao({
                   <span className="text-[15px] transition-colors group-hover:text-ouro">
                     {texto(o.titulo, idioma) || t("obra.sem_titulo", idioma)}
                     {o.artista && (
-                      <span className="text-[rgba(242,237,228,0.5)]">
+                      <span className="text-[rgba(242,237,228,0.55)]">
                         {" · "}
                         {o.artista.nome}
                       </span>

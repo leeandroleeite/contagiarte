@@ -57,7 +57,7 @@ export default async function PaginaDescarregar({
                 href={`/api/descarregar/${f.slug}`}
                 className="flex flex-col gap-4 border border-[rgba(242,237,228,0.2)] p-8 text-papel transition-colors hover:border-ouro hover:bg-[rgba(180,136,74,0.08)]"
               >
-                <span className="text-[10px] tracking-[0.24em] text-[rgba(242,237,228,0.5)] uppercase">
+                <span className="text-[10px] tracking-[0.24em] text-[rgba(242,237,228,0.55)] uppercase">
                   {texto(f.etiqueta, idioma)}
                 </span>
                 <span className="titulo-med text-[24px]">

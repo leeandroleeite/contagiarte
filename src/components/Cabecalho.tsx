@@ -160,7 +160,7 @@ function SelectorIdioma({
             "flex min-h-11 items-center px-2 uppercase transition-colors",
             id === idioma
               ? "text-ouro"
-              : "text-[rgba(242,237,228,0.4)] hover:text-papel",
+              : "text-[rgba(242,237,228,0.55)] hover:text-papel",
           )}
         >
           {id}

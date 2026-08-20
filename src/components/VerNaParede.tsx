@@ -143,7 +143,7 @@ export function VerNaParede({
               <span className="text-[11px] tracking-[0.24em] text-[rgba(242,237,228,0.55)] uppercase">
                 {t("parede.carregar", idioma)}
               </span>
-              <span className="max-w-[34ch] text-[13px] text-[rgba(242,237,228,0.35)]">
+              <span className="max-w-[34ch] text-[13px] text-[rgba(242,237,228,0.55)]">
                 {t("parede.privado", idioma)}
               </span>
               <input
@@ -207,7 +207,7 @@ export function VerNaParede({
           )}
         </div>
 
-        <div className="flex flex-wrap justify-between gap-4 pt-3.5 text-[13px] text-[rgba(242,237,228,0.5)]">
+        <div className="flex flex-wrap justify-between gap-4 pt-3.5 text-[13px] text-[rgba(242,237,228,0.55)]">
           <span>{parede ? legenda : t("parede.privado", idioma)}</span>
           {parede && <span>{t("parede.arraste", idioma)}</span>}
         </div>
@@ -228,7 +228,7 @@ export function VerNaParede({
       {/* Controlos ---------------------------------------------------- */}
       <aside className="flex flex-col gap-8">
         <div className="flex flex-col gap-3.5">
-          <span className="text-[10px] tracking-[0.24em] text-[rgba(242,237,228,0.45)] uppercase">
+          <span className="text-[10px] tracking-[0.24em] text-[rgba(242,237,228,0.55)] uppercase">
             {t("parede.obra", idioma)}
           </span>
 
@@ -274,7 +274,7 @@ export function VerNaParede({
           <span className="text-[15px]">
             {obra?.titulo}
             {obra?.autor && (
-              <span className="text-[rgba(242,237,228,0.5)]">
+              <span className="text-[rgba(242,237,228,0.55)]">
                 {" · "}
                 {obra.autor}
               </span>
@@ -285,7 +285,7 @@ export function VerNaParede({
         <div className="flex flex-col gap-3.5">
           <label
             htmlFor="largura-obra"
-            className="flex justify-between text-[10px] tracking-[0.24em] text-[rgba(242,237,228,0.45)] uppercase"
+            className="flex justify-between text-[10px] tracking-[0.24em] text-[rgba(242,237,228,0.55)] uppercase"
           >
             <span>{t("parede.largura_obra", idioma)}</span>
             <span>{larguraObra} cm</span>
@@ -303,7 +303,7 @@ export function VerNaParede({
 
           <label
             htmlFor="largura-parede"
-            className="flex justify-between text-[10px] tracking-[0.24em] text-[rgba(242,237,228,0.45)] uppercase"
+            className="flex justify-between text-[10px] tracking-[0.24em] text-[rgba(242,237,228,0.55)] uppercase"
           >
             <span>{t("parede.largura_parede", idioma)}</span>
             <span>{larguraParede} cm</span>
@@ -319,13 +319,13 @@ export function VerNaParede({
             className="h-8 w-full accent-[#B4884A]"
           />
 
-          <span className="text-[13px] text-[rgba(242,237,228,0.45)]">
+          <span className="text-[13px] text-[rgba(242,237,228,0.55)]">
             {t("parede.escala", idioma)}
           </span>
         </div>
 
         <div className="flex flex-col gap-3.5">
-          <span className="text-[10px] tracking-[0.24em] text-[rgba(242,237,228,0.45)] uppercase">
+          <span className="text-[10px] tracking-[0.24em] text-[rgba(242,237,228,0.55)] uppercase">
             {t("parede.moldura", idioma)}
           </span>
           <div className="flex flex-wrap gap-2.5">
@@ -353,7 +353,7 @@ export function VerNaParede({
               </button>
             ))}
           </div>
-          <span className="text-[13px] leading-[1.55] text-[rgba(242,237,228,0.5)]">
+          <span className="text-[13px] leading-[1.55] text-[rgba(242,237,228,0.55)]">
             {idioma === "pt"
               ? "Produzidas com a MOLDARTPÓVOA: vidro museu Tru-Vue®, madeiras naturais e alumínio de precisão."
               : idioma === "en"
@@ -371,7 +371,7 @@ export function VerNaParede({
           >
             {t("parede.pedir", idioma)}
           </a>
-          <span className="text-center text-[13px] text-[rgba(242,237,228,0.45)]">
+          <span className="text-center text-[13px] text-[rgba(242,237,228,0.55)]">
             {t("parede.nota_preco", idioma)}
           </span>
         </div>

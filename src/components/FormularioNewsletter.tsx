@@ -58,7 +58,7 @@ export function FormularioNewsletter({
           placeholder={t("campo.email_exemplo", idioma)}
           value={valor}
           onChange={(e) => setEmail(e.target.value)}
-          className="min-w-0 flex-1 border-0 bg-transparent px-1 py-[18px] text-[18px] text-tinta outline-none placeholder:text-[rgba(14,12,11,0.4)]"
+          className="min-w-0 flex-1 border-0 bg-transparent px-1 py-[18px] text-[18px] text-tinta outline-none placeholder:text-[rgba(14,12,11,0.62)]"
         />
         <button
           type="submit"
@@ -72,7 +72,7 @@ export function FormularioNewsletter({
       <span
         role="status"
         aria-live="polite"
-        className="text-[14px] text-[rgba(14,12,11,0.55)]"
+        className="text-[14px] text-[rgba(14,12,11,0.62)]"
       >
         {estado
           ? t(estado.mensagem, idioma)

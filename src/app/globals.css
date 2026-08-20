@@ -40,12 +40,37 @@
     box-sizing: border-box;
   }
 
+  html {
+    /* A homepage convida a descer com uma seta e a palavra "Desça".
+       O salto instantâneo desmentia o convite. */
+    scroll-behavior: smooth;
+    /* O cabeçalho é fixo: sem isto, uma âncora aterra por baixo dele. */
+    scroll-padding-top: 96px;
+  }
+
+  /* Folga no fim da página para o último conteúdo nunca ficar debaixo
+     do botão flutuante do WhatsApp. */
+  main {
+    padding-bottom: 84px;
+  }
+
   body {
     color: var(--color-papel);
     font-family: var(--font-texto);
-    font-weight: 300;
+    /* 400 e não 300. Sobre fundo escuro, um peso 300 a 11 ou 12px
+       desfaz-se: as hastes ficam finas de mais para o ecrã as
+       desenhar, e o texto parece mais apagado do que a cor diz. */
+    font-weight: 400;
     overflow-x: hidden;
     -webkit-font-smoothing: antialiased;
+  }
+
+  /* As etiquetas pequenas em maiúsculas ganham mais um passo: são o
+     texto mais miúdo do site e o que mais sofre com o peso fino. */
+  .etiqueta,
+  [class*="tracking-[0.2"],
+  [class*="tracking-[0.3"] {
+    font-weight: 500;
   }
 
   a {
@@ -230,6 +255,13 @@
   line-height: 0.94;
 }
 
+/* Secções de apoio: molduras, lugares, arquivo, newsletter. Menores do
+   que as que vendem obra, para o olho saber onde parar primeiro. */
+@utility d-apoio {
+  font-size: clamp(30px, 4vw, 62px);
+  line-height: 0.92;
+}
+
 @utility d-contactos {
   font-size: clamp(44px, 9vw, 160px);
   line-height: 0.84;
@@ -309,11 +341,13 @@
 
 @layer base {
   ::placeholder {
-    color: var(--color-claro-45);
+    /* Também é texto: abaixo de 0.55 não chega ao mínimo de contraste
+       sobre a tinta. */
+    color: var(--color-claro-55);
   }
 
   .campo-claro::placeholder {
-    color: rgba(14, 12, 11, 0.4);
+    color: rgba(14, 12, 11, 0.62);
   }
 }
 
@@ -513,5 +547,48 @@
     letter-spacing: 0.22em;
     text-transform: uppercase;
     color: var(--color-adm-suave);
+  }
+}
+
+/* --------------------------------------------------------------------
+   Passagem entre páginas
+
+   Num sítio de galeria anda-se de uma obra para a seguinte, e o corte
+   seco interrompe a leitura. Um dissolver curto chega: a intenção é
+   ligar as duas páginas, não fazer número.
+   -------------------------------------------------------------------- */
+
+@view-transition {
+  navigation: auto;
+}
+
+::view-transition-old(root) {
+  animation: sair 180ms ease both;
+}
+
+::view-transition-new(root) {
+  animation: entrar 260ms ease both;
+}
+
+@keyframes sair {
+  to {
+    opacity: 0;
+  }
+}
+
+@keyframes entrar {
+  from {
+    opacity: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  ::view-transition-old(root),
+  ::view-transition-new(root) {
+    animation: none;
   }
 }

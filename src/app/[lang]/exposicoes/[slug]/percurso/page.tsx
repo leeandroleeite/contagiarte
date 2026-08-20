@@ -72,7 +72,7 @@ export default async function PaginaPercurso({
     <>
       {/* Abertura, antes de o percurso começar. */}
       <section className="flex min-h-[70dvh] flex-col justify-end px-7 pt-[120px] pb-12">
-        <span className="text-[11px] tracking-[0.3em] text-[rgba(242,237,228,0.5)] uppercase">
+        <span className="text-[11px] tracking-[0.3em] text-[rgba(242,237,228,0.55)] uppercase">
           {[expo.lugar?.nome, texto(expo.lugar?.localidade, idioma)]
             .filter(Boolean)
             .join(" · ")}
@@ -137,7 +137,7 @@ export default async function PaginaPercurso({
                     : ""
                 }`}
               >
-                <dt className="text-[rgba(242,237,228,0.5)]">{rotulo}</dt>
+                <dt className="text-[rgba(242,237,228,0.55)]">{rotulo}</dt>
                 <dd className="m-0 text-right">{valor}</dd>
               </div>
             ))}

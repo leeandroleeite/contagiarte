@@ -56,7 +56,7 @@ export function Imagem({
         role="img"
         aria-label={alt}
       >
-        <span className="max-w-[24ch] px-4 text-center text-[11px] tracking-[0.2em] text-[rgba(242,237,228,0.35)] uppercase">
+        <span className="max-w-[24ch] px-4 text-center text-[11px] tracking-[0.2em] text-[rgba(242,237,228,0.55)] uppercase">
           {legenda ?? alt}
         </span>
       </div>

@@ -70,12 +70,12 @@ export default async function PaginaArquivo({
                 ? `${e.lugar.nome} · ${texto(e.lugar.localidade, idioma)}`
                 : ""}
             </span>
-            <span className="text-[11px] tracking-[0.2em] text-[rgba(242,237,228,0.4)] uppercase">
+            <span className="text-[11px] tracking-[0.2em] text-[rgba(242,237,228,0.55)] uppercase">
               {t(`estado.${situacao(e)}`, idioma)}
             </span>
           </Link>
         ))}
-        <span className="border-t border-[rgba(242,237,228,0.16)] pt-6 text-[13px] text-[rgba(242,237,228,0.4)]">
+        <span className="border-t border-[rgba(242,237,228,0.16)] pt-6 text-[13px] text-[rgba(242,237,228,0.55)]">
           {texto(txt["arquivo.nota"], idioma)}
         </span>
       </div>

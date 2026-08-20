@@ -71,11 +71,11 @@ export default async function ListaArtistasAdmin({
                   <Estado valor={a.estado} />
                 </div>
 
-                <span className="text-[14px] leading-[1.55] text-[rgba(14,12,11,0.6)]">
+                <span className="text-[14px] leading-[1.55] text-[rgba(14,12,11,0.62)]">
                   {a.nota?.pt ?? "Sem nota."}
                 </span>
 
-                <div className="flex items-center justify-between gap-3 border-t border-adm-fio pt-3 text-[13px] text-[rgba(14,12,11,0.5)]">
+                <div className="flex items-center justify-between gap-3 border-t border-adm-fio pt-3 text-[13px] text-[rgba(14,12,11,0.62)]">
                   <span>
                     {contar(a.id)} obras · {rotuloDisciplina(a.disciplina, "pt")}
                   </span>

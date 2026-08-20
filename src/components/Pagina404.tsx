@@ -38,7 +38,7 @@ export async function Pagina404({
 
   return (
     <div className="flex min-h-[80dvh] flex-col justify-center gap-8 px-7 pt-[140px] pb-16">
-      <span className="text-[11px] tracking-[0.2em] text-[rgba(242,237,228,0.45)] uppercase">
+      <span className="text-[11px] tracking-[0.2em] text-[rgba(242,237,228,0.55)] uppercase">
         Erro 404
       </span>
 

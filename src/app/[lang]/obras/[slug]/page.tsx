@@ -16,6 +16,7 @@ import { t, texto, type Idioma } from "@/lib/i18n";
 import { caminho } from "@/lib/i18n/config";
 import { comMarca, metadados } from "@/lib/metadados";
 import { colunas, linkEmail, linkWhatsApp, resumir } from "@/lib/utils";
+import { DadosEstruturados, migalhas } from "@/lib/dados-estruturados";
 
 export const dynamic = "force-dynamic";
 export const dynamicParams = true;
@@ -44,6 +45,7 @@ export async function generateMetadata({
           .join(", "),
     ),
     imagemChave: obra.fotografia?.chave ?? null,
+    cartaoSub: obra.artista?.nome ?? null,
   });
 }
 
@@ -129,6 +131,13 @@ export default async function PaginaObra({
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
 
+      <DadosEstruturados
+        dados={migalhas(idioma, [
+          { nome: t("nav.obras", idioma), path: "/obras" },
+          { nome: titulo, path: `/obras/${slug}` },
+        ])}
+      />
+
       <Seccao semFio className="px-7 pt-[120px] pb-20 sm:px-10">
         <div className="grid gap-14" style={colunas(340)}>
           {/* A obra inteira, sem cortes, sobre o fundo mais escuro. */}
@@ -168,7 +177,7 @@ export default async function PaginaObra({
                       : ""
                   }`}
                 >
-                  <dt className="text-[rgba(242,237,228,0.5)]">{rotulo}</dt>
+                  <dt className="text-[rgba(242,237,228,0.55)]">{rotulo}</dt>
                   <dd className="m-0 text-right">{valor}</dd>
                 </div>
               ))}
@@ -203,7 +212,7 @@ export default async function PaginaObra({
                       ? "Ask by email"
                       : "Pedir por email"}
                 </Botao>
-                <span className="text-center text-[13px] text-[rgba(242,237,228,0.45)]">
+                <span className="text-center text-[13px] text-[rgba(242,237,228,0.55)]">
                   {T("obra.nota.servico")}
                 </span>
               </div>

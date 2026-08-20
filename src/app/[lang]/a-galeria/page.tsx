@@ -47,7 +47,7 @@ export default async function PaginaGaleria({
             sizes="(max-width: 900px) 100vw, 45vw"
           />
           <div className="flex flex-col justify-center gap-[26px]">
-            <span className="text-[11px] tracking-[0.3em] text-[rgba(242,237,228,0.5)] uppercase">
+            <span className="text-[11px] tracking-[0.3em] text-[rgba(242,237,228,0.55)] uppercase">
               {t("nav.galeria", idioma).toUpperCase()}
             </span>
             <h1 className="titulo d-1">
@@ -56,7 +56,7 @@ export default async function PaginaGaleria({
             <p className="max-w-[48ch] text-[18px] leading-[1.6] text-[rgba(242,237,228,0.8)]">
               {texto(txt["home.galeria.texto"], idioma)}
             </p>
-            <p className="text-[14px] tracking-[0.06em] text-[rgba(242,237,228,0.5)]">
+            <p className="text-[14px] tracking-[0.06em] text-[rgba(242,237,228,0.55)]">
               {texto(txt["home.galeria.assinatura"], idioma)}
             </p>
           </div>
@@ -67,7 +67,7 @@ export default async function PaginaGaleria({
         <blockquote className="titulo mx-auto max-w-[22ch] text-center text-[clamp(30px,5vw,80px)] leading-[1.02]">
           {texto(txt["home.citacao"], idioma)}
         </blockquote>
-        <p className="mt-9 text-center text-[11px] tracking-[0.24em] text-[rgba(14,12,11,0.5)]">
+        <p className="mt-9 text-center text-[11px] tracking-[0.24em] text-[rgba(14,12,11,0.62)]">
           {texto(txt["home.citacao.autor"], idioma)}
         </p>
       </Seccao>

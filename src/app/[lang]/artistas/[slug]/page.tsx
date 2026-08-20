@@ -16,6 +16,7 @@ import { anos, rotuloDisciplina, t, texto, type Idioma } from "@/lib/i18n";
 import { caminho } from "@/lib/i18n/config";
 import { comMarca, metadados } from "@/lib/metadados";
 import { colunas, linkWhatsApp, resumir } from "@/lib/utils";
+import { DadosEstruturados, migalhas } from "@/lib/dados-estruturados";
 
 export const dynamic = "force-dynamic";
 export const dynamicParams = true;
@@ -38,6 +39,7 @@ export async function generateMetadata({
       texto(artista.biografia, lang) || texto(artista.nota, lang),
     ),
     imagemChave: artista.retrato?.chave ?? null,
+    cartaoSub: "Artista",
   });
 }
 
@@ -84,11 +86,18 @@ export default async function PaginaArtista({
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
 
+      <DadosEstruturados
+        dados={migalhas(idioma, [
+          { nome: t("nav.artistas", idioma), path: "/artistas" },
+          { nome: artista.nome, path: `/artistas/${slug}` },
+        ])}
+      />
+
       {/* Herói: nome gigante à esquerda, retrato à direita. */}
       <Seccao className="px-7 pt-[130px] pb-[72px] sm:px-10">
         <div className="grid items-end gap-14" style={colunas(320)}>
           <div className="flex flex-col gap-[22px]">
-            <span className="text-[11px] tracking-[0.28em] text-[rgba(242,237,228,0.5)] uppercase">
+            <span className="text-[11px] tracking-[0.28em] text-[rgba(242,237,228,0.55)] uppercase">
               {etiqueta}
             </span>
 
@@ -163,7 +172,7 @@ export default async function PaginaArtista({
             {texto(artista.citacao, idioma)}
           </blockquote>
           {artista.citacaoFonte && (
-            <p className="mt-6 text-[12px] tracking-[0.2em] text-[rgba(14,12,11,0.55)]">
+            <p className="mt-6 text-[12px] tracking-[0.2em] text-[rgba(14,12,11,0.62)]">
               {artista.citacaoFonte}
             </p>
           )}
@@ -177,7 +186,7 @@ export default async function PaginaArtista({
             <h2 className="titulo text-[clamp(30px,3.6vw,56px)] leading-[0.92] tracking-[-0.02em]">
               {t("nav.obras", idioma).toUpperCase()}
             </h2>
-            <span className="text-[12px] tracking-[0.18em] text-[rgba(242,237,228,0.5)] uppercase">
+            <span className="text-[12px] tracking-[0.18em] text-[rgba(242,237,228,0.55)] uppercase">
               {t("obra.sob_consulta", idioma)}
             </span>
           </div>
@@ -200,7 +209,7 @@ export default async function PaginaArtista({
                     <span className="transition-colors group-hover:text-ouro">
                       {texto(o.titulo, idioma) || t("obra.sem_titulo", idioma)}
                     </span>
-                    <span className="shrink-0 text-[rgba(242,237,228,0.5)]">
+                    <span className="shrink-0 text-[rgba(242,237,228,0.55)]">
                       {o.ano ?? ""}
                     </span>
                   </div>
@@ -224,7 +233,7 @@ export default async function PaginaArtista({
                 href={caminho(idioma, `/exposicoes/${e.slug}`)}
                 className="grid grid-cols-[54px_minmax(0,1fr)] items-baseline gap-4 border-t border-[rgba(242,237,228,0.16)] py-6 text-papel transition-colors last:border-b last:border-b-[rgba(242,237,228,0.16)] hover:text-ouro sm:grid-cols-[90px_minmax(0,1.6fr)_minmax(0,1fr)] sm:gap-6"
               >
-                <span className="text-[13px] text-[rgba(242,237,228,0.5)]">
+                <span className="text-[13px] text-[rgba(242,237,228,0.55)]">
                   {anos(e.dataInicio, e.dataFim)}
                 </span>
                 <span className="titulo-med text-[clamp(18px,2vw,26px)]">

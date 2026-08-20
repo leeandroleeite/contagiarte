@@ -3,7 +3,21 @@ import { COOKIE_SESSAO, lerToken } from "@/lib/auth/sessao";
 import { eIdioma, IDIOMA_BASE } from "@/lib/i18n/config";
 
 /** Caminhos que o middleware nunca deve tocar. */
-const IGNORAR = ["/_next", "/api", "/media", "/favicon", "/robots.txt", "/sitemap.xml"];
+// Caminhos que não são páginas: não levam prefixo de idioma nem passam
+// pelo muro. O /og é o cartão de partilha, pedido por quem mostra o
+// link e não por quem o abre.
+const IGNORAR = [
+  "/_next",
+  "/api",
+  "/media",
+  "/og",
+  "/favicon",
+  "/icon",
+  "/apple-icon",
+  "/manifest.webmanifest",
+  "/robots.txt",
+  "/sitemap.xml",
+];
 
 function pedirPalavraPasse() {
   return new NextResponse("Acesso restrito.", {

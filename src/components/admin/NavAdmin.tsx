@@ -72,7 +72,7 @@ export function NavAdmin({
                   <span
                     className={cx(
                       "text-[12px]",
-                      activo ? "text-ouro" : "text-[rgba(242,237,228,0.35)]",
+                      activo ? "text-ouro" : "text-[rgba(242,237,228,0.55)]",
                     )}
                   >
                     {n}

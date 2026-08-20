@@ -12,7 +12,7 @@ export function Faixa({ palavras }: { palavras: string[] }) {
       {palavras.map((p, i) => (
         <span key={i}>
           {p.toUpperCase()}
-          <span className="px-2 text-[rgba(242,237,228,0.4)]">·</span>
+          <span className="px-2 text-[rgba(242,237,228,0.55)]">·</span>
         </span>
       ))}
     </span>

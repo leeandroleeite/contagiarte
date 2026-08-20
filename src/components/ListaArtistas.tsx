@@ -75,7 +75,7 @@ export function ListaArtistas({
             <span className="hidden text-[15px] text-[rgba(242,237,228,0.6)] sm:block">
               {a.nota}
             </span>
-            <span className="text-[12px] tracking-[0.18em] text-[rgba(242,237,228,0.45)]">
+            <span className="text-[12px] tracking-[0.18em] text-[rgba(242,237,228,0.55)]">
               {a.temPagina
                 ? t("acao.ver", idioma)
                 : t("estado.em_breve", idioma)}
@@ -90,7 +90,7 @@ export function ListaArtistas({
         )}
 
         {nota && (
-          <span className="border-t border-[rgba(242,237,228,0.16)] pt-6 text-[13px] text-[rgba(242,237,228,0.4)]">
+          <span className="border-t border-[rgba(242,237,228,0.16)] pt-6 text-[13px] text-[rgba(242,237,228,0.55)]">
             {nota}
           </span>
         )}

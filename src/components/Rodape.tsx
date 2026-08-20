@@ -90,7 +90,7 @@ export function Rodape({
         </Coluna>
       </div>
 
-      <div className="flex flex-wrap justify-between gap-5 pt-7 text-[11px] tracking-[0.18em] text-[rgba(242,237,228,0.4)]">
+      <div className="flex flex-wrap justify-between gap-5 pt-7 text-[11px] tracking-[0.18em] text-[rgba(242,237,228,0.55)]">
         <span>
           © {ano} GALERIA CONTAGIARTE® ·{" "}
           <Link href={caminho(idioma, "/privacidade")}>
@@ -112,7 +112,7 @@ function Coluna({
 }) {
   return (
     <div className="flex flex-col gap-1 text-[17px] [&_a]:flex [&_a]:min-h-11 [&_a]:items-center [&_span]:flex [&_span]:min-h-11 [&_span]:items-center">
-      <span className="mb-1 text-[10px] tracking-[0.24em] text-[rgba(242,237,228,0.45)] uppercase">
+      <span className="mb-1 text-[10px] tracking-[0.24em] text-[rgba(242,237,228,0.55)] uppercase">
         {titulo}
       </span>
       {children}

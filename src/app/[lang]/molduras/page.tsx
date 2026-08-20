@@ -68,7 +68,7 @@ export default async function PaginaMolduras({
           style={colunas(360)}
         >
           <div className="flex flex-col gap-[26px]">
-            <span className="text-[11px] tracking-[0.3em] text-[rgba(242,237,228,0.5)] uppercase">
+            <span className="text-[11px] tracking-[0.3em] text-[rgba(242,237,228,0.55)] uppercase">
               {texto(txt["molduras.etiqueta"], idioma)}
             </span>
             <h1 className="titulo d-1">{t("faixa.molduras", idioma)}</h1>

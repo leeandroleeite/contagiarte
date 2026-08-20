@@ -192,7 +192,7 @@ export function TituloColunas({
 }) {
   return (
     <div
-      className="grid min-w-max gap-4 px-4 pb-3 text-[11px] tracking-[0.08em] whitespace-nowrap text-[rgba(14,12,11,0.45)]"
+      className="grid min-w-max gap-4 px-4 pb-3 text-[11px] tracking-[0.08em] whitespace-nowrap text-[rgba(14,12,11,0.62)]"
       style={{ gridTemplateColumns: colunas }}
     >
       {rotulos.map((r, i) => (
@@ -255,7 +255,7 @@ export function Cartao({
   return (
     <section className="flex flex-col gap-3.5 border border-adm-fio bg-adm-cartao p-5">
       {titulo && (
-        <span className="text-[11px] tracking-[0.16em] text-[rgba(14,12,11,0.45)]">
+        <span className="text-[11px] tracking-[0.16em] text-[rgba(14,12,11,0.62)]">
           {titulo}
         </span>
       )}

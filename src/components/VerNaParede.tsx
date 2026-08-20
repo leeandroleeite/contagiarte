@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import { t, type Idioma } from "@/lib/i18n";
 import { urlMedia } from "@/lib/media/url";
-import { cx, linkWhatsApp } from "@/lib/utils";
+import { colunas, cx, linkWhatsApp } from "@/lib/utils";
 
 export type ObraParede = {
   slug: string;
@@ -11,6 +11,8 @@ export type ObraParede = {
   autor: string;
   chave: string | null;
   larguraCm: number | null;
+  /** Altura a dividir pela largura. 1 é quadrado, >1 é mais alta. */
+  proporcao: number;
 };
 
 export type MolduraParede = {
@@ -26,7 +28,7 @@ export type MolduraParede = {
  * A fotografia da parede fica só no navegador (object URL): nunca é
  * enviada para o servidor, e é isso que a nota de privacidade promete.
  * A escala sai da razão entre a largura real da parede indicada pelo
- * visitante e a largura da fotografia no ecrã.
+ * visitante e a largura da obra, tal como no design.
  */
 export function VerNaParede({
   idioma,
@@ -42,6 +44,8 @@ export function VerNaParede({
   obraInicial?: string;
 }) {
   const palco = useRef<HTMLDivElement>(null);
+  const arrasto = useRef(false);
+
   const [parede, setParede] = useState<string | null>(null);
   const [obraSlug, setObraSlug] = useState(
     obraInicial && obras.some((o) => o.slug === obraInicial)
@@ -49,22 +53,45 @@ export function VerNaParede({
       : (obras[0]?.slug ?? ""),
   );
   const [molduraSlug, setMolduraSlug] = useState(
-    molduras[0]?.slug ?? "sem-moldura",
+    molduras.find((m) => m.espessuraMm > 0)?.slug ??
+      molduras[0]?.slug ??
+      "sem-moldura",
   );
   // `null` significa "usar a largura real da obra"; assim que o
   // visitante mexe no cursor, passa a mandar o valor escolhido.
   const [larguraEscolhida, setLarguraEscolhida] = useState<number | null>(null);
-  const [larguraParede, setLarguraParede] = useState(300);
-  const [pos, setPos] = useState({ x: 50, y: 45 });
-  const [aArrastar, setAArrastar] = useState(false);
+  const [larguraParede, setLarguraParede] = useState(320);
+  const [pos, setPos] = useState({ x: 0.5, y: 0.45 });
 
   const obra = obras.find((o) => o.slug === obraSlug) ?? obras[0];
   const moldura =
     molduras.find((m) => m.slug === molduraSlug) ?? molduras[0];
+  const larguraObra = larguraEscolhida ?? obra?.larguraCm ?? 90;
 
-  const larguraObra = larguraEscolhida ?? obra?.larguraCm ?? 70;
+  // O arrasto continua mesmo quando o cursor sai do palco, como no
+  // design: os ouvintes vivem na janela, não no elemento.
+  useEffect(() => {
+    const mover = (e: PointerEvent) => {
+      if (!arrasto.current || !palco.current) return;
+      const r = palco.current.getBoundingClientRect();
+      setPos({
+        x: Math.min(0.98, Math.max(0.02, (e.clientX - r.left) / r.width)),
+        y: Math.min(0.98, Math.max(0.02, (e.clientY - r.top) / r.height)),
+      });
+    };
+    const largar = () => {
+      arrasto.current = false;
+    };
+    window.addEventListener("pointermove", mover);
+    window.addEventListener("pointerup", largar);
+    window.addEventListener("pointercancel", largar);
+    return () => {
+      window.removeEventListener("pointermove", mover);
+      window.removeEventListener("pointerup", largar);
+      window.removeEventListener("pointercancel", largar);
+    };
+  }, []);
 
-  // Liberta o object URL quando a fotografia muda ou o componente sai.
   useEffect(() => {
     return () => {
       if (parede) URL.revokeObjectURL(parede);
@@ -76,42 +103,31 @@ export function VerNaParede({
     if (!ficheiro) return;
     if (parede) URL.revokeObjectURL(parede);
     setParede(URL.createObjectURL(ficheiro));
+    e.target.value = "";
   };
 
-  const mover = (e: React.PointerEvent) => {
-    if (!aArrastar || !palco.current) return;
-    const r = palco.current.getBoundingClientRect();
-    setPos({
-      x: Math.min(97, Math.max(3, ((e.clientX - r.left) / r.width) * 100)),
-      y: Math.min(97, Math.max(3, ((e.clientY - r.top) / r.height) * 100)),
-    });
-  };
-
-  // Percentagem da largura do palco que a obra deve ocupar.
-  const proporcao = Math.min(
-    90,
-    Math.max(2, (larguraObra / Math.max(larguraParede, 1)) * 100),
-  );
-
-  const mensagem = obra
-    ? `Olá, vi a obra "${obra.titulo}"${obra.autor ? `, de ${obra.autor}` : ""} no simulador do site, com ${larguraObra} cm de largura e moldura "${moldura?.nome ?? "sem moldura"}". Queria saber o preço.`
-    : "Olá, queria saber o preço de uma obra com moldura.";
-
+  const fraccao = Math.min(0.92, larguraObra / Math.max(larguraParede, 1));
+  const alturaCm = Math.round(larguraObra * (obra?.proporcao ?? 1));
   const srcObra = urlMedia(obra?.chave);
 
+  const legenda = obra
+    ? `${obra.titulo} · ${larguraObra} × ${alturaCm} cm · ${(moldura?.nome ?? "").toLowerCase()}`
+    : "";
+
+  const mensagem = obra
+    ? `Olá, experimentei no site: “${obra.titulo}”${obra.autor ? ` de ${obra.autor}` : ""}, a ${larguraObra} × ${alturaCm} cm, com ${(moldura?.nome ?? "sem moldura").toLowerCase()}. Podem dizer-me o preço?`
+    : "Olá, queria saber o preço de uma obra com moldura.";
+
   return (
-    <div
-      className="grid gap-12"
-      style={{ gridTemplateColumns: "repeat(auto-fit,minmax(320px,1fr))" }}
-    >
+    <div className="grid items-start gap-10" style={colunas(320)}>
       {/* Palco -------------------------------------------------------- */}
-      <div className="flex flex-col gap-3">
+      <div>
         <div
           ref={palco}
-          onPointerMove={mover}
-          onPointerUp={() => setAArrastar(false)}
-          onPointerLeave={() => setAArrastar(false)}
-          className="relative aspect-[4/3] w-full touch-none overflow-hidden border border-[rgba(242,237,228,0.2)] bg-[#151211]"
+          /* `w-full` é obrigatório: com `aspect-[4/3]` e `min-h`, sem
+             largura explícita o browser deduz a largura a partir da
+             altura mínima e o palco fica maior do que o ecrã. */
+          className="relative aspect-[4/3] min-h-[260px] w-full touch-none overflow-hidden bg-tinta-obra"
           style={
             parede
               ? {
@@ -123,11 +139,11 @@ export function VerNaParede({
           }
         >
           {!parede && (
-            <label className="absolute inset-0 flex cursor-pointer flex-col items-center justify-center gap-3 p-6 text-center">
+            <label className="absolute inset-0 flex cursor-pointer flex-col items-center justify-center gap-3 border border-dashed border-[rgba(242,237,228,0.2)] p-6 text-center">
               <span className="text-[11px] tracking-[0.24em] text-[rgba(242,237,228,0.55)] uppercase">
                 {t("parede.carregar", idioma)}
               </span>
-              <span className="text-[13px] text-[rgba(242,237,228,0.35)]">
+              <span className="max-w-[34ch] text-[13px] text-[rgba(242,237,228,0.35)]">
                 {t("parede.privado", idioma)}
               </span>
               <input
@@ -139,57 +155,65 @@ export function VerNaParede({
             </label>
           )}
 
-          {parede && srcObra && obra && (
+          {parede && obra && (
             <div
               onPointerDown={(e) => {
-                e.currentTarget.setPointerCapture(e.pointerId);
-                setAArrastar(true);
+                e.preventDefault();
+                arrasto.current = true;
               }}
               role="img"
               aria-label={`${obra.titulo}, na sua parede`}
-              className={cx(
-                "absolute -translate-x-1/2 -translate-y-1/2 select-none",
-                aArrastar ? "cursor-grabbing" : "cursor-grab",
-              )}
+              className="absolute -translate-x-1/2 -translate-y-1/2 cursor-grab touch-none active:cursor-grabbing"
               style={{
-                left: `${pos.x}%`,
-                top: `${pos.y}%`,
-                width: `${proporcao}%`,
-                padding: moldura?.espessuraMm
-                  ? `${Math.max(2, moldura.espessuraMm / 6)}%`
-                  : 0,
-                background:
-                  moldura?.cor === "transparent"
-                    ? "transparent"
-                    : (moldura?.cor ?? "transparent"),
-                boxShadow: "0 18px 50px rgba(0,0,0,0.55)",
+                left: `${pos.x * 100}%`,
+                top: `${pos.y * 100}%`,
+                width: `${fraccao * 100}%`,
+                filter: "drop-shadow(0 18px 34px rgba(0,0,0,0.45))",
               }}
             >
-              {/* Imagem simples: o next/image não ajuda num elemento
-                  que muda de tamanho a cada movimento do cursor. */}
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img
-                src={srcObra}
-                alt=""
-                draggable={false}
-                className="block w-full"
-              />
+              <div
+                style={{
+                  width: "100%",
+                  aspectRatio: `1 / ${obra.proporcao}`,
+                  padding: moldura?.espessuraMm
+                    ? `${moldura.espessuraMm}px`
+                    : 0,
+                  background:
+                    moldura?.cor === "transparent"
+                      ? "transparent"
+                      : (moldura?.cor ?? "transparent"),
+                  boxShadow: moldura?.espessuraMm
+                    ? "inset 0 0 0 1px rgba(0,0,0,0.35)"
+                    : undefined,
+                }}
+              >
+                <div
+                  className="h-full w-full"
+                  style={
+                    srcObra
+                      ? {
+                          backgroundImage: `url(${srcObra})`,
+                          backgroundSize: "cover",
+                          backgroundPosition: "center",
+                        }
+                      : {
+                          background: "#1b1715",
+                          border: "1px dashed rgba(242,237,228,0.25)",
+                        }
+                  }
+                />
+              </div>
             </div>
-          )}
-
-          {parede && !srcObra && (
-            <p className="absolute inset-x-6 bottom-6 text-[13px] text-[rgba(242,237,228,0.6)]">
-              {t("msg.sem_imagem", idioma)}
-            </p>
           )}
         </div>
 
-        <p className="text-[12px] tracking-[0.16em] text-[rgba(242,237,228,0.45)] uppercase">
-          {parede ? t("parede.arraste", idioma) : t("parede.privado", idioma)}
-        </p>
+        <div className="flex flex-wrap justify-between gap-4 pt-3.5 text-[13px] text-[rgba(242,237,228,0.5)]">
+          <span>{parede ? legenda : t("parede.privado", idioma)}</span>
+          {parede && <span>{t("parede.arraste", idioma)}</span>}
+        </div>
 
         {parede && (
-          <label className="cursor-pointer self-start text-[12px] tracking-[0.18em] text-ouro uppercase">
+          <label className="mt-2 inline-block cursor-pointer text-[12px] tracking-[0.18em] text-ouro uppercase">
             {t("acao.escolher", idioma)}
             <input
               type="file"
@@ -202,54 +226,108 @@ export function VerNaParede({
       </div>
 
       {/* Controlos ---------------------------------------------------- */}
-      <div className="flex flex-col gap-7">
-        <Campo rotulo={t("parede.obra", idioma)}>
-          <select
-            value={obraSlug}
-            onChange={(e) => {
-              setObraSlug(e.target.value);
-              // Volta a seguir a medida real da obra escolhida.
-              setLarguraEscolhida(null);
-            }}
-            className="campo cursor-pointer"
-          >
-            {obras.map((o) => (
-              <option key={o.slug} value={o.slug} className="bg-tinta">
-                {o.titulo}
-                {o.autor ? ` · ${o.autor}` : ""}
-              </option>
-            ))}
-          </select>
-        </Campo>
+      <aside className="flex flex-col gap-8">
+        <div className="flex flex-col gap-3.5">
+          <span className="text-[10px] tracking-[0.24em] text-[rgba(242,237,228,0.45)] uppercase">
+            {t("parede.obra", idioma)}
+          </span>
 
-        <Campo rotulo={`${t("parede.largura_obra", idioma)}: ${larguraObra} cm`}>
+          <div className="grid gap-2.5" style={colunas(74)}>
+            {obras.map((o) => {
+              const src = urlMedia(o.chave);
+              return (
+                <button
+                  key={o.slug}
+                  type="button"
+                  onClick={() => {
+                    setObraSlug(o.slug);
+                    setLarguraEscolhida(null);
+                  }}
+                  aria-pressed={o.slug === obraSlug}
+                  title={`${o.titulo}${o.autor ? ` · ${o.autor}` : ""}`}
+                  className={cx(
+                    "aspect-square cursor-pointer border-2 p-0",
+                    o.slug === obraSlug
+                      ? "border-ouro"
+                      : "border-[rgba(242,237,228,0.25)] hover:border-papel",
+                  )}
+                >
+                  <span
+                    role="img"
+                    aria-label={o.titulo}
+                    className="block h-full w-full"
+                    style={
+                      src
+                        ? {
+                            backgroundImage: `url(${src})`,
+                            backgroundSize: "cover",
+                            backgroundPosition: "center",
+                          }
+                        : { background: "#1b1715" }
+                    }
+                  />
+                </button>
+              );
+            })}
+          </div>
+
+          <span className="text-[15px]">
+            {obra?.titulo}
+            {obra?.autor && (
+              <span className="text-[rgba(242,237,228,0.5)]">
+                {" · "}
+                {obra.autor}
+              </span>
+            )}
+          </span>
+        </div>
+
+        <div className="flex flex-col gap-3.5">
+          <label
+            htmlFor="largura-obra"
+            className="flex justify-between text-[10px] tracking-[0.24em] text-[rgba(242,237,228,0.45)] uppercase"
+          >
+            <span>{t("parede.largura_obra", idioma)}</span>
+            <span>{larguraObra} cm</span>
+          </label>
           <input
+            id="largura-obra"
             type="range"
-            min={15}
-            max={250}
-            step={1}
+            min={30}
+            max={200}
+            step={5}
             value={larguraObra}
             onChange={(e) => setLarguraEscolhida(Number(e.target.value))}
-            className="w-full accent-[#B4884A]"
+            className="h-8 w-full accent-[#B4884A]"
           />
-        </Campo>
 
-        <Campo
-          rotulo={`${t("parede.largura_parede", idioma)}: ${larguraParede} cm`}
-          nota={t("parede.escala", idioma)}
-        >
+          <label
+            htmlFor="largura-parede"
+            className="flex justify-between text-[10px] tracking-[0.24em] text-[rgba(242,237,228,0.45)] uppercase"
+          >
+            <span>{t("parede.largura_parede", idioma)}</span>
+            <span>{larguraParede} cm</span>
+          </label>
           <input
+            id="largura-parede"
             type="range"
-            min={100}
-            max={800}
+            min={150}
+            max={600}
             step={10}
             value={larguraParede}
             onChange={(e) => setLarguraParede(Number(e.target.value))}
-            className="w-full accent-[#B4884A]"
+            className="h-8 w-full accent-[#B4884A]"
           />
-        </Campo>
 
-        <Campo rotulo={t("parede.moldura", idioma)}>
+          <span className="text-[13px] text-[rgba(242,237,228,0.45)]">
+            {t("parede.escala", idioma)}
+          </span>
+        </div>
+
+        <div className="flex flex-col gap-3.5">
+          <span className="text-[10px] tracking-[0.24em] text-[rgba(242,237,228,0.45)] uppercase">
+            {t("parede.moldura", idioma)}
+          </span>
           <div className="flex flex-wrap gap-2.5">
             {molduras.map((m) => (
               <button
@@ -258,15 +336,15 @@ export function VerNaParede({
                 onClick={() => setMolduraSlug(m.slug)}
                 aria-pressed={m.slug === molduraSlug}
                 className={cx(
-                  "flex min-h-11 cursor-pointer items-center gap-2.5 border px-4 py-2.5 text-[11px] tracking-[0.16em] uppercase transition-colors",
+                  "flex min-h-11 cursor-pointer items-center gap-2.5 border px-4 py-2.5 text-[11px] tracking-[0.14em] uppercase transition-colors",
                   m.slug === molduraSlug
-                    ? "border-papel text-papel"
-                    : "border-[rgba(242,237,228,0.25)] text-[rgba(242,237,228,0.6)] hover:border-papel",
+                    ? "border-papel bg-papel text-tinta"
+                    : "border-[rgba(242,237,228,0.25)] text-[rgba(242,237,228,0.7)] hover:border-papel",
                 )}
               >
                 <span
                   aria-hidden="true"
-                  className="h-4 w-4 border border-[rgba(242,237,228,0.3)]"
+                  className="h-4 w-4 border border-[rgba(14,12,11,0.25)]"
                   style={{
                     background: m.cor === "transparent" ? "transparent" : m.cor,
                   }}
@@ -275,43 +353,29 @@ export function VerNaParede({
               </button>
             ))}
           </div>
-        </Campo>
+          <span className="text-[13px] leading-[1.55] text-[rgba(242,237,228,0.5)]">
+            {idioma === "pt"
+              ? "Produzidas com a MOLDARTPÓVOA: vidro museu Tru-Vue®, madeiras naturais e alumínio de precisão."
+              : idioma === "en"
+                ? "Made with MOLDARTPÓVOA: Tru-Vue® museum glass, natural woods and precision aluminium."
+                : "Producidos con MOLDARTPÓVOA: vidrio museo Tru-Vue®, maderas naturales y aluminio de precisión."}
+          </span>
+        </div>
 
-        <a
-          href={linkWhatsApp(whatsapp, mensagem)}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="inline-flex min-h-12 items-center justify-center self-start bg-ouro px-8 py-[18px] text-[12px] tracking-[0.18em] text-tinta uppercase transition-colors hover:bg-papel"
-        >
-          {t("parede.pedir", idioma)}
-        </a>
-
-        <p className="text-[13px] text-claro-55">
-          {t("parede.nota_preco", idioma)}
-        </p>
-      </div>
+        <div className="flex flex-col gap-3 border-t border-[rgba(242,237,228,0.16)] pt-6">
+          <a
+            href={linkWhatsApp(whatsapp, mensagem)}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex min-h-12 items-center justify-center bg-ouro px-6 py-[17px] text-center text-[12px] tracking-[0.18em] text-tinta uppercase transition-colors hover:bg-papel"
+          >
+            {t("parede.pedir", idioma)}
+          </a>
+          <span className="text-center text-[13px] text-[rgba(242,237,228,0.45)]">
+            {t("parede.nota_preco", idioma)}
+          </span>
+        </div>
+      </aside>
     </div>
-  );
-}
-
-function Campo({
-  rotulo,
-  nota,
-  children,
-}: {
-  rotulo: string;
-  nota?: string;
-  children: React.ReactNode;
-}) {
-  return (
-    <label className="flex flex-col gap-3">
-      <span className="text-[10px] tracking-[0.24em] text-[rgba(242,237,228,0.5)] uppercase">
-        {rotulo}
-      </span>
-      {children}
-      {nota && (
-        <span className="text-[13px] text-[rgba(242,237,228,0.45)]">{nota}</span>
-      )}
-    </label>
   );
 }

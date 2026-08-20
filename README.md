@@ -236,16 +236,20 @@ Herdado da secção "Por implementar" do handoff, e ainda por resolver:
    descrições de artistas e as fichas de obra são provisórios, escritos
    durante o design. Estão todos editáveis em Backoffice → Textos do
    site.
-2. **Inventário real das obras.** Autor, título, técnica, dimensões e
-   ano. As dimensões e anos do protótipo eram fictícios e não foram
-   importados: os campos estão vazios de propósito.
+2. **Confirmar o inventário.** As treze obras, os quatro artistas, a
+   exposição e as salas do percurso vieram todos do design, com os
+   textos reais. As dimensões e anos só existem onde o design os
+   nomeava (Wonder Frida, 100 × 100 cm, 2024); o resto está por
+   preencher, e o handoff avisava que alguns valores do protótipo eram
+   fictícios. Vale a pena a galeria confirmar peça a peça.
 3. **Logótipo em vetor.** O ícone actual é provisório
    (`public/icone.svg`).
 4. **Fotografia em alta resolução** das obras, dos espaços e dos
    galeristas. As imagens do protótipo eram extraídas de um PDF de
    catálogo e não servem para produção, por isso não foram importadas.
    Cada lugar sem fotografia mostra um marcador com o título, em vez de
-   um buraco no layout.
+   um buraco no layout. É a única coisa que falta para o site parecer
+   acabado: o texto está todo lá.
 5. **Datas e títulos das exposições anteriores** (edições 2021 a 2023 da
    Quanta Terra, Off Padel, Café da Praça).
 6. **Traduções EN e ES.** A estrutura está pronta e o dicionário de
@@ -259,13 +263,13 @@ Herdado da secção "Por implementar" do handoff, e ainda por resolver:
 
 ## Decisões que se afastam do protótipo
 
-- **A página "A obra como ativo" não tem gráfico.** O protótipo trazia
-  um gráfico de valorização com valores inventados, marcado como
-  ilustrativo. Em vez disso, a página explica os seis critérios de
-  avaliação e diz explicitamente o que a galeria não promete. Publicar
-  números inventados sobre valorização de activos seria enganador, e
-  arriscado num país onde aconselhamento financeiro é actividade
-  regulada.
+- **O gráfico de "A obra como ativo" ficou como está no design**, com o
+  selo "exemplo ilustrativo" e o parágrafo que diz, por extenso, que os
+  valores são ilustrativos e vão ser substituídos por dados reais. Não
+  tem eixo de valores nem moeda: mostra a forma de uma carreira, não a
+  cotação de ninguém, e a secção seguinte enumera o que a galeria não
+  promete. Se um dia entrarem números reais, o selo e o aviso têm de ser
+  revistos ao mesmo tempo.
 - **O menu colapsa por media query**, não por medição de largura em
   JavaScript. O protótipo media a janela por limitação do ambiente de
   prototipagem; em produção não faz falta.

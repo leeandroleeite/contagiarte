@@ -63,7 +63,7 @@ export function Cabecalho({ idioma }: { idioma: Idioma }) {
       >
         <Link
           href={caminho(idioma, "/")}
-          className="titulo text-[12px] tracking-[0.16em] text-papel sm:text-[14px] sm:tracking-[0.2em]"
+          className="titulo -my-3 flex min-h-11 items-center py-3 text-[12px] tracking-[0.16em] text-papel sm:text-[14px] sm:tracking-[0.2em]"
           style={{ lineHeight: 1 }}
         >
           CONTAGIARTE®
@@ -71,7 +71,7 @@ export function Cabecalho({ idioma }: { idioma: Idioma }) {
 
         <nav
           aria-label={t("nav.principal", idioma)}
-          className="hidden gap-[26px] text-[11px] tracking-[0.18em] whitespace-nowrap uppercase menu:flex"
+          className="hidden items-center gap-[26px] text-[11px] tracking-[0.18em] whitespace-nowrap uppercase menu:flex"
         >
           {LIGACOES.map((l) => {
             const activo = actual === l.href || actual.startsWith(`${l.href}/`);
@@ -81,7 +81,7 @@ export function Cabecalho({ idioma }: { idioma: Idioma }) {
                 href={caminho(idioma, l.href)}
                 aria-current={activo ? "page" : undefined}
                 className={cx(
-                  "transition-colors hover:text-ouro",
+                  "-my-3 flex min-h-11 items-center py-3 transition-colors hover:text-ouro",
                   activo ? "text-ouro" : "text-papel",
                 )}
               >
@@ -102,7 +102,7 @@ export function Cabecalho({ idioma }: { idioma: Idioma }) {
             onClick={() => setAberto((v) => !v)}
             aria-expanded={aberto}
             aria-controls="menu-compacto"
-            className="cursor-pointer border-0 bg-transparent text-[11px] tracking-[0.2em] text-papel uppercase menu:hidden"
+            className="-my-3 min-h-11 cursor-pointer border-0 bg-transparent px-1 py-3 text-[11px] tracking-[0.2em] text-papel uppercase menu:hidden"
           >
             {aberto ? t("nav.fechar", idioma) : t("nav.abrir", idioma)}
           </button>
@@ -157,7 +157,7 @@ function SelectorIdioma({
           hrefLang={id}
           aria-current={id === idioma ? "true" : undefined}
           className={cx(
-            "px-1 py-1.5 uppercase transition-colors",
+            "flex min-h-11 items-center px-2 uppercase transition-colors",
             id === idioma
               ? "text-ouro"
               : "text-[rgba(242,237,228,0.4)] hover:text-papel",

@@ -1,44 +1,47 @@
-import Link from "next/link";
-import { Seccao } from "@/components/Seccao";
-import { t } from "@/lib/i18n";
+import { Botao } from "@/components/Botao";
+import { obterDefinicoes, obterTextos } from "@/lib/dados";
+import { t, texto } from "@/lib/i18n";
 import { caminho, IDIOMA_BASE } from "@/lib/i18n/config";
+import { linkWhatsApp } from "@/lib/utils";
 
 /**
  * O `not-found` do segmento de idioma não recebe params, por isso
  * responde sempre em português, a língua de origem do site.
  */
-export default function NaoEncontrado() {
+export default async function NaoEncontrado() {
   const idioma = IDIOMA_BASE;
-
-  const saidas = [
-    { href: "/", rotulo: t("nav.inicio", idioma) },
-    { href: "/exposicoes", rotulo: t("nav.exposicoes", idioma) },
-    { href: "/obras", rotulo: t("nav.obras", idioma) },
-    { href: "/contactos", rotulo: t("nav.contactos", idioma) },
-  ];
+  const [txt, def] = await Promise.all([obterTextos(), obterDefinicoes()]);
 
   return (
-    <Seccao className="pt-[180px]" semFio>
-      <h1 className="titulo d-1 max-w-[14ch]">
-        {t("404.titulo", idioma).toUpperCase()}
+    <div className="flex min-h-[80dvh] flex-col justify-center gap-8 px-7 pt-[140px] pb-16">
+      <span className="text-[11px] tracking-[0.2em] text-[rgba(242,237,228,0.45)] uppercase">
+        Erro 404
+      </span>
+
+      <h1 className="titulo max-w-[16ch] text-[clamp(40px,9vw,150px)] leading-[0.84]">
+        {texto(txt["404.titulo"], idioma) || t("404.titulo", idioma)}
       </h1>
-      <p className="mt-8 max-w-[48ch] text-[18px] leading-[1.6] text-[rgba(242,237,228,0.75)]">
-        {t("404.texto", idioma)}
+
+      <p className="max-w-[46ch] text-[18px] leading-[1.6] text-[rgba(242,237,228,0.75)]">
+        {texto(txt["404.texto"], idioma) || t("404.texto", idioma)}
       </p>
-      <ul className="mt-12 flex flex-col">
-        {saidas.map((s) => (
-          <li key={s.href}>
-            <Link
-              href={caminho(idioma, s.href)}
-              className="block border-t border-[rgba(242,237,228,0.16)] py-6 text-papel transition-colors hover:text-ouro"
-            >
-              <span className="titulo-med text-[clamp(20px,3vw,36px)]">
-                {s.rotulo}
-              </span>
-            </Link>
-          </li>
-        ))}
-      </ul>
-    </Seccao>
+
+      <div className="flex flex-wrap gap-3.5">
+        <Botao href={caminho(idioma, "/")}>Voltar ao início</Botao>
+        <Botao variante="linha" href={caminho(idioma, "/exposicoes")}>
+          Exposição em curso
+        </Botao>
+        <Botao
+          variante="linha"
+          externo
+          href={linkWhatsApp(
+            def.whatsapp,
+            "Olá, andava à procura de algo no site.",
+          )}
+        >
+          Perguntar por WhatsApp
+        </Botao>
+      </div>
+    </div>
   );
 }

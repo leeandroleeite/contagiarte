@@ -23,7 +23,7 @@ import {
 import { anos, periodo, t, texto, type Idioma } from "@/lib/i18n";
 import { caminho } from "@/lib/i18n/config";
 import { metadados } from "@/lib/metadados";
-import { linkWhatsApp } from "@/lib/utils";
+import { colunas, linkWhatsApp } from "@/lib/utils";
 
 export const revalidate = 300;
 
@@ -147,7 +147,7 @@ export default async function Homepage({
         <Seccao id="exposicao">
           <div
             className="grid items-center gap-16"
-            style={{ gridTemplateColumns: "repeat(auto-fit,minmax(380px,1fr))" }}
+            style={colunas(380)}
           >
             <div className="flex flex-col gap-[26px]" data-surge="">
               <span className="text-[11px] tracking-[0.3em] text-[rgba(242,237,228,0.5)] uppercase">
@@ -239,7 +239,7 @@ export default async function Homepage({
           <div className="px-7">
             <Link
               href={caminho(idioma, "/obras")}
-              className="text-[12px] tracking-[0.18em] uppercase"
+              className="inline-flex min-h-11 items-center text-[12px] tracking-[0.18em] uppercase"
             >
               {t("acao.ver_todas", idioma)}
             </Link>
@@ -257,7 +257,7 @@ export default async function Homepage({
         </h2>
         <div
           className="mt-[72px] grid gap-12"
-          style={{ gridTemplateColumns: "repeat(auto-fit,minmax(260px,1fr))" }}
+          style={colunas(260)}
           data-surge=""
         >
           {[1, 2, 3].map((n) => (
@@ -321,7 +321,7 @@ export default async function Homepage({
       <Seccao id="molduras">
         <div
           className="grid items-center gap-16"
-          style={{ gridTemplateColumns: "repeat(auto-fit,minmax(360px,1fr))" }}
+          style={colunas(360)}
         >
           <div className="flex flex-col gap-[26px]" data-surge="">
             <span className="text-[11px] tracking-[0.3em] text-[rgba(242,237,228,0.5)] uppercase">
@@ -386,7 +386,7 @@ export default async function Homepage({
 
           <ul
             className="grid gap-6"
-            style={{ gridTemplateColumns: "repeat(auto-fit,minmax(220px,1fr))" }}
+            style={colunas(220)}
             data-surge=""
           >
             {lugares.map((l) => (
@@ -430,10 +430,7 @@ export default async function Homepage({
               <Link
                 key={e.id}
                 href={caminho(idioma, `/exposicoes/${e.slug}`)}
-                className="grid items-baseline gap-7 border-t border-[rgba(242,237,228,0.16)] py-[30px] text-papel transition-colors hover:text-ouro"
-                style={{
-                  gridTemplateColumns: "90px minmax(0,1.7fr) minmax(0,1fr) auto",
-                }}
+                className="grid grid-cols-[54px_minmax(0,1fr)_auto] items-baseline gap-4 border-t border-[rgba(242,237,228,0.16)] py-6 text-papel transition-colors hover:text-ouro sm:gap-7 sm:py-[30px] lg:grid-cols-[90px_minmax(0,1.7fr)_minmax(0,1fr)_auto]"
               >
                 <span className="text-[13px] tracking-[0.1em] text-[rgba(242,237,228,0.45)]">
                   {anos(e.dataInicio, e.dataFim)}
@@ -441,7 +438,7 @@ export default async function Homepage({
                 <span className="titulo-med text-[clamp(20px,2.4vw,34px)] leading-none">
                   {texto(e.titulo, idioma)}
                 </span>
-                <span className="hidden text-[14px] text-claro-55 sm:block">
+                <span className="hidden text-[14px] text-claro-55 lg:block">
                   {e.lugar
                     ? `${e.lugar.nome} · ${texto(e.lugar.localidade, idioma)}`
                     : ""}
@@ -462,7 +459,7 @@ export default async function Homepage({
       <Seccao id="galeria">
         <div
           className="grid gap-16"
-          style={{ gridTemplateColumns: "repeat(auto-fit,minmax(320px,1fr))" }}
+          style={colunas(320)}
         >
           <Imagem
             media={null}
@@ -494,7 +491,7 @@ export default async function Homepage({
           </h2>
           <ul
             className="grid gap-6"
-            style={{ gridTemplateColumns: "repeat(auto-fit,minmax(260px,1fr))" }}
+            style={colunas(260)}
             data-surge=""
           >
             {ficheiros.map((f) => (
@@ -526,7 +523,7 @@ export default async function Homepage({
       <Seccao id="newsletter" claro semFio>
         <div
           className="grid items-center gap-16"
-          style={{ gridTemplateColumns: "repeat(auto-fit,minmax(340px,1fr))" }}
+          style={colunas(340)}
         >
           <div className="flex flex-col gap-5">
             <span className="text-[11px] tracking-[0.3em] text-[rgba(14,12,11,0.5)] uppercase">

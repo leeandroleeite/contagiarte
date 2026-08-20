@@ -1,13 +1,36 @@
 import type { Metadata } from "next";
 import { Botao } from "@/components/Botao";
 import { Seccao } from "@/components/Seccao";
-import { obterDefinicoes } from "@/lib/dados";
-import { t, type Idioma } from "@/lib/i18n";
+import { obterDefinicoes, obterTextos } from "@/lib/dados";
+import { t, texto, type Idioma } from "@/lib/i18n";
 import { caminho } from "@/lib/i18n/config";
 import { comMarca, metadados } from "@/lib/metadados";
-import { linkWhatsApp } from "@/lib/utils";
+import { colunas, linkWhatsApp } from "@/lib/utils";
 
 export const revalidate = 3600;
+
+/**
+ * Série do gráfico. É a FORMA de uma carreira que se consolida, não a
+ * cotação de ninguém: não há unidades, não há moeda, e o aviso ao lado
+ * do título diz isso por extenso. Substituir por dados reais quando
+ * existirem, ou remover a secção inteira.
+ */
+const SERIE = [
+  { ano: "2016", altura: 12 },
+  { ano: "2018", altura: 18 },
+  { ano: "2019", altura: 26 },
+  { ano: "2021", altura: 30 },
+  { ano: "2022", altura: 52 },
+  { ano: "2023", altura: 58 },
+  { ano: "2025", altura: 74 },
+  { ano: "2026", altura: 100 },
+];
+
+const MARCOS = [
+  { ano: "2019", chave: "ativo.marco.1" },
+  { ano: "2022", chave: "ativo.marco.2" },
+  { ano: "2026", chave: "ativo.marco.3" },
+];
 
 export async function generateMetadata({
   params,
@@ -21,39 +44,12 @@ export async function generateMetadata({
     titulo: comMarca(t("nav.ativo", lang)),
     descricao:
       lang === "pt"
-        ? "Como a Galeria Contagiarte avalia o potencial de valorização de uma obra: percurso do artista, raridade, estado de conservação e procedência."
+        ? "O que faz uma obra de arte valorizar, o que a galeria avalia antes de representar um artista, e o que ninguém honesto lhe pode prometer."
         : lang === "en"
-          ? "How Galeria Contagiarte assesses a work's potential to appreciate: the artist's track record, rarity, condition and provenance."
-          : "Cómo la Galería Contagiarte evalúa el potencial de revalorización de una obra: trayectoria del artista, rareza, estado de conservación y procedencia.",
+          ? "What makes a work of art appreciate, what the gallery assesses before representing an artist, and what nobody honest can promise you."
+          : "Qué hace que una obra de arte se revalorice, qué evalúa la galería antes de representar a un artista, y lo que nadie honesto puede prometerle.",
   });
 }
-
-const CRITERIOS = {
-  pt: [
-    ["PERCURSO DO ARTISTA", "Exposições, coleções onde já entrou e continuidade de produção. Um percurso constante conta mais do que um pico isolado."],
-    ["RARIDADE", "Peças únicas, séries curtas e obras de fases que o artista já não repete."],
-    ["ESTADO E CONSERVAÇÃO", "Materiais estáveis, moldura adequada e vidro museu prolongam a vida da obra e defendem o seu valor."],
-    ["PROCEDÊNCIA", "Certificado do artista, registo de compra e histórico de exposições. Sem papéis, o mercado desconta."],
-    ["PROCURA REAL", "O que efectivamente se vende, e a que ritmo. Preço de tabela não é valor de mercado."],
-    ["LIQUIDEZ", "Uma obra não é um depósito a prazo: vender pode demorar. Compre primeiro pelo que a peça lhe diz."],
-  ],
-  en: [
-    ["THE ARTIST'S TRACK RECORD", "Exhibitions, collections already reached and continuity of output. A steady path counts for more than an isolated peak."],
-    ["RARITY", "Unique pieces, short series and works from phases the artist no longer repeats."],
-    ["CONDITION", "Stable materials, a proper frame and museum glass extend a work's life and defend its value."],
-    ["PROVENANCE", "The artist's certificate, purchase record and exhibition history. Without paperwork, the market discounts."],
-    ["REAL DEMAND", "What actually sells, and how fast. A list price is not a market value."],
-    ["LIQUIDITY", "A work is not a term deposit: selling can take time. Buy first for what the piece says to you."],
-  ],
-  es: [
-    ["TRAYECTORIA DEL ARTISTA", "Exposiciones, colecciones en las que ya ha entrado y continuidad de producción. Una trayectoria constante cuenta más que un pico aislado."],
-    ["RAREZA", "Piezas únicas, series cortas y obras de fases que el artista ya no repite."],
-    ["ESTADO Y CONSERVACIÓN", "Materiales estables, marco adecuado y vidrio museo prolongan la vida de la obra y defienden su valor."],
-    ["PROCEDENCIA", "Certificado del artista, registro de compra e historial de exposiciones. Sin papeles, el mercado descuenta."],
-    ["DEMANDA REAL", "Lo que efectivamente se vende, y a qué ritmo. El precio de catálogo no es valor de mercado."],
-    ["LIQUIDEZ", "Una obra no es un depósito a plazo: vender puede tardar. Compre primero por lo que la pieza le dice."],
-  ],
-} as const;
 
 export default async function PaginaAtivo({
   params,
@@ -61,86 +57,212 @@ export default async function PaginaAtivo({
   params: Promise<{ lang: Idioma }>;
 }) {
   const { lang: idioma } = await params;
-  const def = await obterDefinicoes();
-  const criterios = CRITERIOS[idioma];
+  const [txt, def] = await Promise.all([obterTextos(), obterDefinicoes()]);
+  const T = (chave: string) => texto(txt[chave], idioma);
+
+  const garantias: Array<[string, string]> =
+    idioma === "pt"
+      ? [
+          ["Certificado de autenticidade", "Em todas as obras"],
+          ["Historial do artista", "A pedido"],
+          ["Conservação e moldagem", "MOLDARTPÓVOA"],
+          ["Revenda futura", "Acompanhamos"],
+        ]
+      : idioma === "en"
+        ? [
+            ["Certificate of authenticity", "On every work"],
+            ["Artist's history", "On request"],
+            ["Conservation and framing", "MOLDARTPÓVOA"],
+            ["Future resale", "We help"],
+          ]
+        : [
+            ["Certificado de autenticidad", "En todas las obras"],
+            ["Historial del artista", "A petición"],
+            ["Conservación y enmarcado", "MOLDARTPÓVOA"],
+            ["Reventa futura", "Acompañamos"],
+          ];
 
   return (
     <>
-      <Seccao className="pt-[160px]">
-        <span className="etiqueta">
-          {idioma === "pt"
-            ? "COMO AVALIAMOS"
-            : idioma === "en"
-              ? "HOW WE ASSESS"
-              : "CÓMO EVALUAMOS"}
+      {/* Abertura. */}
+      <Seccao semFio className="px-7 pt-[130px] pb-[72px]">
+        <span className="text-[11px] tracking-[0.3em] text-[rgba(242,237,228,0.5)] uppercase">
+          {T("ativo.etiqueta")}
         </span>
-        <h1 className="titulo d-1 mt-4 max-w-[16ch]">
+        <h1 className="titulo my-5 max-w-[18ch] text-[clamp(38px,7.5vw,124px)] leading-[0.84]">
           {t("nav.ativo", idioma).toUpperCase()}
         </h1>
-        <p className="mt-8 max-w-[58ch] text-[19px] leading-[1.65] text-[rgba(242,237,228,0.82)]">
-          {idioma === "pt"
-            ? "Uma obra compra-se primeiro pelo que provoca. Mas há critérios objectivos que ajudam a perceber se também pode valer mais amanhã. São estes os seis que usamos, e dizemos sempre o que não sabemos."
-            : idioma === "en"
-              ? "A work is bought first for what it stirs. But there are objective criteria that help you see whether it may also be worth more tomorrow. These are the six we use, and we always say what we do not know."
-              : "Una obra se compra primero por lo que provoca. Pero hay criterios objetivos que ayudan a entender si además puede valer más mañana. Estos son los seis que usamos, y siempre decimos lo que no sabemos."}
+        <p className="max-w-[58ch] text-[19px] leading-[1.55] text-[rgba(242,237,228,0.8)]">
+          {T("ativo.intro")}
         </p>
       </Seccao>
 
-      <Seccao claro className="px-7 py-[120px]">
-        <div
-          className="grid gap-12"
-          style={{ gridTemplateColumns: "repeat(auto-fit,minmax(280px,1fr))" }}
-        >
-          {criterios.map(([titulo, descricao], i) => (
+      {/* Os quatro critérios. */}
+      <Seccao semFio className="px-7 pt-0 pb-24">
+        <h2 className="titulo mb-10 text-[clamp(30px,4.4vw,68px)] leading-[0.9]">
+          {T("ativo.criterios.titulo")}
+        </h2>
+        <div className="grid gap-9" style={colunas(250)}>
+          {[1, 2, 3, 4].map((n) => (
             <div
-              key={titulo}
-              className="flex flex-col gap-4 border-t-2 border-tinta pt-6"
+              key={n}
+              className="flex flex-col gap-3.5 border-t border-[rgba(242,237,228,0.25)] pt-[22px]"
             >
-              <span className="text-[11px] tracking-[0.24em] text-[rgba(14,12,11,0.45)]">
-                {String(i + 1).padStart(2, "0")}
+              <span className="text-[11px] tracking-[0.2em] text-[rgba(242,237,228,0.45)]">
+                {String(n).padStart(2, "0")}
               </span>
-              <span className="titulo text-[14px] tracking-[0.1em]">
-                {titulo}
+              <span className="titulo-med text-[19px]" style={{ fontWeight: 800 }}>
+                {T(`ativo.criterio.${n}.titulo`)}
               </span>
-              <p className="text-[17px] leading-[1.6] text-escuro-78">
-                {descricao}
+              <p className="text-[16px] leading-[1.6] text-[rgba(242,237,228,0.7)]">
+                {T(`ativo.criterio.${n}.texto`)}
               </p>
             </div>
           ))}
         </div>
       </Seccao>
 
-      <Seccao semFio>
-        <div className="max-w-[62ch]">
-          <h2 className="titulo d-3">
-            {idioma === "pt"
-              ? "O QUE NÃO PROMETEMOS"
-              : idioma === "en"
-                ? "WHAT WE DO NOT PROMISE"
-                : "LO QUE NO PROMETEMOS"}
+      {/* Gráfico ilustrativo do percurso de um artista. */}
+      <Seccao
+        semFio
+        className="border-t border-[rgba(242,237,228,0.14)] px-7 py-24"
+      >
+        <div className="mb-3.5 flex flex-wrap items-baseline justify-between gap-5">
+          <h2 className="titulo text-[clamp(30px,4.4vw,68px)] leading-[0.9]">
+            {T("ativo.grafico.titulo")}
           </h2>
-          <p className="mt-6 text-[18px] leading-[1.65] text-[rgba(242,237,228,0.8)]">
+          <span className="border border-[rgba(242,237,228,0.35)] px-3.5 py-2 text-[10px] tracking-[0.22em] text-[rgba(242,237,228,0.6)] uppercase">
             {idioma === "pt"
-              ? "Não damos previsões de rentabilidade nem gráficos de valorização. Arte não é um produto financeiro, não somos consultores de investimento e não há garantia nenhuma de que uma obra valha mais amanhã. O que fazemos é escolher bem, documentar tudo e dizer-lhe o que sabemos e o que não sabemos sobre cada peça."
+              ? "Exemplo ilustrativo"
               : idioma === "en"
-                ? "We give no return forecasts and no appreciation charts. Art is not a financial product, we are not investment advisers, and there is no guarantee that a work will be worth more tomorrow. What we do is choose carefully, document everything, and tell you what we know and what we do not know about each piece."
-                : "No damos previsiones de rentabilidad ni gráficos de revalorización. El arte no es un producto financiero, no somos asesores de inversión y no hay garantía alguna de que una obra valga más mañana. Lo que hacemos es elegir bien, documentarlo todo y decirle lo que sabemos y lo que no sabemos sobre cada pieza."}
-          </p>
+                ? "Illustrative example"
+                : "Ejemplo ilustrativo"}
+          </span>
+        </div>
 
-          <div className="mt-10 flex flex-wrap gap-3.5">
-            <Botao
-              externo
-              href={linkWhatsApp(
-                def.whatsapp,
-                "Olá, queria falar sobre uma obra e o seu potencial de valorização.",
-              )}
-            >
-              {t("acao.whatsapp", idioma)}
-            </Botao>
-            <Botao variante="linha" href={caminho(idioma, "/obras")}>
-              {t("nav.obras", idioma)}
-            </Botao>
+        <p className="mb-12 max-w-[62ch] text-[16px] leading-[1.6] text-[rgba(242,237,228,0.65)]">
+          {T("ativo.grafico.aviso")}
+        </p>
+
+        <figure className="m-0">
+          <div
+            className="flex h-[220px] items-end gap-2.5 border-b border-[rgba(242,237,228,0.25)] pb-4 sm:h-[280px] sm:gap-3.5"
+            role="img"
+            aria-label={T("ativo.grafico.aviso")}
+          >
+            {SERIE.map((p, i) => (
+              <div
+                key={p.ano}
+                className="flex h-full flex-1 flex-col items-center justify-end gap-2.5"
+              >
+                <span className="text-[12px] text-[rgba(242,237,228,0.55)]">
+                  {i === SERIE.length - 1 ? "↑" : ""}
+                </span>
+                <div
+                  className="w-full"
+                  style={{
+                    height: `${p.altura}%`,
+                    background:
+                      i === SERIE.length - 1
+                        ? "#B4884A"
+                        : "rgba(242,237,228,0.22)",
+                  }}
+                />
+              </div>
+            ))}
           </div>
+          <figcaption className="flex gap-2.5 pt-3.5 sm:gap-3.5">
+            {SERIE.map((p) => (
+              <span
+                key={p.ano}
+                className="flex-1 text-center text-[11px] tracking-[0.06em] text-[rgba(242,237,228,0.45)] sm:text-[12px]"
+              >
+                {p.ano}
+              </span>
+            ))}
+          </figcaption>
+        </figure>
+
+        <div className="mt-14 grid gap-7" style={colunas(240)}>
+          {MARCOS.map((m) => (
+            <div
+              key={m.ano}
+              className="flex flex-col gap-2.5 border-t border-[rgba(242,237,228,0.2)] pt-5"
+            >
+              <span className="text-[12px] tracking-[0.18em] text-[rgba(242,237,228,0.5)]">
+                {m.ano}
+              </span>
+              <span className="text-[16px] leading-[1.55] text-[rgba(242,237,228,0.75)]">
+                {T(m.chave)}
+              </span>
+            </div>
+          ))}
+        </div>
+      </Seccao>
+
+      {/* O que não prometemos. */}
+      <Seccao claro semFio className="px-7 py-[110px]">
+        <h2 className="titulo mb-8 max-w-[20ch] text-[clamp(32px,5vw,80px)] leading-[0.9]">
+          {T("ativo.promessas.titulo")}
+        </h2>
+        <div className="grid max-w-[1100px] gap-9" style={colunas(260)}>
+          {[1, 2, 3].map((n) => (
+            <p key={n} className="text-[17px] leading-[1.6] text-escuro-78">
+              {T(`ativo.promessa.${n}`)}
+            </p>
+          ))}
+        </div>
+      </Seccao>
+
+      {/* Fecho. */}
+      <Seccao semFio className="px-7 py-[110px]">
+        <div className="grid items-center gap-12" style={colunas(300)}>
+          <div className="flex flex-col gap-5">
+            <h2 className="titulo text-[clamp(30px,4.4vw,68px)] leading-[0.88]">
+              {T("ativo.final.titulo")}
+            </h2>
+            <p className="max-w-[46ch] text-[17px] leading-[1.6] text-[rgba(242,237,228,0.78)]">
+              {T("ativo.final.texto")}
+            </p>
+            <div className="flex flex-wrap gap-3.5">
+              <Botao
+                externo
+                href={linkWhatsApp(
+                  def.whatsapp,
+                  "Olá, queria perceber melhor o percurso dos artistas que representam.",
+                )}
+              >
+                {idioma === "pt"
+                  ? "Falar connosco"
+                  : idioma === "en"
+                    ? "Talk to us"
+                    : "Hablar con nosotros"}
+              </Botao>
+              <Botao variante="linha" href={caminho(idioma, "/ver-na-parede")}>
+                {idioma === "pt"
+                  ? "Ver na sua parede"
+                  : idioma === "en"
+                    ? "See it on your wall"
+                    : "Ver en su pared"}
+              </Botao>
+            </div>
+          </div>
+
+          <dl className="flex flex-col text-[15px]">
+            {garantias.map(([rotulo, valor], i) => (
+              <div
+                key={rotulo}
+                className={`flex justify-between gap-4 border-t border-[rgba(242,237,228,0.16)] py-4 ${
+                  i === garantias.length - 1
+                    ? "border-b border-b-[rgba(242,237,228,0.16)]"
+                    : ""
+                }`}
+              >
+                <dt className="text-[rgba(242,237,228,0.5)]">{rotulo}</dt>
+                <dd className="m-0 text-right">{valor}</dd>
+              </div>
+            ))}
+          </dl>
         </div>
       </Seccao>
     </>

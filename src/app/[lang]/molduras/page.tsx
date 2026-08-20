@@ -7,7 +7,7 @@ import { obterDefinicoes, obterTextos } from "@/lib/dados";
 import { t, texto, type Idioma } from "@/lib/i18n";
 import { caminho } from "@/lib/i18n/config";
 import { comMarca, metadados } from "@/lib/metadados";
-import { linkWhatsApp } from "@/lib/utils";
+import { colunas, linkWhatsApp } from "@/lib/utils";
 
 export const revalidate = 300;
 
@@ -65,7 +65,7 @@ export default async function PaginaMolduras({
       <Seccao className="pt-[160px]">
         <div
           className="grid items-center gap-16"
-          style={{ gridTemplateColumns: "repeat(auto-fit,minmax(360px,1fr))" }}
+          style={colunas(360)}
         >
           <div className="flex flex-col gap-[26px]">
             <span className="text-[11px] tracking-[0.3em] text-[rgba(242,237,228,0.5)] uppercase">
@@ -104,7 +104,7 @@ export default async function PaginaMolduras({
       <Seccao claro className="px-7 py-[120px]">
         <div
           className="grid gap-12"
-          style={{ gridTemplateColumns: "repeat(auto-fit,minmax(220px,1fr))" }}
+          style={colunas(220)}
         >
           {passos.map(([titulo, descricao]) => (
             <div

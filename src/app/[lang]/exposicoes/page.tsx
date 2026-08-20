@@ -6,6 +6,7 @@ import { listarExposicoes, situacao } from "@/lib/dados";
 import { periodo, t, texto, type Idioma } from "@/lib/i18n";
 import { caminho } from "@/lib/i18n/config";
 import { comMarca, metadados } from "@/lib/metadados";
+import { colunas } from "@/lib/utils";
 
 export const revalidate = 300;
 
@@ -57,9 +58,7 @@ export default async function PaginaExposicoes({
                 <Link
                   href={caminho(idioma, `/exposicoes/${e.slug}`)}
                   className="group grid items-center gap-12 text-papel"
-                  style={{
-                    gridTemplateColumns: "repeat(auto-fit,minmax(320px,1fr))",
-                  }}
+                  style={colunas(320)}
                 >
                   <Imagem
                     media={e.imagem}
@@ -105,8 +104,7 @@ export default async function PaginaExposicoes({
               <Link
                 key={e.id}
                 href={caminho(idioma, `/exposicoes/${e.slug}`)}
-                className="grid items-baseline gap-7 border-t border-[rgba(242,237,228,0.16)] py-7 text-papel transition-colors hover:text-ouro"
-                style={{ gridTemplateColumns: "90px minmax(0,2fr) minmax(0,1fr)" }}
+                className="grid grid-cols-[54px_minmax(0,1fr)] items-baseline gap-4 border-t border-[rgba(242,237,228,0.16)] py-6 text-papel transition-colors hover:text-ouro sm:grid-cols-[90px_minmax(0,2fr)_minmax(0,1fr)] sm:gap-7 sm:py-7"
               >
                 <span className="text-[13px] tracking-[0.1em] text-[rgba(242,237,228,0.45)]">
                   {e.dataInicio ? new Date(e.dataInicio).getFullYear() : ""}

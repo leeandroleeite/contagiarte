@@ -57,10 +57,7 @@ export default async function PaginaArquivo({
           <Link
             key={e.id}
             href={caminho(idioma, `/exposicoes/${e.slug}`)}
-            className="grid items-baseline gap-7 border-t border-[rgba(242,237,228,0.16)] py-[30px] text-papel transition-colors hover:text-ouro"
-            style={{
-              gridTemplateColumns: "90px minmax(0,1.7fr) minmax(0,1fr) auto",
-            }}
+            className="grid grid-cols-[54px_minmax(0,1fr)_auto] items-baseline gap-4 border-t border-[rgba(242,237,228,0.16)] py-6 text-papel transition-colors hover:text-ouro sm:gap-7 sm:py-[30px] lg:grid-cols-[90px_minmax(0,1.7fr)_minmax(0,1fr)_auto]"
           >
             <span className="text-[13px] tracking-[0.1em] text-[rgba(242,237,228,0.75)]">
               {anos(e.dataInicio, e.dataFim)}
@@ -68,7 +65,7 @@ export default async function PaginaArquivo({
             <span className="titulo-med text-[clamp(20px,2.4vw,34px)] leading-none">
               {texto(e.titulo, idioma)}
             </span>
-            <span className="hidden text-[14px] text-claro-55 sm:block">
+            <span className="hidden text-[14px] text-claro-55 lg:block">
               {e.lugar
                 ? `${e.lugar.nome} · ${texto(e.lugar.localidade, idioma)}`
                 : ""}

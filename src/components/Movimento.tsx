@@ -142,6 +142,7 @@ export function Movimento({ cursor = true }: { cursor?: boolean }) {
 function criarPonto(): HTMLElement {
   const el = document.createElement("div");
   el.setAttribute("aria-hidden", "true");
+  el.setAttribute("data-cursor", "");
   Object.assign(el.style, {
     position: "fixed",
     top: "0",

@@ -6,7 +6,7 @@ import { Seccao } from "@/components/Seccao";
 import { obterDefinicoes, obterTextos } from "@/lib/dados";
 import { t, texto, type Idioma } from "@/lib/i18n";
 import { comMarca, metadados } from "@/lib/metadados";
-import { linkWhatsApp } from "@/lib/utils";
+import { colunas, linkWhatsApp } from "@/lib/utils";
 
 export const revalidate = 300;
 
@@ -46,7 +46,7 @@ export default async function PaginaContactos({
 
         <div
           className="grid gap-16"
-          style={{ gridTemplateColumns: "repeat(auto-fit,minmax(300px,1fr))" }}
+          style={colunas(300)}
         >
           <div className="flex flex-col gap-6">
             <p className="max-w-[44ch] text-[18px] leading-[1.6] text-[rgba(242,237,228,0.8)]">
@@ -113,7 +113,7 @@ export default async function PaginaContactos({
       <Seccao claro semFio>
         <div
           className="grid items-center gap-16"
-          style={{ gridTemplateColumns: "repeat(auto-fit,minmax(340px,1fr))" }}
+          style={colunas(340)}
         >
           <div className="flex flex-col gap-5">
             <span className="text-[11px] tracking-[0.3em] text-[rgba(14,12,11,0.5)] uppercase">

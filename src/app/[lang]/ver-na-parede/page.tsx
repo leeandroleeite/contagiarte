@@ -60,6 +60,10 @@ export default async function PaginaVerNaParede({
             autor: o.artista?.nome ?? "",
             chave: o.fotografia?.chave ?? null,
             larguraCm: o.larguraCm,
+            // Sem medidas reais, assume-se quadrado: é a proporção mais
+            // neutra e não engana ninguém sobre o formato da peça.
+            proporcao:
+              o.larguraCm && o.alturaCm ? o.alturaCm / o.larguraCm : 1,
           }))}
           molduras={molduras.map((m) => ({
             slug: m.slug,

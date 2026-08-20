@@ -4,6 +4,7 @@ import { Seccao } from "@/components/Seccao";
 import { listarLugares, obterTextos } from "@/lib/dados";
 import { t, texto, type Idioma } from "@/lib/i18n";
 import { comMarca, metadados } from "@/lib/metadados";
+import { colunas } from "@/lib/utils";
 
 export const revalidate = 300;
 
@@ -35,7 +36,7 @@ export default async function PaginaGaleria({
       <Seccao className="pt-[160px]">
         <div
           className="grid gap-16"
-          style={{ gridTemplateColumns: "repeat(auto-fit,minmax(320px,1fr))" }}
+          style={colunas(320)}
         >
           <Imagem
             media={null}
@@ -77,7 +78,7 @@ export default async function PaginaGaleria({
         </h2>
         <ul
           className="grid gap-x-6 gap-y-12"
-          style={{ gridTemplateColumns: "repeat(auto-fill,minmax(220px,1fr))" }}
+          style={colunas(220, "auto-fill")}
         >
           {lugares.map((l) => (
             <li key={l.id} className="flex flex-col gap-3.5">

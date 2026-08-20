@@ -1,24 +1,24 @@
+import { eq } from "drizzle-orm";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Botao } from "@/components/Botao";
-import { CartaoObra } from "@/components/CartaoObra";
 import { FormularioPedido } from "@/components/FormularioPedido";
 import { Imagem } from "@/components/Imagem";
 import { Seccao } from "@/components/Seccao";
-import { db } from "@/lib/db";
-import { obras as tObras } from "@/lib/db/schema";
 import {
   obraPorSlug,
   obrasRelacionadas,
   obterDefinicoes,
+  obterTextos,
 } from "@/lib/dados";
+import { db } from "@/lib/db";
+import { obras as tObras } from "@/lib/db/schema";
+import { env } from "@/lib/env";
 import { t, texto, type Idioma } from "@/lib/i18n";
 import { caminho } from "@/lib/i18n/config";
 import { comMarca, metadados } from "@/lib/metadados";
-import { env } from "@/lib/env";
-import { linkEmail, linkWhatsApp, resumir } from "@/lib/utils";
-import { eq } from "drizzle-orm";
+import { colunas, linkEmail, linkWhatsApp, resumir } from "@/lib/utils";
 
 export const revalidate = 300;
 export const dynamicParams = true;
@@ -50,9 +50,9 @@ export async function generateMetadata({
     titulo: comMarca(autor ? `${titulo}, ${autor}` : titulo),
     descricao: resumir(
       texto(obra.descricao, lang) ||
-        [autor, texto(obra.tecnica, lang), obra.dimensoes]
+        [texto(obra.tecnica, lang), obra.dimensoes, obra.ano]
           .filter(Boolean)
-          .join(" · "),
+          .join(", "),
     ),
     imagemChave: obra.fotografia?.chave ?? null,
   });
@@ -67,35 +67,32 @@ export default async function PaginaObra({
   const obra = await obraPorSlug(slug);
   if (!obra) notFound();
 
-  const [def, relacionadas] = await Promise.all([
+  const [def, txt, relacionadas] = await Promise.all([
     obterDefinicoes(),
+    obterTextos(),
     obrasRelacionadas(obra),
   ]);
 
+  const T = (chave: string) => texto(txt[chave], idioma);
   const titulo = texto(obra.titulo, idioma) || t("obra.sem_titulo", idioma);
   const autor = obra.artista?.nome ?? "";
-  const preco =
-    obra.disponibilidade === "vendida"
-      ? t("estado.vendida", idioma)
-      : obra.disponibilidade === "reservada"
-        ? t("estado.reservada", idioma)
-        : texto(obra.preco, idioma) || t("obra.sob_consulta", idioma);
+  const vendida = obra.disponibilidade === "vendida";
 
-  const mensagem = `Olá, tenho interesse na obra "${titulo}"${autor ? `, de ${autor}` : ""}.`;
+  const preco = vendida
+    ? t("estado.vendida", idioma)
+    : obra.disponibilidade === "reservada"
+      ? t("estado.reservada", idioma)
+      : texto(obra.preco, idioma) || t("obra.sob_consulta", idioma);
 
-  const ficha: Array<[string, string]> = [
-    [t("obra.artista", idioma), autor],
-    [t("obra.tecnica", idioma), texto(obra.tecnica, idioma)],
-    [t("obra.dimensoes", idioma), obra.dimensoes ?? ""],
-    [t("obra.ano", idioma), obra.ano ? String(obra.ano) : ""],
-    [
-      t("obra.exposicao", idioma),
-      obra.exposicao ? texto(obra.exposicao.titulo, idioma) : "",
-    ],
-    [t("obra.preco", idioma), preco],
-  ].filter((par): par is [string, string] => Boolean(par[1]));
+  const mensagem = `Olá, tenho interesse na obra “${titulo}”${autor ? ` de ${autor}` : ""}. Podem dizer-me o preço?`;
 
-  // Dados estruturados: ajudam a obra a aparecer bem em pesquisa.
+  // Proporção real da obra, quando conhecida: uma peça alta não deve
+  // ser mostrada dentro de um quadrado.
+  const proporcao =
+    obra.larguraCm && obra.alturaCm
+      ? `${obra.larguraCm}/${obra.alturaCm}`
+      : "1/1";
+
   const jsonLd = {
     "@context": "https://schema.org",
     "@type": "VisualArtwork",
@@ -109,6 +106,33 @@ export default async function PaginaObra({
     url: `${env.urlPublico}${caminho(idioma, `/obras/${slug}`)}`,
   };
 
+  const ficha: Array<[string, React.ReactNode]> = (
+    [
+      [t("obra.tecnica", idioma), texto(obra.tecnica, idioma)],
+      [t("obra.dimensoes", idioma), obra.dimensoes ?? ""],
+      [t("obra.ano", idioma), obra.ano ? String(obra.ano) : ""],
+      [
+        t("obra.exposicao", idioma),
+        obra.exposicao ? (
+          <Link
+            key="expo"
+            href={caminho(idioma, `/exposicoes/${obra.exposicao.slug}`)}
+          >
+            {texto(obra.exposicao.titulo, idioma)}
+          </Link>
+        ) : (
+          ""
+        ),
+      ],
+      [
+        t("obra.preco", idioma),
+        <span key="preco" className="text-ouro">
+          {preco}
+        </span>,
+      ],
+    ] as Array<[string, React.ReactNode]>
+  ).filter(([, v]) => v);
+
   return (
     <>
       <script
@@ -116,63 +140,65 @@ export default async function PaginaObra({
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
 
-      <Seccao className="pt-[140px]" semFio>
-        <div
-          className="grid gap-16"
-          style={{ gridTemplateColumns: "repeat(auto-fit,minmax(340px,1fr))" }}
-        >
-          {/* A obra em fundo quase preto, inteira, sem cortes. */}
-          <div className="bg-tinta-obra p-4 md:p-8">
+      <Seccao semFio className="px-7 pt-[120px] pb-20 sm:px-10">
+        <div className="grid gap-14" style={colunas(340)}>
+          {/* A obra inteira, sem cortes, sobre o fundo mais escuro. */}
+          <div className="bg-tinta-obra">
             <Imagem
               media={obra.fotografia}
               alt={`${titulo}${autor ? `, de ${autor}` : ""}`}
-              proporcao="3/4"
+              proporcao={proporcao}
               ajuste="contain"
-              legenda={titulo}
+              legenda={`${titulo}, alta resolução`}
               prioridade
               sizes="(max-width: 900px) 100vw, 50vw"
             />
           </div>
 
-          <div className="flex flex-col gap-7">
+          <div className="flex flex-col gap-6 self-center">
             {autor && (
               <Link
                 href={caminho(idioma, `/artistas/${obra.artista!.slug}`)}
-                className="text-[11px] tracking-[0.3em] uppercase"
+                className="inline-flex min-h-11 items-center text-[11px] tracking-[0.28em] uppercase"
               >
-                {autor}
+                {autor} →
               </Link>
             )}
 
-            <h1 className="titulo d-3">{titulo}</h1>
+            <h1 className="titulo text-[clamp(38px,5vw,86px)] leading-[0.9] tracking-[-0.02em]">
+              {titulo}
+            </h1>
 
-            {texto(obra.descricao, idioma) && (
-              <p className="max-w-[52ch] text-[18px] leading-[1.65] text-[rgba(242,237,228,0.8)]">
-                {texto(obra.descricao, idioma)}
-              </p>
-            )}
-
-            <dl className="flex flex-col">
-              {ficha.map(([rotulo, valor]) => (
+            <dl className="grid">
+              {ficha.map(([rotulo, valor], i) => (
                 <div
                   key={rotulo}
-                  className="flex items-baseline justify-between gap-6 border-t border-[rgba(242,237,228,0.16)] py-4"
+                  className={`flex justify-between gap-4 border-t border-[rgba(242,237,228,0.16)] py-3.5 text-[15px] ${
+                    i === ficha.length - 1
+                      ? "border-b border-b-[rgba(242,237,228,0.16)]"
+                      : ""
+                  }`}
                 >
-                  <dt className="text-[11px] tracking-[0.2em] text-[rgba(242,237,228,0.45)] uppercase">
-                    {rotulo}
-                  </dt>
-                  <dd className="m-0 text-right text-[16px]">{valor}</dd>
+                  <dt className="text-[rgba(242,237,228,0.5)]">{rotulo}</dt>
+                  <dd className="m-0 text-right">{valor}</dd>
                 </div>
               ))}
             </dl>
 
-            {obra.disponibilidade !== "vendida" && (
-              <div className="flex flex-wrap gap-3.5">
-                <Botao
-                  externo
-                  href={linkWhatsApp(def.whatsapp, mensagem)}
-                >
-                  {t("acao.whatsapp", idioma)}
+            {texto(obra.descricao, idioma) && (
+              <p className="max-w-[48ch] text-[16px] leading-[1.65] text-[rgba(242,237,228,0.75)]">
+                {texto(obra.descricao, idioma)}
+              </p>
+            )}
+
+            {!vendida && (
+              <div className="flex flex-col gap-3">
+                <Botao externo href={linkWhatsApp(def.whatsapp, mensagem)}>
+                  {idioma === "pt"
+                    ? "Pedir preço por WhatsApp"
+                    : idioma === "en"
+                      ? "Ask the price on WhatsApp"
+                      : "Pedir precio por WhatsApp"}
                 </Botao>
                 <Botao
                   variante="linha"
@@ -182,26 +208,21 @@ export default async function PaginaObra({
                     mensagem,
                   )}
                 >
-                  {t("acao.email", idioma)}
+                  {idioma === "pt"
+                    ? "Pedir por email"
+                    : idioma === "en"
+                      ? "Ask by email"
+                      : "Pedir por email"}
                 </Botao>
+                <span className="text-center text-[13px] text-[rgba(242,237,228,0.45)]">
+                  {T("obra.nota.servico")}
+                </span>
               </div>
             )}
 
-            <div className="mt-2 flex flex-col gap-4 border border-[rgba(242,237,228,0.2)] p-7">
-              <span className="text-[10px] tracking-[0.24em] text-[rgba(242,237,228,0.5)] uppercase">
-                {t("obra.interesse", idioma)}
-              </span>
-              <FormularioPedido
-                idioma={idioma}
-                tipo="obra"
-                obraSlug={obra.slug}
-                origem={`obra/${obra.slug}`}
-              />
-            </div>
-
             <Link
               href={caminho(idioma, `/ver-na-parede?obra=${obra.slug}`)}
-              className="text-[12px] tracking-[0.18em] uppercase"
+              className="inline-flex min-h-11 items-center text-[12px] tracking-[0.18em] uppercase"
             >
               {t("acao.parede", idioma)}
             </Link>
@@ -209,13 +230,10 @@ export default async function PaginaObra({
         </div>
       </Seccao>
 
-      {/* Galeria de imagens adicionais */}
+      {/* Imagens adicionais da obra. */}
       {obra.galeria.length > 0 && (
-        <Seccao>
-          <ul
-            className="grid gap-6"
-            style={{ gridTemplateColumns: "repeat(auto-fit,minmax(280px,1fr))" }}
-          >
+        <Seccao className="px-7 sm:px-10">
+          <ul className="grid gap-6" style={colunas(280)}>
             {obra.galeria.map((g) => (
               <li key={g.mediaId}>
                 <Imagem
@@ -230,65 +248,67 @@ export default async function PaginaObra({
         </Seccao>
       )}
 
-      {/* Serviço: o que a galeria trata depois da compra */}
-      <Seccao claro semFio className="px-7 py-[120px]">
-        <div
-          className="grid gap-12"
-          style={{ gridTemplateColumns: "repeat(auto-fit,minmax(240px,1fr))" }}
-        >
-          {[
-            {
-              t: idioma === "pt" ? "MOLDURA À MEDIDA" : idioma === "en" ? "BESPOKE FRAMING" : "MARCO A MEDIDA",
-              d:
-                idioma === "pt"
-                  ? "Produzida com a MOLDARTPÓVOA, com vidro museu Tru-Vue®."
-                  : idioma === "en"
-                    ? "Made with MOLDARTPÓVOA, with Tru-Vue® museum glass."
-                    : "Producido con MOLDARTPÓVOA, con vidrio museo Tru-Vue®.",
-            },
-            {
-              t: idioma === "pt" ? "ENTREGA E INSTALAÇÃO" : idioma === "en" ? "DELIVERY AND INSTALLATION" : "ENTREGA E INSTALACIÓN",
-              d:
-                idioma === "pt"
-                  ? "Levamos a obra e deixamo-la pendurada no sítio certo."
-                  : idioma === "en"
-                    ? "We bring the work and hang it in the right place."
-                    : "Llevamos la obra y la dejamos colgada en el sitio adecuado.",
-            },
-            {
-              t: idioma === "pt" ? "CERTIFICADO" : idioma === "en" ? "CERTIFICATE" : "CERTIFICADO",
-              d:
-                idioma === "pt"
-                  ? "Cada obra segue com certificado de autenticidade do artista."
-                  : idioma === "en"
-                    ? "Every work comes with the artist's certificate of authenticity."
-                    : "Cada obra va acompañada del certificado de autenticidad del artista.",
-            },
-          ].map((c) => (
-            <div key={c.t} className="flex flex-col gap-4 border-t-2 border-tinta pt-6">
-              <span className="titulo text-[14px] tracking-[0.1em]">{c.t}</span>
-              <p className="text-[17px] leading-[1.6] text-escuro-78">{c.d}</p>
+      {/* O que a galeria trata depois da compra. */}
+      <Seccao claro semFio className="px-7 py-[72px] sm:px-10">
+        <div className="grid gap-8" style={colunas(280)}>
+          {[1, 2, 3].map((n) => (
+            <div key={n} className="flex flex-col gap-3">
+              <span className="titulo-med text-[13px] tracking-[0.12em]">
+                {T(`obra.servico.${n}.titulo`)}
+              </span>
+              <p className="text-[16px] leading-[1.6] text-[rgba(14,12,11,0.75)]">
+                {T(`obra.servico.${n}.texto`)}
+              </p>
             </div>
           ))}
         </div>
       </Seccao>
 
-      {relacionadas.length > 0 && (
-        <Seccao semFio>
-          <h2 className="titulo d-3 mb-12">
-            {t("obra.relacionadas", idioma).toUpperCase()}
+      {/* Pedido escrito, para quem não usa WhatsApp. */}
+      <Seccao className="px-7 sm:px-10">
+        <div className="max-w-[680px]">
+          <h2 className="titulo mb-6 text-[clamp(24px,2.6vw,38px)]">
+            {t("obra.interesse", idioma)}
           </h2>
-          <ul
-            className="grid gap-x-8 gap-y-12"
-            style={{ gridTemplateColumns: "repeat(auto-fill,minmax(260px,1fr))" }}
-          >
+          <FormularioPedido
+            idioma={idioma}
+            tipo="obra"
+            obraSlug={obra.slug}
+            origem={`obra/${obra.slug}`}
+          />
+        </div>
+      </Seccao>
+
+      {/* Do mesmo artista. */}
+      {relacionadas.length > 0 && (
+        <Seccao semFio className="px-7 py-20 sm:px-10">
+          <h2 className="titulo mb-8 text-[clamp(26px,3vw,44px)] leading-[0.92] tracking-[-0.02em]">
+            {obra.artistaId
+              ? idioma === "pt"
+                ? "DO MESMO ARTISTA"
+                : idioma === "en"
+                  ? "BY THE SAME ARTIST"
+                  : "DEL MISMO ARTISTA"
+              : t("obra.relacionadas", idioma).toUpperCase()}
+          </h2>
+          <ul className="grid gap-6" style={colunas(220)}>
             {relacionadas.map((o) => (
               <li key={o.id}>
-                <CartaoObra
-                  obra={o}
-                  idioma={idioma}
-                  sizes="(max-width: 700px) 100vw, 30vw"
-                />
+                <Link
+                  href={caminho(idioma, `/obras/${o.slug}`)}
+                  className="group flex flex-col gap-3 text-papel"
+                >
+                  <Imagem
+                    media={o.fotografia}
+                    alt={texto(o.titulo, idioma)}
+                    proporcao="1/1"
+                    legenda={texto(o.titulo, idioma)}
+                    sizes="(max-width: 700px) 50vw, 22vw"
+                  />
+                  <span className="text-[15px] transition-colors group-hover:text-ouro">
+                    {texto(o.titulo, idioma) || t("obra.sem_titulo", idioma)}
+                  </span>
+                </Link>
               </li>
             ))}
           </ul>

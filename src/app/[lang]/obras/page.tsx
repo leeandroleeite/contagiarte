@@ -6,7 +6,7 @@ import { listarArtistas, listarObras } from "@/lib/dados";
 import { t, texto, type Idioma } from "@/lib/i18n";
 import { caminho } from "@/lib/i18n/config";
 import { comMarca, metadados } from "@/lib/metadados";
-import { cx } from "@/lib/utils";
+import { colunas, cx } from "@/lib/utils";
 
 export const revalidate = 300;
 
@@ -100,7 +100,7 @@ export default async function PaginaObras({
       ) : (
         <ul
           className="grid gap-x-8 gap-y-14"
-          style={{ gridTemplateColumns: "repeat(auto-fill,minmax(280px,1fr))" }}
+          style={colunas(280, "auto-fill")}
         >
           {obras.map((obra, i) => (
             <li key={obra.id}>

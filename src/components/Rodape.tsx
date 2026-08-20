@@ -2,7 +2,7 @@ import Link from "next/link";
 import type { Definicoes } from "@/lib/db/schema";
 import { t, type Idioma } from "@/lib/i18n";
 import { caminho } from "@/lib/i18n/config";
-import { linkWhatsApp } from "@/lib/utils";
+import { colunas, linkWhatsApp } from "@/lib/utils";
 
 /**
  * Rodapé comum a todas as páginas. Repete o bloco "Fale connosco" do
@@ -26,7 +26,7 @@ export function Rodape({
 
       <div
         className="mt-10 grid gap-10 border-b border-[rgba(242,237,228,0.16)] pb-14"
-        style={{ gridTemplateColumns: "repeat(auto-fit,minmax(240px,1fr))" }}
+        style={colunas(240)}
       >
         <Coluna titulo={t("rodape.direto", idioma)}>
           <a
@@ -93,8 +93,8 @@ function Coluna({
   children: React.ReactNode;
 }) {
   return (
-    <div className="flex flex-col gap-3 text-[17px]">
-      <span className="text-[10px] tracking-[0.24em] text-[rgba(242,237,228,0.45)] uppercase">
+    <div className="flex flex-col gap-1 text-[17px] [&_a]:flex [&_a]:min-h-11 [&_a]:items-center [&_span]:flex [&_span]:min-h-11 [&_span]:items-center">
+      <span className="mb-1 text-[10px] tracking-[0.24em] text-[rgba(242,237,228,0.45)] uppercase">
         {titulo}
       </span>
       {children}

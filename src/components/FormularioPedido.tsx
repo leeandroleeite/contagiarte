@@ -4,6 +4,7 @@ import { useActionState } from "react";
 import { enviarPedido, type Resultado } from "@/app/accoes";
 import { t } from "@/lib/i18n";
 import type { Idioma } from "@/lib/i18n/config";
+import { colunas } from "@/lib/utils";
 
 type Props = {
   idioma: Idioma;
@@ -63,7 +64,7 @@ export function FormularioPedido({
         className="absolute left-[-9999px] h-0 w-0 opacity-0"
       />
 
-      <div className="grid gap-3" style={{ gridTemplateColumns: "repeat(auto-fit,minmax(150px,1fr))" }}>
+      <div className="grid gap-3" style={colunas(150)}>
         <Campo
           nome="nome"
           rotulo={t("campo.nome", idioma)}

@@ -7,8 +7,8 @@ export type Sala = {
   id: string;
   nome: string;
   texto: string;
+  notaObras: string;
   fotografia: MediaLeve;
-  obras: string[];
 };
 
 /**
@@ -18,7 +18,7 @@ export type Sala = {
  * vê quem não tem JavaScript e quem pediu movimento reduzido. Com as
  * duas condições reunidas, o efeito marca `data-modo="palco"` e o CSS
  * troca para o palco preso ao ecrã, onde as salas se substituem
- * conforme o scroll.
+ * conforme o scroll, como no design.
  */
 export function Percurso({ salas }: { salas: Sala[] }) {
   const raiz = useRef<HTMLDivElement>(null);
@@ -41,10 +41,11 @@ export function Percurso({ salas }: { salas: Sala[] }) {
       const el = pista.current;
       if (el) {
         const r = el.getBoundingClientRect();
-        const total = r.height - window.innerHeight;
-        const p =
-          total > 0 ? Math.min(0.999, Math.max(0, -r.top / total)) : 0;
-        setIndice(Math.floor(p * salas.length));
+        const total = el.offsetHeight - window.innerHeight;
+        const p = Math.min(1, Math.max(0, -r.top / (total || 1)));
+        setIndice(
+          Math.min(salas.length - 1, Math.floor(p * salas.length)),
+        );
       }
       raf = requestAnimationFrame(medir);
     };
@@ -57,6 +58,7 @@ export function Percurso({ salas }: { salas: Sala[] }) {
   }, [salas.length]);
 
   const actual = salas[Math.min(indice, salas.length - 1)];
+  const numero = (n: number) => String(n).padStart(2, "0");
 
   return (
     <div ref={raiz} className="percurso">
@@ -64,11 +66,12 @@ export function Percurso({ salas }: { salas: Sala[] }) {
       <div className="percurso-lista flex flex-col gap-20 px-7 pb-28">
         {salas.map((s, i) => (
           <article key={s.id} className="flex flex-col gap-6">
-            <span className="etiqueta">
-              {String(i + 1).padStart(2, "0")} /{" "}
-              {String(salas.length).padStart(2, "0")}
+            <span className="text-[11px] tracking-[0.3em] text-[rgba(242,237,228,0.6)] uppercase">
+              {numero(i + 1)} / {numero(salas.length)}
             </span>
-            <h2 className="titulo d-2">{s.nome}</h2>
+            <h2 className="titulo text-[clamp(34px,5.5vw,86px)] leading-[0.88]">
+              {s.nome}
+            </h2>
             <Imagem
               media={s.fotografia}
               alt={s.nome}
@@ -76,11 +79,13 @@ export function Percurso({ salas }: { salas: Sala[] }) {
               legenda={s.nome}
               sizes="100vw"
             />
-            <p className="max-w-[54ch] text-[18px] leading-[1.65] text-[rgba(242,237,228,0.8)]">
+            <p className="max-w-[54ch] text-[18px] leading-[1.6] text-[rgba(242,237,228,0.82)]">
               {s.texto}
             </p>
-            {s.obras.length > 0 && (
-              <p className="text-[14px] text-claro-55">{s.obras.join(" · ")}</p>
+            {s.notaObras && (
+              <p className="text-[14px] tracking-[0.06em] text-[rgba(242,237,228,0.55)]">
+                {s.notaObras}
+              </p>
             )}
           </article>
         ))}
@@ -94,58 +99,70 @@ export function Percurso({ salas }: { salas: Sala[] }) {
         style={{ height: `${salas.length * 105}vh` }}
       >
         <div className="sticky top-0 h-dvh overflow-hidden">
-          {salas.map((s, i) => (
+          <div className="absolute inset-0">
+            {salas.map((s, i) => (
+              <div
+                key={s.id}
+                className="absolute inset-0"
+                style={{
+                  opacity: i === indice ? 1 : 0,
+                  transform: `scale(${i === indice ? 1 : 1.06})`,
+                  transition: "opacity 1s ease, transform 1.6s ease",
+                }}
+              >
+                <Imagem
+                  media={s.fotografia}
+                  alt=""
+                  legenda={s.nome}
+                  revelar={false}
+                  prioridade={i === 0}
+                  sizes="100vw"
+                  className="h-full"
+                />
+              </div>
+            ))}
+
+            {/* Degradê da esquerda para a direita: o texto fica legível
+                sem escurecer a fotografia toda. */}
             <div
-              key={s.id}
-              className="absolute inset-0 transition-opacity duration-700"
-              style={{ opacity: i === indice ? 1 : 0 }}
-            >
-              <Imagem
-                media={s.fotografia}
-                alt=""
-                legenda={s.nome}
-                revelar={false}
-                prioridade={i === 0}
-                sizes="100vw"
-                className="h-full"
-              />
-            </div>
-          ))}
+              className="pointer-events-none absolute inset-0"
+              style={{
+                background:
+                  "linear-gradient(to right, rgba(14,12,11,0.92) 0%, rgba(14,12,11,0.4) 46%, rgba(14,12,11,0.15) 100%)",
+              }}
+            />
+          </div>
 
-          <div
-            className="pointer-events-none absolute inset-0"
-            style={{
-              background:
-                "linear-gradient(to bottom, rgba(14,12,11,0.55), rgba(14,12,11,0.1) 40%, rgba(14,12,11,0.95))",
-            }}
-          />
-
-          <div className="absolute inset-x-7 bottom-16 flex flex-col gap-5">
-            <span className="etiqueta">
-              {String(indice + 1).padStart(2, "0")} /{" "}
-              {String(salas.length).padStart(2, "0")}
+          <div className="pointer-events-none relative flex h-full max-w-[44ch] flex-col justify-center gap-[22px] px-7">
+            <span className="text-[11px] tracking-[0.3em] text-[rgba(242,237,228,0.6)]">
+              {numero(indice + 1)} / {numero(salas.length)}
             </span>
-            <h2 className="titulo d-1">{actual.nome}</h2>
-            <p className="max-w-[52ch] text-[18px] leading-[1.6] text-[rgba(242,237,228,0.85)]">
+            <h2 className="titulo text-[clamp(34px,5.5vw,86px)] leading-[0.88]">
+              {actual.nome}
+            </h2>
+            <p className="text-[18px] leading-[1.6] text-[rgba(242,237,228,0.82)]">
               {actual.texto}
             </p>
-            {actual.obras.length > 0 && (
-              <p className="text-[14px] text-claro-55">
-                {actual.obras.join(" · ")}
-              </p>
+            {actual.notaObras && (
+              <span className="text-[14px] tracking-[0.06em] text-[rgba(242,237,228,0.55)]">
+                {actual.notaObras}
+              </span>
             )}
+          </div>
 
-            <div className="mt-2 flex gap-2">
-              {salas.map((s, i) => (
-                <span
-                  key={s.id}
-                  className="h-[2px] flex-1 transition-colors"
-                  style={{
-                    background: i <= indice ? "#B4884A" : "rgba(242,237,228,0.2)",
-                  }}
-                />
-              ))}
-            </div>
+          <div className="absolute bottom-9 left-7 flex gap-2">
+            {salas.map((s, i) => (
+              <span
+                key={s.id}
+                className="block h-[2px]"
+                style={{
+                  width: i === indice ? 44 : 20,
+                  background:
+                    i === indice ? "#B4884A" : "rgba(242,237,228,0.3)",
+                  transition: "width .4s ease, background .4s ease",
+                }}
+              />
+            ))}
           </div>
         </div>
       </div>

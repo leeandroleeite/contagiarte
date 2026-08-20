@@ -3,6 +3,7 @@ import { Seccao, TituloSeccao } from "@/components/Seccao";
 import { listarDescarregaveis } from "@/lib/dados";
 import { t, texto, type Idioma } from "@/lib/i18n";
 import { comMarca, metadados } from "@/lib/metadados";
+import { colunas } from "@/lib/utils";
 
 export const revalidate = 300;
 
@@ -48,7 +49,7 @@ export default async function PaginaDescarregar({
       ) : (
         <ul
           className="grid gap-6"
-          style={{ gridTemplateColumns: "repeat(auto-fit,minmax(280px,1fr))" }}
+          style={colunas(280)}
         >
           {ficheiros.map((f) => (
             <li key={f.id} className="contents">

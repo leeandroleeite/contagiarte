@@ -127,9 +127,14 @@ export const artistas = pgTable(
     retratoId: uuid("retrato_id").references(() => media.id, {
       onDelete: "set null",
     }),
+    // Linha pequena por cima do nome, no herói da página do artista.
+    // Ex. "ARTISTA · PORTO", "ARTISTAS · DUPLA".
+    etiqueta: localizado("etiqueta"),
     nota: localizado("nota"),
     biografia: localizado("biografia"),
     citacao: localizado("citacao"),
+    // A quem se atribui a citação, ex. "MÁRIO FERREIRA, SOBRE EXPOR NO DOURO".
+    citacaoFonte: text("citacao_fonte"),
     estado: estadoEnum("estado").notNull().default("rascunho"),
     ordem: integer("ordem").notNull().default(0),
     criadoEm: timestamp("criado_em", { withTimezone: true })
@@ -313,6 +318,10 @@ export const salas = pgTable(
     slug: text("slug").notNull(),
     nome: localizado("nome").notNull(),
     texto: localizado("texto"),
+    // Linha livre com o que está exposto na sala, ex. "Obras de
+    // Ana+Betânia e Vanessa Teodoro". Complementa a relação salas_obras,
+    // que nem sempre está preenchida.
+    notaObras: localizado("nota_obras"),
     fotografiaId: uuid("fotografia_id").references(() => media.id, {
       onDelete: "set null",
     }),

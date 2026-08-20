@@ -1,0 +1,1945 @@
+{
+  "id": "609c6736-e202-4923-b1c5-4992a4398102",
+  "prevId": "9b1636e1-55de-4f1b-8442-a8caabf0b25a",
+  "version": "7",
+  "dialect": "postgresql",
+  "tables": {
+    "public.artistas": {
+      "name": "artistas",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "gen_random_uuid()"
+        },
+        "slug": {
+          "name": "slug",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "nome": {
+          "name": "nome",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "disciplina": {
+          "name": "disciplina",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'pintura'"
+        },
+        "naturalidade": {
+          "name": "naturalidade",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "instagram": {
+          "name": "instagram",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "website": {
+          "name": "website",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "retrato_id": {
+          "name": "retrato_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "etiqueta": {
+          "name": "etiqueta",
+          "type": "jsonb",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "nota": {
+          "name": "nota",
+          "type": "jsonb",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "biografia": {
+          "name": "biografia",
+          "type": "jsonb",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "citacao": {
+          "name": "citacao",
+          "type": "jsonb",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "citacao_fonte": {
+          "name": "citacao_fonte",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "estado": {
+          "name": "estado",
+          "type": "estado",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'rascunho'"
+        },
+        "ordem": {
+          "name": "ordem",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "default": 0
+        },
+        "criado_em": {
+          "name": "criado_em",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "actualizado_em": {
+          "name": "actualizado_em",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {
+        "artistas_slug_idx": {
+          "name": "artistas_slug_idx",
+          "columns": [
+            {
+              "expression": "slug",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": true,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "artistas_estado_idx": {
+          "name": "artistas_estado_idx",
+          "columns": [
+            {
+              "expression": "estado",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {
+        "artistas_retrato_id_media_id_fk": {
+          "name": "artistas_retrato_id_media_id_fk",
+          "tableFrom": "artistas",
+          "tableTo": "media",
+          "columnsFrom": [
+            "retrato_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "set null",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.definicoes": {
+      "name": "definicoes",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "integer",
+          "primaryKey": true,
+          "notNull": true,
+          "default": 1
+        },
+        "valor": {
+          "name": "valor",
+          "type": "jsonb",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "actualizado_em": {
+          "name": "actualizado_em",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.descarregaveis": {
+      "name": "descarregaveis",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "gen_random_uuid()"
+        },
+        "slug": {
+          "name": "slug",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "etiqueta": {
+          "name": "etiqueta",
+          "type": "jsonb",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "nome": {
+          "name": "nome",
+          "type": "jsonb",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "descricao": {
+          "name": "descricao",
+          "type": "jsonb",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "ficheiro_id": {
+          "name": "ficheiro_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "data": {
+          "name": "data",
+          "type": "date",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "descargas": {
+          "name": "descargas",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "default": 0
+        },
+        "estado": {
+          "name": "estado",
+          "type": "estado",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'rascunho'"
+        },
+        "ordem": {
+          "name": "ordem",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "default": 0
+        }
+      },
+      "indexes": {
+        "descarregaveis_slug_idx": {
+          "name": "descarregaveis_slug_idx",
+          "columns": [
+            {
+              "expression": "slug",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": true,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {
+        "descarregaveis_ficheiro_id_media_id_fk": {
+          "name": "descarregaveis_ficheiro_id_media_id_fk",
+          "tableFrom": "descarregaveis",
+          "tableTo": "media",
+          "columnsFrom": [
+            "ficheiro_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "set null",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.exposicoes": {
+      "name": "exposicoes",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "gen_random_uuid()"
+        },
+        "slug": {
+          "name": "slug",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "titulo": {
+          "name": "titulo",
+          "type": "jsonb",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "subtitulo": {
+          "name": "subtitulo",
+          "type": "jsonb",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "lugar_id": {
+          "name": "lugar_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "data_inicio": {
+          "name": "data_inicio",
+          "type": "date",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "data_fim": {
+          "name": "data_fim",
+          "type": "date",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "permanente": {
+          "name": "permanente",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": true,
+          "default": false
+        },
+        "curadoria": {
+          "name": "curadoria",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "horario": {
+          "name": "horario",
+          "type": "jsonb",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "reservas": {
+          "name": "reservas",
+          "type": "jsonb",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "inclui": {
+          "name": "inclui",
+          "type": "jsonb",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "imagem_id": {
+          "name": "imagem_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "texto": {
+          "name": "texto",
+          "type": "jsonb",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "citacao": {
+          "name": "citacao",
+          "type": "jsonb",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "citacao_autor": {
+          "name": "citacao_autor",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "destaque": {
+          "name": "destaque",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": true,
+          "default": false
+        },
+        "estado": {
+          "name": "estado",
+          "type": "estado",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'rascunho'"
+        },
+        "ordem": {
+          "name": "ordem",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "default": 0
+        },
+        "criado_em": {
+          "name": "criado_em",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "actualizado_em": {
+          "name": "actualizado_em",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {
+        "exposicoes_slug_idx": {
+          "name": "exposicoes_slug_idx",
+          "columns": [
+            {
+              "expression": "slug",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": true,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "exposicoes_estado_idx": {
+          "name": "exposicoes_estado_idx",
+          "columns": [
+            {
+              "expression": "estado",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {
+        "exposicoes_lugar_id_lugares_id_fk": {
+          "name": "exposicoes_lugar_id_lugares_id_fk",
+          "tableFrom": "exposicoes",
+          "tableTo": "lugares",
+          "columnsFrom": [
+            "lugar_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "set null",
+          "onUpdate": "no action"
+        },
+        "exposicoes_imagem_id_media_id_fk": {
+          "name": "exposicoes_imagem_id_media_id_fk",
+          "tableFrom": "exposicoes",
+          "tableTo": "media",
+          "columnsFrom": [
+            "imagem_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "set null",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.exposicoes_artistas": {
+      "name": "exposicoes_artistas",
+      "schema": "",
+      "columns": {
+        "exposicao_id": {
+          "name": "exposicao_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "artista_id": {
+          "name": "artista_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "ordem": {
+          "name": "ordem",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "default": 0
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "exposicoes_artistas_exposicao_id_exposicoes_id_fk": {
+          "name": "exposicoes_artistas_exposicao_id_exposicoes_id_fk",
+          "tableFrom": "exposicoes_artistas",
+          "tableTo": "exposicoes",
+          "columnsFrom": [
+            "exposicao_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        },
+        "exposicoes_artistas_artista_id_artistas_id_fk": {
+          "name": "exposicoes_artistas_artista_id_artistas_id_fk",
+          "tableFrom": "exposicoes_artistas",
+          "tableTo": "artistas",
+          "columnsFrom": [
+            "artista_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {
+        "exposicoes_artistas_exposicao_id_artista_id_pk": {
+          "name": "exposicoes_artistas_exposicao_id_artista_id_pk",
+          "columns": [
+            "exposicao_id",
+            "artista_id"
+          ]
+        }
+      },
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.lugares": {
+      "name": "lugares",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "gen_random_uuid()"
+        },
+        "slug": {
+          "name": "slug",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "nome": {
+          "name": "nome",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "localidade": {
+          "name": "localidade",
+          "type": "jsonb",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "tipo": {
+          "name": "tipo",
+          "type": "jsonb",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "morada": {
+          "name": "morada",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "site": {
+          "name": "site",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "mapa": {
+          "name": "mapa",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "fotografia_id": {
+          "name": "fotografia_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "descricao": {
+          "name": "descricao",
+          "type": "jsonb",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "estado": {
+          "name": "estado",
+          "type": "estado",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'rascunho'"
+        },
+        "ordem": {
+          "name": "ordem",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "default": 0
+        },
+        "criado_em": {
+          "name": "criado_em",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "actualizado_em": {
+          "name": "actualizado_em",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {
+        "lugares_slug_idx": {
+          "name": "lugares_slug_idx",
+          "columns": [
+            {
+              "expression": "slug",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": true,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {
+        "lugares_fotografia_id_media_id_fk": {
+          "name": "lugares_fotografia_id_media_id_fk",
+          "tableFrom": "lugares",
+          "tableTo": "media",
+          "columnsFrom": [
+            "fotografia_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "set null",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.media": {
+      "name": "media",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "gen_random_uuid()"
+        },
+        "chave": {
+          "name": "chave",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "nome_original": {
+          "name": "nome_original",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "tipo_mime": {
+          "name": "tipo_mime",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "tamanho": {
+          "name": "tamanho",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "default": 0
+        },
+        "largura": {
+          "name": "largura",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "altura": {
+          "name": "altura",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "cor_dominante": {
+          "name": "cor_dominante",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "blur": {
+          "name": "blur",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "alt": {
+          "name": "alt",
+          "type": "jsonb",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "legenda": {
+          "name": "legenda",
+          "type": "jsonb",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "criado_em": {
+          "name": "criado_em",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.molduras": {
+      "name": "molduras",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "gen_random_uuid()"
+        },
+        "slug": {
+          "name": "slug",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "nome": {
+          "name": "nome",
+          "type": "jsonb",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "cor": {
+          "name": "cor",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'#2A2320'"
+        },
+        "espessura_mm": {
+          "name": "espessura_mm",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "default": 20
+        },
+        "passepartout": {
+          "name": "passepartout",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": true,
+          "default": false
+        },
+        "estado": {
+          "name": "estado",
+          "type": "estado",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'publicado'"
+        },
+        "ordem": {
+          "name": "ordem",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "default": 0
+        }
+      },
+      "indexes": {
+        "molduras_slug_idx": {
+          "name": "molduras_slug_idx",
+          "columns": [
+            {
+              "expression": "slug",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": true,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.obras": {
+      "name": "obras",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "gen_random_uuid()"
+        },
+        "slug": {
+          "name": "slug",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "titulo": {
+          "name": "titulo",
+          "type": "jsonb",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "artista_id": {
+          "name": "artista_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "tecnica": {
+          "name": "tecnica",
+          "type": "jsonb",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "dimensoes": {
+          "name": "dimensoes",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "ano": {
+          "name": "ano",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "exposicao_id": {
+          "name": "exposicao_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "fotografia_id": {
+          "name": "fotografia_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "descricao": {
+          "name": "descricao",
+          "type": "jsonb",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "preco": {
+          "name": "preco",
+          "type": "jsonb",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "largura_cm": {
+          "name": "largura_cm",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "altura_cm": {
+          "name": "altura_cm",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "disponibilidade": {
+          "name": "disponibilidade",
+          "type": "disponibilidade",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'disponivel'"
+        },
+        "destaque": {
+          "name": "destaque",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": true,
+          "default": false
+        },
+        "estado": {
+          "name": "estado",
+          "type": "estado",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'rascunho'"
+        },
+        "ordem": {
+          "name": "ordem",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "default": 0
+        },
+        "criado_em": {
+          "name": "criado_em",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "actualizado_em": {
+          "name": "actualizado_em",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {
+        "obras_slug_idx": {
+          "name": "obras_slug_idx",
+          "columns": [
+            {
+              "expression": "slug",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": true,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "obras_artista_idx": {
+          "name": "obras_artista_idx",
+          "columns": [
+            {
+              "expression": "artista_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "obras_exposicao_idx": {
+          "name": "obras_exposicao_idx",
+          "columns": [
+            {
+              "expression": "exposicao_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "obras_estado_idx": {
+          "name": "obras_estado_idx",
+          "columns": [
+            {
+              "expression": "estado",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {
+        "obras_artista_id_artistas_id_fk": {
+          "name": "obras_artista_id_artistas_id_fk",
+          "tableFrom": "obras",
+          "tableTo": "artistas",
+          "columnsFrom": [
+            "artista_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "set null",
+          "onUpdate": "no action"
+        },
+        "obras_exposicao_id_exposicoes_id_fk": {
+          "name": "obras_exposicao_id_exposicoes_id_fk",
+          "tableFrom": "obras",
+          "tableTo": "exposicoes",
+          "columnsFrom": [
+            "exposicao_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "set null",
+          "onUpdate": "no action"
+        },
+        "obras_fotografia_id_media_id_fk": {
+          "name": "obras_fotografia_id_media_id_fk",
+          "tableFrom": "obras",
+          "tableTo": "media",
+          "columnsFrom": [
+            "fotografia_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "set null",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.obras_media": {
+      "name": "obras_media",
+      "schema": "",
+      "columns": {
+        "obra_id": {
+          "name": "obra_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "media_id": {
+          "name": "media_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "ordem": {
+          "name": "ordem",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "default": 0
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "obras_media_obra_id_obras_id_fk": {
+          "name": "obras_media_obra_id_obras_id_fk",
+          "tableFrom": "obras_media",
+          "tableTo": "obras",
+          "columnsFrom": [
+            "obra_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        },
+        "obras_media_media_id_media_id_fk": {
+          "name": "obras_media_media_id_media_id_fk",
+          "tableFrom": "obras_media",
+          "tableTo": "media",
+          "columnsFrom": [
+            "media_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {
+        "obras_media_obra_id_media_id_pk": {
+          "name": "obras_media_obra_id_media_id_pk",
+          "columns": [
+            "obra_id",
+            "media_id"
+          ]
+        }
+      },
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.pedidos": {
+      "name": "pedidos",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "gen_random_uuid()"
+        },
+        "tipo": {
+          "name": "tipo",
+          "type": "tipo_pedido",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "nome": {
+          "name": "nome",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "email": {
+          "name": "email",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "telefone": {
+          "name": "telefone",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "mensagem": {
+          "name": "mensagem",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "dados": {
+          "name": "dados",
+          "type": "jsonb",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "obra_id": {
+          "name": "obra_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "anexo_id": {
+          "name": "anexo_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "idioma": {
+          "name": "idioma",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'pt'"
+        },
+        "origem": {
+          "name": "origem",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "estado": {
+          "name": "estado",
+          "type": "estado_pedido",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'novo'"
+        },
+        "nota_interna": {
+          "name": "nota_interna",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "criado_em": {
+          "name": "criado_em",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {
+        "pedidos_estado_idx": {
+          "name": "pedidos_estado_idx",
+          "columns": [
+            {
+              "expression": "estado",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "pedidos_criado_idx": {
+          "name": "pedidos_criado_idx",
+          "columns": [
+            {
+              "expression": "criado_em",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {
+        "pedidos_obra_id_obras_id_fk": {
+          "name": "pedidos_obra_id_obras_id_fk",
+          "tableFrom": "pedidos",
+          "tableTo": "obras",
+          "columnsFrom": [
+            "obra_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "set null",
+          "onUpdate": "no action"
+        },
+        "pedidos_anexo_id_media_id_fk": {
+          "name": "pedidos_anexo_id_media_id_fk",
+          "tableFrom": "pedidos",
+          "tableTo": "media",
+          "columnsFrom": [
+            "anexo_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "set null",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.registo": {
+      "name": "registo",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "gen_random_uuid()"
+        },
+        "utilizador_id": {
+          "name": "utilizador_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "accao": {
+          "name": "accao",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "entidade": {
+          "name": "entidade",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "entidade_id": {
+          "name": "entidade_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "resumo": {
+          "name": "resumo",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "criado_em": {
+          "name": "criado_em",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {
+        "registo_criado_idx": {
+          "name": "registo_criado_idx",
+          "columns": [
+            {
+              "expression": "criado_em",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {
+        "registo_utilizador_id_utilizadores_id_fk": {
+          "name": "registo_utilizador_id_utilizadores_id_fk",
+          "tableFrom": "registo",
+          "tableTo": "utilizadores",
+          "columnsFrom": [
+            "utilizador_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "set null",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.salas": {
+      "name": "salas",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "gen_random_uuid()"
+        },
+        "exposicao_id": {
+          "name": "exposicao_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "slug": {
+          "name": "slug",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "nome": {
+          "name": "nome",
+          "type": "jsonb",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "texto": {
+          "name": "texto",
+          "type": "jsonb",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "nota_obras": {
+          "name": "nota_obras",
+          "type": "jsonb",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "fotografia_id": {
+          "name": "fotografia_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "ordem": {
+          "name": "ordem",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "default": 0
+        }
+      },
+      "indexes": {
+        "salas_exposicao_slug_idx": {
+          "name": "salas_exposicao_slug_idx",
+          "columns": [
+            {
+              "expression": "exposicao_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "slug",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": true,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {
+        "salas_exposicao_id_exposicoes_id_fk": {
+          "name": "salas_exposicao_id_exposicoes_id_fk",
+          "tableFrom": "salas",
+          "tableTo": "exposicoes",
+          "columnsFrom": [
+            "exposicao_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        },
+        "salas_fotografia_id_media_id_fk": {
+          "name": "salas_fotografia_id_media_id_fk",
+          "tableFrom": "salas",
+          "tableTo": "media",
+          "columnsFrom": [
+            "fotografia_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "set null",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.salas_obras": {
+      "name": "salas_obras",
+      "schema": "",
+      "columns": {
+        "sala_id": {
+          "name": "sala_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "obra_id": {
+          "name": "obra_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "ordem": {
+          "name": "ordem",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "default": 0
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "salas_obras_sala_id_salas_id_fk": {
+          "name": "salas_obras_sala_id_salas_id_fk",
+          "tableFrom": "salas_obras",
+          "tableTo": "salas",
+          "columnsFrom": [
+            "sala_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        },
+        "salas_obras_obra_id_obras_id_fk": {
+          "name": "salas_obras_obra_id_obras_id_fk",
+          "tableFrom": "salas_obras",
+          "tableTo": "obras",
+          "columnsFrom": [
+            "obra_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {
+        "salas_obras_sala_id_obra_id_pk": {
+          "name": "salas_obras_sala_id_obra_id_pk",
+          "columns": [
+            "sala_id",
+            "obra_id"
+          ]
+        }
+      },
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.subscritores": {
+      "name": "subscritores",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "gen_random_uuid()"
+        },
+        "email": {
+          "name": "email",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "nome": {
+          "name": "nome",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "idioma": {
+          "name": "idioma",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'pt'"
+        },
+        "estado": {
+          "name": "estado",
+          "type": "estado_subscritor",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'pendente'"
+        },
+        "token": {
+          "name": "token",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "origem": {
+          "name": "origem",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "confirmado_em": {
+          "name": "confirmado_em",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "criado_em": {
+          "name": "criado_em",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {
+        "subscritores_email_idx": {
+          "name": "subscritores_email_idx",
+          "columns": [
+            {
+              "expression": "email",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": true,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "subscritores_token_idx": {
+          "name": "subscritores_token_idx",
+          "columns": [
+            {
+              "expression": "token",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.textos": {
+      "name": "textos",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "gen_random_uuid()"
+        },
+        "chave": {
+          "name": "chave",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "valor": {
+          "name": "valor",
+          "type": "jsonb",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "nota": {
+          "name": "nota",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "grupo": {
+          "name": "grupo",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'geral'"
+        },
+        "actualizado_em": {
+          "name": "actualizado_em",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {
+        "textos_chave_idx": {
+          "name": "textos_chave_idx",
+          "columns": [
+            {
+              "expression": "chave",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": true,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.utilizadores": {
+      "name": "utilizadores",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "gen_random_uuid()"
+        },
+        "email": {
+          "name": "email",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "nome": {
+          "name": "nome",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "palavra_passe_hash": {
+          "name": "palavra_passe_hash",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "papel": {
+          "name": "papel",
+          "type": "papel",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'editor'"
+        },
+        "activo": {
+          "name": "activo",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": true,
+          "default": true
+        },
+        "ultimo_acesso": {
+          "name": "ultimo_acesso",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "criado_em": {
+          "name": "criado_em",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {
+        "utilizadores_email_idx": {
+          "name": "utilizadores_email_idx",
+          "columns": [
+            {
+              "expression": "email",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": true,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    }
+  },
+  "enums": {
+    "public.disponibilidade": {
+      "name": "disponibilidade",
+      "schema": "public",
+      "values": [
+        "disponivel",
+        "reservada",
+        "vendida",
+        "nao_venal"
+      ]
+    },
+    "public.estado": {
+      "name": "estado",
+      "schema": "public",
+      "values": [
+        "rascunho",
+        "publicado",
+        "arquivado"
+      ]
+    },
+    "public.estado_pedido": {
+      "name": "estado_pedido",
+      "schema": "public",
+      "values": [
+        "novo",
+        "em_curso",
+        "fechado"
+      ]
+    },
+    "public.estado_subscritor": {
+      "name": "estado_subscritor",
+      "schema": "public",
+      "values": [
+        "pendente",
+        "activo",
+        "removido"
+      ]
+    },
+    "public.papel": {
+      "name": "papel",
+      "schema": "public",
+      "values": [
+        "administrador",
+        "editor"
+      ]
+    },
+    "public.tipo_pedido": {
+      "name": "tipo_pedido",
+      "schema": "public",
+      "values": [
+        "moldura",
+        "obra",
+        "contacto",
+        "visita",
+        "parede"
+      ]
+    }
+  },
+  "schemas": {},
+  "sequences": {},
+  "roles": {},
+  "policies": {},
+  "views": {},
+  "_meta": {
+    "columns": {},
+    "schemas": {},
+    "tables": {}
+  }
+}

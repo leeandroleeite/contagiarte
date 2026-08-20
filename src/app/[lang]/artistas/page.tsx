@@ -7,6 +7,7 @@ import { t, texto, type Idioma } from "@/lib/i18n";
 import { caminho } from "@/lib/i18n/config";
 import { comMarca, metadados } from "@/lib/metadados";
 import Link from "next/link";
+import { colunas } from "@/lib/utils";
 
 export const revalidate = 300;
 
@@ -60,7 +61,7 @@ export default async function PaginaArtistas({
       <Seccao semFio>
         <ul
           className="grid gap-x-6 gap-y-12"
-          style={{ gridTemplateColumns: "repeat(auto-fill,minmax(240px,1fr))" }}
+          style={colunas(240, "auto-fill")}
         >
           {artistas.map((a) => (
             <li key={a.id}>

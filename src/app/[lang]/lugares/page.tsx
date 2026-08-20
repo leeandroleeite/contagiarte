@@ -4,6 +4,7 @@ import { Seccao, TituloSeccao } from "@/components/Seccao";
 import { listarLugares, obterTextos } from "@/lib/dados";
 import { t, texto, type Idioma } from "@/lib/i18n";
 import { comMarca, metadados } from "@/lib/metadados";
+import { colunas } from "@/lib/utils";
 
 export const revalidate = 300;
 
@@ -48,7 +49,7 @@ export default async function PaginaLugares({
 
       <ul
         className="grid gap-x-6 gap-y-14"
-        style={{ gridTemplateColumns: "repeat(auto-fill,minmax(260px,1fr))" }}
+        style={colunas(260, "auto-fill")}
       >
         {lugares.map((l) => (
           <li key={l.id} className="flex flex-col gap-4">
@@ -75,7 +76,7 @@ export default async function PaginaLugares({
                 href={l.site}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="text-[12px] tracking-[0.18em] uppercase"
+                className="inline-flex min-h-11 items-center text-[12px] tracking-[0.18em] uppercase"
               >
                 {new URL(l.site).hostname.replace("www.", "")} →
               </a>

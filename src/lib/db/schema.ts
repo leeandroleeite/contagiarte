@@ -1,17 +1,12 @@
+import { randomUUID } from "node:crypto";
 import {
-  boolean,
-  date,
   index,
   integer,
-  jsonb,
-  pgEnum,
-  pgTable,
   primaryKey,
+  sqliteTable,
   text,
-  timestamp,
   uniqueIndex,
-  uuid,
-} from "drizzle-orm/pg-core";
+} from "drizzle-orm/sqlite-core";
 
 /**
  * Texto traduzível. O português é obrigatório porque é a língua de
@@ -23,64 +18,59 @@ export type Localizado = {
   es?: string | null;
 };
 
-const localizado = (nome: string) => jsonb(nome).$type<Localizado>();
+const localizado = (nome: string) =>
+  text(nome, { mode: "json" }).$type<Localizado>();
 
 // --------------------------------------------------------------------
-// Enums
+// Valores fechados
+//
+// O SQLite não tem enums; a restrição vive no tipo, que é onde importa
+// para quem escreve o código. As listas ficam exportadas para os
+// formulários do backoffice as poderem oferecer.
 // --------------------------------------------------------------------
 
-export const estadoEnum = pgEnum("estado", [
-  "rascunho",
-  "publicado",
-  "arquivado",
-]);
+export const ESTADOS = ["rascunho", "publicado", "arquivado"] as const;
 
-export const disponibilidadeEnum = pgEnum("disponibilidade", [
+export const DISPONIBILIDADES = [
   "disponivel",
   "reservada",
   "vendida",
   "nao_venal",
-]);
+] as const;
 
-export const papelEnum = pgEnum("papel", ["administrador", "editor"]);
+export const PAPEIS = ["administrador", "editor"] as const;
 
-export const tipoPedidoEnum = pgEnum("tipo_pedido", [
+export const TIPOS_PEDIDO = [
   "moldura",
   "obra",
   "contacto",
   "visita",
   "parede",
-]);
+] as const;
 
-export const estadoPedidoEnum = pgEnum("estado_pedido", [
-  "novo",
-  "em_curso",
-  "fechado",
-]);
+export const ESTADOS_PEDIDO = ["novo", "em_curso", "fechado"] as const;
 
-export const estadoSubscritorEnum = pgEnum("estado_subscritor", [
-  "pendente",
-  "activo",
-  "removido",
-]);
+export const ESTADOS_SUBSCRITOR = ["pendente", "activo", "removido"] as const;
 
 // --------------------------------------------------------------------
 // Utilizadores do backoffice
 // --------------------------------------------------------------------
 
-export const utilizadores = pgTable(
+export const utilizadores = sqliteTable(
   "utilizadores",
   {
-    id: uuid("id").defaultRandom().primaryKey(),
+    id: text("id")
+      .primaryKey()
+      .$defaultFn(() => randomUUID()),
     email: text("email").notNull(),
     nome: text("nome").notNull(),
     palavraPasseHash: text("palavra_passe_hash").notNull(),
-    papel: papelEnum("papel").notNull().default("editor"),
-    activo: boolean("activo").notNull().default(true),
-    ultimoAcesso: timestamp("ultimo_acesso", { withTimezone: true }),
-    criadoEm: timestamp("criado_em", { withTimezone: true })
+    papel: text("papel", { enum: PAPEIS }).notNull().default("editor"),
+    activo: integer("activo", { mode: "boolean" }).notNull().default(true),
+    ultimoAcesso: integer("ultimo_acesso", { mode: "timestamp" }),
+    criadoEm: integer("criado_em", { mode: "timestamp" })
       .notNull()
-      .defaultNow(),
+      .$defaultFn(() => new Date()),
   },
   (t) => [uniqueIndex("utilizadores_email_idx").on(t.email)],
 );
@@ -89,8 +79,10 @@ export const utilizadores = pgTable(
 // Media: tudo o que vive no R2
 // --------------------------------------------------------------------
 
-export const media = pgTable("media", {
-  id: uuid("id").defaultRandom().primaryKey(),
+export const media = sqliteTable("media", {
+  id: text("id")
+    .primaryKey()
+    .$defaultFn(() => randomUUID()),
   chave: text("chave").notNull(), // caminho do objecto no bucket
   nomeOriginal: text("nome_original").notNull(),
   tipoMime: text("tipo_mime").notNull(),
@@ -103,19 +95,21 @@ export const media = pgTable("media", {
   blur: text("blur"),
   alt: localizado("alt"),
   legenda: localizado("legenda"),
-  criadoEm: timestamp("criado_em", { withTimezone: true })
+  criadoEm: integer("criado_em", { mode: "timestamp" })
     .notNull()
-    .defaultNow(),
+    .$defaultFn(() => new Date()),
 });
 
 // --------------------------------------------------------------------
 // Artistas
 // --------------------------------------------------------------------
 
-export const artistas = pgTable(
+export const artistas = sqliteTable(
   "artistas",
   {
-    id: uuid("id").defaultRandom().primaryKey(),
+    id: text("id")
+      .primaryKey()
+      .$defaultFn(() => randomUUID()),
     slug: text("slug").notNull(),
     nome: text("nome").notNull(),
     // Chave de disciplina ('pintura', 'escultura', ...). A tradução do
@@ -124,7 +118,7 @@ export const artistas = pgTable(
     naturalidade: text("naturalidade"),
     instagram: text("instagram"),
     website: text("website"),
-    retratoId: uuid("retrato_id").references(() => media.id, {
+    retratoId: text("retrato_id").references(() => media.id, {
       onDelete: "set null",
     }),
     // Linha pequena por cima do nome, no herói da página do artista.
@@ -135,14 +129,14 @@ export const artistas = pgTable(
     citacao: localizado("citacao"),
     // A quem se atribui a citação, ex. "MÁRIO FERREIRA, SOBRE EXPOR NO DOURO".
     citacaoFonte: text("citacao_fonte"),
-    estado: estadoEnum("estado").notNull().default("rascunho"),
+    estado: text("estado", { enum: ESTADOS }).notNull().default("rascunho"),
     ordem: integer("ordem").notNull().default(0),
-    criadoEm: timestamp("criado_em", { withTimezone: true })
+    criadoEm: integer("criado_em", { mode: "timestamp" })
       .notNull()
-      .defaultNow(),
-    actualizadoEm: timestamp("actualizado_em", { withTimezone: true })
+      .$defaultFn(() => new Date()),
+    actualizadoEm: integer("actualizado_em", { mode: "timestamp" })
       .notNull()
-      .defaultNow(),
+      .$defaultFn(() => new Date()),
   },
   (t) => [
     uniqueIndex("artistas_slug_idx").on(t.slug),
@@ -154,10 +148,12 @@ export const artistas = pgTable(
 // Lugares onde a galeria expõe
 // --------------------------------------------------------------------
 
-export const lugares = pgTable(
+export const lugares = sqliteTable(
   "lugares",
   {
-    id: uuid("id").defaultRandom().primaryKey(),
+    id: text("id")
+      .primaryKey()
+      .$defaultFn(() => randomUUID()),
     slug: text("slug").notNull(),
     nome: text("nome").notNull(),
     localidade: localizado("localidade"),
@@ -165,18 +161,18 @@ export const lugares = pgTable(
     morada: text("morada"),
     site: text("site"),
     mapa: text("mapa"),
-    fotografiaId: uuid("fotografia_id").references(() => media.id, {
+    fotografiaId: text("fotografia_id").references(() => media.id, {
       onDelete: "set null",
     }),
     descricao: localizado("descricao"),
-    estado: estadoEnum("estado").notNull().default("rascunho"),
+    estado: text("estado", { enum: ESTADOS }).notNull().default("rascunho"),
     ordem: integer("ordem").notNull().default(0),
-    criadoEm: timestamp("criado_em", { withTimezone: true })
+    criadoEm: integer("criado_em", { mode: "timestamp" })
       .notNull()
-      .defaultNow(),
-    actualizadoEm: timestamp("actualizado_em", { withTimezone: true })
+      .$defaultFn(() => new Date()),
+    actualizadoEm: integer("actualizado_em", { mode: "timestamp" })
       .notNull()
-      .defaultNow(),
+      .$defaultFn(() => new Date()),
   },
   (t) => [uniqueIndex("lugares_slug_idx").on(t.slug)],
 );
@@ -185,40 +181,44 @@ export const lugares = pgTable(
 // Exposições
 // --------------------------------------------------------------------
 
-export const exposicoes = pgTable(
+export const exposicoes = sqliteTable(
   "exposicoes",
   {
-    id: uuid("id").defaultRandom().primaryKey(),
+    id: text("id")
+      .primaryKey()
+      .$defaultFn(() => randomUUID()),
     slug: text("slug").notNull(),
     titulo: localizado("titulo").notNull(),
     subtitulo: localizado("subtitulo"),
-    lugarId: uuid("lugar_id").references(() => lugares.id, {
+    lugarId: text("lugar_id").references(() => lugares.id, {
       onDelete: "set null",
     }),
-    dataInicio: date("data_inicio"),
-    dataFim: date("data_fim"),
+    dataInicio: text("data_inicio"),
+    dataFim: text("data_fim"),
     // Exposições permanentes não têm data de fim significativa.
-    permanente: boolean("permanente").notNull().default(false),
+    permanente: integer("permanente", { mode: "boolean" })
+      .notNull()
+      .default(false),
     curadoria: text("curadoria"),
     horario: localizado("horario"),
     reservas: localizado("reservas"),
     inclui: localizado("inclui"),
-    imagemId: uuid("imagem_id").references(() => media.id, {
+    imagemId: text("imagem_id").references(() => media.id, {
       onDelete: "set null",
     }),
     texto: localizado("texto"),
     citacao: localizado("citacao"),
     citacaoAutor: text("citacao_autor"),
     // Exposição mostrada na homepage como "em curso".
-    destaque: boolean("destaque").notNull().default(false),
-    estado: estadoEnum("estado").notNull().default("rascunho"),
+    destaque: integer("destaque", { mode: "boolean" }).notNull().default(false),
+    estado: text("estado", { enum: ESTADOS }).notNull().default("rascunho"),
     ordem: integer("ordem").notNull().default(0),
-    criadoEm: timestamp("criado_em", { withTimezone: true })
+    criadoEm: integer("criado_em", { mode: "timestamp" })
       .notNull()
-      .defaultNow(),
-    actualizadoEm: timestamp("actualizado_em", { withTimezone: true })
+      .$defaultFn(() => new Date()),
+    actualizadoEm: integer("actualizado_em", { mode: "timestamp" })
       .notNull()
-      .defaultNow(),
+      .$defaultFn(() => new Date()),
   },
   (t) => [
     uniqueIndex("exposicoes_slug_idx").on(t.slug),
@@ -226,13 +226,13 @@ export const exposicoes = pgTable(
   ],
 );
 
-export const exposicoesArtistas = pgTable(
+export const exposicoesArtistas = sqliteTable(
   "exposicoes_artistas",
   {
-    exposicaoId: uuid("exposicao_id")
+    exposicaoId: text("exposicao_id")
       .notNull()
       .references(() => exposicoes.id, { onDelete: "cascade" }),
-    artistaId: uuid("artista_id")
+    artistaId: text("artista_id")
       .notNull()
       .references(() => artistas.id, { onDelete: "cascade" }),
     ordem: integer("ordem").notNull().default(0),
@@ -244,22 +244,24 @@ export const exposicoesArtistas = pgTable(
 // Obras
 // --------------------------------------------------------------------
 
-export const obras = pgTable(
+export const obras = sqliteTable(
   "obras",
   {
-    id: uuid("id").defaultRandom().primaryKey(),
+    id: text("id")
+      .primaryKey()
+      .$defaultFn(() => randomUUID()),
     slug: text("slug").notNull(),
     titulo: localizado("titulo").notNull(),
-    artistaId: uuid("artista_id").references(() => artistas.id, {
+    artistaId: text("artista_id").references(() => artistas.id, {
       onDelete: "set null",
     }),
     tecnica: localizado("tecnica"),
     dimensoes: text("dimensoes"),
     ano: integer("ano"),
-    exposicaoId: uuid("exposicao_id").references(() => exposicoes.id, {
+    exposicaoId: text("exposicao_id").references(() => exposicoes.id, {
       onDelete: "set null",
     }),
-    fotografiaId: uuid("fotografia_id").references(() => media.id, {
+    fotografiaId: text("fotografia_id").references(() => media.id, {
       onDelete: "set null",
     }),
     descricao: localizado("descricao"),
@@ -268,18 +270,18 @@ export const obras = pgTable(
     // Largura real em cm, usada pelo simulador "Ver na parede".
     larguraCm: integer("largura_cm"),
     alturaCm: integer("altura_cm"),
-    disponibilidade: disponibilidadeEnum("disponibilidade")
+    disponibilidade: text("disponibilidade", { enum: DISPONIBILIDADES })
       .notNull()
       .default("disponivel"),
-    destaque: boolean("destaque").notNull().default(false),
-    estado: estadoEnum("estado").notNull().default("rascunho"),
+    destaque: integer("destaque", { mode: "boolean" }).notNull().default(false),
+    estado: text("estado", { enum: ESTADOS }).notNull().default("rascunho"),
     ordem: integer("ordem").notNull().default(0),
-    criadoEm: timestamp("criado_em", { withTimezone: true })
+    criadoEm: integer("criado_em", { mode: "timestamp" })
       .notNull()
-      .defaultNow(),
-    actualizadoEm: timestamp("actualizado_em", { withTimezone: true })
+      .$defaultFn(() => new Date()),
+    actualizadoEm: integer("actualizado_em", { mode: "timestamp" })
       .notNull()
-      .defaultNow(),
+      .$defaultFn(() => new Date()),
   },
   (t) => [
     uniqueIndex("obras_slug_idx").on(t.slug),
@@ -290,13 +292,13 @@ export const obras = pgTable(
 );
 
 /** Imagens adicionais de uma obra (detalhes, vista em sala). */
-export const obrasMedia = pgTable(
+export const obrasMedia = sqliteTable(
   "obras_media",
   {
-    obraId: uuid("obra_id")
+    obraId: text("obra_id")
       .notNull()
       .references(() => obras.id, { onDelete: "cascade" }),
-    mediaId: uuid("media_id")
+    mediaId: text("media_id")
       .notNull()
       .references(() => media.id, { onDelete: "cascade" }),
     ordem: integer("ordem").notNull().default(0),
@@ -308,11 +310,13 @@ export const obrasMedia = pgTable(
 // Percurso: salas de uma exposição, percorridas em scroll
 // --------------------------------------------------------------------
 
-export const salas = pgTable(
+export const salas = sqliteTable(
   "salas",
   {
-    id: uuid("id").defaultRandom().primaryKey(),
-    exposicaoId: uuid("exposicao_id")
+    id: text("id")
+      .primaryKey()
+      .$defaultFn(() => randomUUID()),
+    exposicaoId: text("exposicao_id")
       .notNull()
       .references(() => exposicoes.id, { onDelete: "cascade" }),
     slug: text("slug").notNull(),
@@ -322,7 +326,7 @@ export const salas = pgTable(
     // Ana+Betânia e Vanessa Teodoro". Complementa a relação salas_obras,
     // que nem sempre está preenchida.
     notaObras: localizado("nota_obras"),
-    fotografiaId: uuid("fotografia_id").references(() => media.id, {
+    fotografiaId: text("fotografia_id").references(() => media.id, {
       onDelete: "set null",
     }),
     ordem: integer("ordem").notNull().default(0),
@@ -330,13 +334,13 @@ export const salas = pgTable(
   (t) => [uniqueIndex("salas_exposicao_slug_idx").on(t.exposicaoId, t.slug)],
 );
 
-export const salasObras = pgTable(
+export const salasObras = sqliteTable(
   "salas_obras",
   {
-    salaId: uuid("sala_id")
+    salaId: text("sala_id")
       .notNull()
       .references(() => salas.id, { onDelete: "cascade" }),
-    obraId: uuid("obra_id")
+    obraId: text("obra_id")
       .notNull()
       .references(() => obras.id, { onDelete: "cascade" }),
     ordem: integer("ordem").notNull().default(0),
@@ -348,17 +352,21 @@ export const salasObras = pgTable(
 // Molduras oferecidas no simulador "Ver na parede"
 // --------------------------------------------------------------------
 
-export const molduras = pgTable(
+export const molduras = sqliteTable(
   "molduras",
   {
-    id: uuid("id").defaultRandom().primaryKey(),
+    id: text("id")
+      .primaryKey()
+      .$defaultFn(() => randomUUID()),
     slug: text("slug").notNull(),
     nome: localizado("nome").notNull(),
     // Cor e espessura desenhadas em CSS no simulador.
     cor: text("cor").notNull().default("#2A2320"),
     espessuraMm: integer("espessura_mm").notNull().default(20),
-    passepartout: boolean("passepartout").notNull().default(false),
-    estado: estadoEnum("estado").notNull().default("publicado"),
+    passepartout: integer("passepartout", { mode: "boolean" })
+      .notNull()
+      .default(false),
+    estado: text("estado", { enum: ESTADOS }).notNull().default("publicado"),
     ordem: integer("ordem").notNull().default(0),
   },
   (t) => [uniqueIndex("molduras_slug_idx").on(t.slug)],
@@ -368,18 +376,20 @@ export const molduras = pgTable(
 // Textos do site editáveis sem programador
 // --------------------------------------------------------------------
 
-export const textos = pgTable(
+export const textos = sqliteTable(
   "textos",
   {
-    id: uuid("id").defaultRandom().primaryKey(),
+    id: text("id")
+      .primaryKey()
+      .$defaultFn(() => randomUUID()),
     chave: text("chave").notNull(),
     valor: localizado("valor").notNull(),
     // Onde aparece, para o backoffice dar contexto a quem edita.
     nota: text("nota"),
     grupo: text("grupo").notNull().default("geral"),
-    actualizadoEm: timestamp("actualizado_em", { withTimezone: true })
+    actualizadoEm: integer("actualizado_em", { mode: "timestamp" })
       .notNull()
-      .defaultNow(),
+      .$defaultFn(() => new Date()),
   },
   (t) => [uniqueIndex("textos_chave_idx").on(t.chave)],
 );
@@ -388,20 +398,22 @@ export const textos = pgTable(
 // Descarregáveis (PDFs)
 // --------------------------------------------------------------------
 
-export const descarregaveis = pgTable(
+export const descarregaveis = sqliteTable(
   "descarregaveis",
   {
-    id: uuid("id").defaultRandom().primaryKey(),
+    id: text("id")
+      .primaryKey()
+      .$defaultFn(() => randomUUID()),
     slug: text("slug").notNull(),
     etiqueta: localizado("etiqueta"),
     nome: localizado("nome").notNull(),
     descricao: localizado("descricao"),
-    ficheiroId: uuid("ficheiro_id").references(() => media.id, {
+    ficheiroId: text("ficheiro_id").references(() => media.id, {
       onDelete: "set null",
     }),
-    data: date("data"),
+    data: text("data"),
     descargas: integer("descargas").notNull().default(0),
-    estado: estadoEnum("estado").notNull().default("rascunho"),
+    estado: text("estado", { enum: ESTADOS }).notNull().default("rascunho"),
     ordem: integer("ordem").notNull().default(0),
   },
   (t) => [uniqueIndex("descarregaveis_slug_idx").on(t.slug)],
@@ -426,42 +438,44 @@ export type Definicoes = {
   avisoTopo?: Localizado | null;
 };
 
-export const definicoes = pgTable("definicoes", {
+export const definicoes = sqliteTable("definicoes", {
   id: integer("id").primaryKey().default(1),
-  valor: jsonb("valor").$type<Definicoes>().notNull(),
-  actualizadoEm: timestamp("actualizado_em", { withTimezone: true })
+  valor: text("valor", { mode: "json" }).$type<Definicoes>().notNull(),
+  actualizadoEm: integer("actualizado_em", { mode: "timestamp" })
     .notNull()
-    .defaultNow(),
+    .$defaultFn(() => new Date()),
 });
 
 // --------------------------------------------------------------------
 // Pedidos vindos dos formulários
 // --------------------------------------------------------------------
 
-export const pedidos = pgTable(
+export const pedidos = sqliteTable(
   "pedidos",
   {
-    id: uuid("id").defaultRandom().primaryKey(),
-    tipo: tipoPedidoEnum("tipo").notNull(),
+    id: text("id")
+      .primaryKey()
+      .$defaultFn(() => randomUUID()),
+    tipo: text("tipo", { enum: TIPOS_PEDIDO }).notNull(),
     nome: text("nome"),
     email: text("email"),
     telefone: text("telefone"),
     mensagem: text("mensagem"),
     // Campos próprios de cada tipo: medidas, moldura escolhida, etc.
-    dados: jsonb("dados").$type<Record<string, unknown>>(),
-    obraId: uuid("obra_id").references(() => obras.id, {
+    dados: text("dados", { mode: "json" }).$type<Record<string, unknown>>(),
+    obraId: text("obra_id").references(() => obras.id, {
       onDelete: "set null",
     }),
-    anexoId: uuid("anexo_id").references(() => media.id, {
+    anexoId: text("anexo_id").references(() => media.id, {
       onDelete: "set null",
     }),
     idioma: text("idioma").notNull().default("pt"),
     origem: text("origem"),
-    estado: estadoPedidoEnum("estado").notNull().default("novo"),
+    estado: text("estado", { enum: ESTADOS_PEDIDO }).notNull().default("novo"),
     notaInterna: text("nota_interna"),
-    criadoEm: timestamp("criado_em", { withTimezone: true })
+    criadoEm: integer("criado_em", { mode: "timestamp" })
       .notNull()
-      .defaultNow(),
+      .$defaultFn(() => new Date()),
   },
   (t) => [
     index("pedidos_estado_idx").on(t.estado),
@@ -473,21 +487,25 @@ export const pedidos = pgTable(
 // Newsletter
 // --------------------------------------------------------------------
 
-export const subscritores = pgTable(
+export const subscritores = sqliteTable(
   "subscritores",
   {
-    id: uuid("id").defaultRandom().primaryKey(),
+    id: text("id")
+      .primaryKey()
+      .$defaultFn(() => randomUUID()),
     email: text("email").notNull(),
     nome: text("nome"),
     idioma: text("idioma").notNull().default("pt"),
-    estado: estadoSubscritorEnum("estado").notNull().default("pendente"),
+    estado: text("estado", { enum: ESTADOS_SUBSCRITOR })
+      .notNull()
+      .default("pendente"),
     // Serve para confirmar a subscrição e para o link de remoção.
     token: text("token").notNull(),
     origem: text("origem"),
-    confirmadoEm: timestamp("confirmado_em", { withTimezone: true }),
-    criadoEm: timestamp("criado_em", { withTimezone: true })
+    confirmadoEm: integer("confirmado_em", { mode: "timestamp" }),
+    criadoEm: integer("criado_em", { mode: "timestamp" })
       .notNull()
-      .defaultNow(),
+      .$defaultFn(() => new Date()),
   },
   (t) => [
     uniqueIndex("subscritores_email_idx").on(t.email),
@@ -499,20 +517,22 @@ export const subscritores = pgTable(
 // Registo de alterações do backoffice
 // --------------------------------------------------------------------
 
-export const registo = pgTable(
+export const registo = sqliteTable(
   "registo",
   {
-    id: uuid("id").defaultRandom().primaryKey(),
-    utilizadorId: uuid("utilizador_id").references(() => utilizadores.id, {
+    id: text("id")
+      .primaryKey()
+      .$defaultFn(() => randomUUID()),
+    utilizadorId: text("utilizador_id").references(() => utilizadores.id, {
       onDelete: "set null",
     }),
     accao: text("accao").notNull(),
     entidade: text("entidade").notNull(),
     entidadeId: text("entidade_id"),
     resumo: text("resumo"),
-    criadoEm: timestamp("criado_em", { withTimezone: true })
+    criadoEm: integer("criado_em", { mode: "timestamp" })
       .notNull()
-      .defaultNow(),
+      .$defaultFn(() => new Date()),
   },
   (t) => [index("registo_criado_idx").on(t.criadoEm)],
 );

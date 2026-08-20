@@ -24,7 +24,7 @@ import { promises as fs } from "node:fs";
 import path from "node:path";
 import { eq } from "drizzle-orm";
 import sharp from "sharp";
-import { db, sql } from "../src/lib/db";
+import { db, fecharBase } from "../src/lib/db";
 import { lugares, media } from "../src/lib/db/schema";
 import { guardarFicheiro } from "../src/lib/media/armazenamento";
 import { normalizarNome } from "../src/lib/media/r2";
@@ -171,7 +171,7 @@ async function principal() {
     for (const f of falhas) console.log(`  ${f}`);
   }
 
-  await sql.end();
+  fecharBase();
   process.exit(falhas.length > 0 ? 1 : 0);
 }
 

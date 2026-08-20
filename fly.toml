@@ -15,16 +15,31 @@ kill_timeout = 30
   NEXT_PUBLIC_R2_PUBLIC_URL = "https://media.contagiarte.pt"
 
 [deploy]
-  # Migra antes de a versão nova receber tráfego. Se falhar, o deploy
-  # pára e a versão anterior continua no ar.
-  release_command = "node scripts/migrar.mjs"
-  strategy = "rolling"
+  # As migrações correm no arranque, dentro do entrypoint, depois de o
+  # Litestream restaurar. Um release_command não serviria: essa máquina
+  # não tem o volume montado.
+  strategy = "immediate"
 
 [env]
   APP_ENV = "producao"
   PUBLIC_URL = "https://www.contagiarte.pt"
   NODE_ENV = "production"
+  DADOS_DIR = "/dados"
+  # O Litestream lê estes nomes. Ficam no ambiente da máquina, e não só
+  # dentro do entrypoint, para o comando `litestream` também funcionar
+  # à mão por SSH quando for preciso restaurar ou conferir.
+  LITESTREAM_BUCKET = "contagiarte-backups"
+  LITESTREAM_ENDPOINT = "https://4efa5cd804af038feae75a721eede909.r2.cloudflarestorage.com"
+  LITESTREAM_REGION = "auto"
+  LITESTREAM_CAMINHO = "producao"
   PORT = "3000"
+
+[[mounts]]
+  # A base de dados é um ficheiro e vive aqui. O volume prende a app a
+  # uma máquina; em troca, as leituras deixam de atravessar a rede e a
+  # cópia passa a ser contínua em vez de diária.
+  source = "contagiarte_dados"
+  destination = "/dados"
 
 [http_service]
   internal_port = 3000

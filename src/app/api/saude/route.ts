@@ -12,7 +12,7 @@ export const dynamic = "force-dynamic";
  */
 export async function GET() {
   try {
-    await db.execute(sql`select 1`);
+    await db.get(sql`select 1`);
     return NextResponse.json(
       { ok: true, ambiente: env.ambiente },
       { headers: { "Cache-Control": "no-store" } },

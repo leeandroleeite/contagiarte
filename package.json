@@ -9,7 +9,7 @@
     "lint": "eslint",
     "tipos": "tsc --noEmit",
     "bd:gerar": "drizzle-kit generate",
-    "bd:migrar": "node scripts/migrar.mjs",
+    "bd:migrar": "node --env-file=.env.local scripts/migrar.mjs",
     "bd:empurrar": "drizzle-kit push",
     "bd:estudio": "drizzle-kit studio",
     "semear": "tsx --env-file=.env.local scripts/semear.ts",
@@ -22,12 +22,14 @@
     "e2e:relatorio": "playwright show-report",
     "prestart": "cp -r public .next/standalone/public 2>/dev/null; mkdir -p .next/standalone/.next && cp -r .next/static .next/standalone/.next/static",
     "imagens": "tsx --env-file=.env.local scripts/importar-imagens.ts",
-    "galeria": "tsx --env-file=.env.local scripts/importar-galeria.ts"
+    "galeria": "tsx --env-file=.env.local scripts/importar-galeria.ts",
+    "bd:de-postgres": "tsx --env-file=.env.local scripts/migrar-de-postgres.ts"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.1114.0",
     "@aws-sdk/s3-request-presigner": "^3.1114.0",
     "bcryptjs": "^3.0.3",
+    "better-sqlite3": "^13.0.3",
     "drizzle-orm": "^0.45.2",
     "jose": "^6.2.9",
     "next": "16.3.1",
@@ -43,6 +45,7 @@
   "devDependencies": {
     "@playwright/test": "^1.62.1",
     "@tailwindcss/postcss": "^4",
+    "@types/better-sqlite3": "^9.6.0",
     "@types/node": "^20",
     "@types/nodemailer": "^8.0.1",
     "@types/react": "^19",

@@ -17,7 +17,7 @@ import { promises as fs } from "node:fs";
 import path from "node:path";
 import { eq } from "drizzle-orm";
 import sharp from "sharp";
-import { db, sql } from "../src/lib/db";
+import { db, fecharBase } from "../src/lib/db";
 import {
   artistas,
   exposicoes,
@@ -252,12 +252,12 @@ async function principal() {
   for (const f of ficheiros) await importar(f);
 
   console.log("Pronto. As imagens são substituíveis pelo backoffice.");
-  await sql.end();
+  fecharBase();
   process.exit(0);
 }
 
 principal().catch(async (erro) => {
   console.error("Falhou a importação:", erro);
-  await sql.end({ timeout: 5 }).catch(() => {});
+  fecharBase();
   process.exit(1);
 });

@@ -1,0 +1,18 @@
+# O Litestream vai atrás do WAL do SQLite e envia cada alteração para o
+# R2. O pior caso passa de um dia de edições perdidas para cerca de um
+# segundo. Os valores vêm do ambiente, para o mesmo ficheiro servir
+# staging e produção.
+dbs:
+  - path: ${DADOS_DIR}/contagiarte.db
+    replicas:
+      - type: s3
+        bucket: ${LITESTREAM_BUCKET}
+        path: ${LITESTREAM_CAMINHO}
+        endpoint: ${LITESTREAM_ENDPOINT}
+        region: ${LITESTREAM_REGION}
+        access-key-id: ${LITESTREAM_ACCESS_KEY_ID}
+        secret-access-key: ${LITESTREAM_SECRET_ACCESS_KEY}
+        # Um instantâneo por dia e trinta dias de histórico: chega para
+        # voltar atrás a um engano que só se dá por ele na semana seguinte.
+        snapshot-interval: 24h
+        retention: 720h

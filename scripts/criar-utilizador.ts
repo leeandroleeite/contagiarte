@@ -7,7 +7,7 @@
  */
 import bcrypt from "bcryptjs";
 import { eq } from "drizzle-orm";
-import { db, sql } from "../src/lib/db";
+import { db, fecharBase } from "../src/lib/db";
 import { utilizadores } from "../src/lib/db/schema";
 
 function gerarPalavraPasse(): string {
@@ -59,12 +59,12 @@ async function principal() {
     console.log("Guarde-a agora; não volta a ser mostrada.");
   }
 
-  await sql.end();
+  fecharBase();
   process.exit(0);
 }
 
 principal().catch(async (erro) => {
   console.error("Falhou:", erro);
-  await sql.end({ timeout: 5 }).catch(() => {});
+  fecharBase();
   process.exit(1);
 });

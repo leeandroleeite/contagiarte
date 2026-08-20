@@ -1,8 +1,9 @@
 # Contagiarte
 
 Site e backoffice da Galeria Contagiarte. Next.js 16 (App Router),
-Postgres com Drizzle, Cloudflare R2 para ficheiros, Fly.io para
-alojamento. Ver `README.md` para a documentação completa.
+SQLite com Drizzle, replicado para o R2 pelo Litestream, Cloudflare R2
+para ficheiros, Fly.io para alojamento. Ver `README.md` para a
+documentação completa.
 
 ## Convenções deste repositório
 
@@ -22,7 +23,7 @@ alojamento. Ver `README.md` para a documentação completa.
   directamente a partir de uma página.
 - **Escritas do backoffice** passam por `src/lib/admin/accoes.ts`, que
   confirma a sessão, deixa rasto no `registo` e limpa a cache.
-- **Campos de texto traduzíveis** são JSONB com `{ pt, en, es }`. O
+- **Campos de texto traduzíveis** são JSON com `{ pt, en, es }`. O
   português é obrigatório; EN e ES caem para ele quando vazios. Ler
   sempre com `texto()` de `src/lib/i18n`.
 - **Movimento** vive todo em `src/components/Movimento.tsx`. Qualquer

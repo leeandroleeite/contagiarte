@@ -17,18 +17,18 @@ dados para a galeria poder acrescentar obras sem programador.
 |---|---|---|
 | Aplicação | Next.js 16 (App Router), React 19, TypeScript | SSR e ISR para SEO, server actions para formulários, uma só app para site e backoffice |
 | Estilo | Tailwind 4 | Tokens da marca definidos em `@theme`, sem folha de estilo paralela |
-| Base de dados | PostgreSQL + Drizzle ORM | Migrações versionadas, tipos gerados do esquema |
+| Base de dados | SQLite + Drizzle ORM | Migrações versionadas, tipos gerados do esquema, leituras sem rede pelo meio |
 | Ficheiros | Cloudflare R2 | Sem custo de saída, CDN à frente, separado da aplicação |
+| Cópias | Litestream para o R2 | Contínuo em vez de diário: o pior caso é um segundo, não um dia |
 | Alojamento | Fly.io (região `cdg`) | A mais perto de Portugal, dois ambientes fáceis |
 | Email | Resend ou SMTP | Opcional: sem ele os pedidos ficam na base de dados na mesma |
 
 ## Pôr a correr localmente
 
-Precisa de Node 22 e Docker.
+Precisa de Node 22 e mais nada: a base de dados é um ficheiro em `var/`.
 
 ```bash
 npm install
-docker compose up -d
 cp .env.example .env.local
 ```
 
@@ -167,20 +167,16 @@ fly auth login
 
 # Produção
 fly apps create contagiarte
-fly postgres create --name contagiarte-db --region cdg \
-  --initial-cluster-size 1 --vm-size shared-cpu-1x --volume-size 3
-# 256MB não chega ao Postgres 18 do Fly: o OOM mata-o assim que se
-# carregam dados. Subir a memória logo a seguir a criar.
-fly machine update <id> --app contagiarte-db --vm-memory 1024
-fly postgres attach contagiarte-db --app contagiarte
+fly volumes create contagiarte_dados -a contagiarte -r cdg -n 1 -s 3
 
 # Staging
 fly apps create contagiarte-staging
-fly postgres create --name contagiarte-db-staging --region cdg \
-  --initial-cluster-size 1 --vm-size shared-cpu-1x --volume-size 1
-fly machine update <id> --app contagiarte-db-staging --vm-memory 512
-fly postgres attach contagiarte-db-staging --app contagiarte-staging
+fly volumes create contagiarte_dados_staging -a contagiarte-staging -r cdg -n 1 -s 1
 ```
+
+Um volume por app, e um só. A base de dados é um ficheiro lá dentro, o
+que prende cada app a uma máquina: em troca, as leituras não atravessam
+a rede e a cópia é contínua.
 
 Segredos de produção:
 
@@ -234,9 +230,8 @@ no ar.
 
 ### Segredos que o GitHub precisa
 
-`FLY_API_TOKEN` para publicar, e para a cópia de segurança diária
-`DATABASE_URL_PRODUCAO`, `R2_ACCOUNT_ID`, `R2_ACCESS_KEY_ID`,
-`R2_SECRET_ACCESS_KEY` e `R2_BUCKET`.
+Só `FLY_API_TOKEN`, para publicar. A cópia de segurança deixou de correr
+no GitHub: a base vive num volume a que o runner não chega.
 
 ## Ficheiros e R2
 
@@ -247,7 +242,11 @@ conta: os endereços não mudam, e passam pela CDN assim que
 `NEXT_PUBLIC_R2_PUBLIC_URL` estiver definido.
 
 
-Crie dois buckets, `contagiarte` e `contagiarte-staging`. Dentro de cada
+Crie três buckets: `contagiarte`, `contagiarte-staging` e
+`contagiarte-backups`. O terceiro está à parte de propósito, porque o de
+produção há-de ficar público por trás de `media.contagiarte.pt`, e a
+base de dados tem hashes de palavras-passe, telefones e endereços de
+quem fez pedidos. Nos dois primeiros, dentro de cada
 um, os objectos ficam com prefixo do ambiente (`producao/`, `staging/`,
 `local/`), por isso um ambiente nunca escreve por cima do outro mesmo que
 partilhem bucket.
@@ -259,15 +258,35 @@ que funciona mas gasta CPU e largura de banda da aplicação.
 
 ## Cópias de segurança
 
-Duas linhas:
+Duas linhas, e fazem coisas diferentes.
 
-1. **Snapshots da Fly**, diárias e automáticas no volume do Postgres.
-   Restauro com `fly postgres` a partir de uma snapshot. É a rede
-   principal.
-2. **Exportação para o R2**, todos os dias às 04:15 UTC pelo GitHub
-   Actions, para `copias/producao/<data>.json`. Um único JSON com todas
-   as tabelas, legível e restaurável sem depender da Fly. É também o
-   caminho para levar conteúdo de produção para staging.
+1. **Litestream**, contínuo. Vai atrás do WAL do SQLite e envia cada
+   alteração para `contagiarte-backups`, na pasta do ambiente. O pior
+   caso é perder cerca de um segundo de escritas. O `entrypoint.sh`
+   restaura antes de a aplicação abrir a base: numa máquina nova, com o
+   volume perdido, os dados voltam sozinhos.
+
+   ```bash
+   # ver o que lá está
+   fly ssh console -a contagiarte -C "litestream snapshots /dados/contagiarte.db"
+   # restaurar para um ficheiro à parte, sem tocar no que está a correr
+   fly ssh console -a contagiarte -C "litestream restore -o /dados/prova.db /dados/contagiarte.db"
+   # e conferir o que lá está dentro, que é a parte que interessa
+   fly ssh console -a contagiarte -C "node -e \"const D=require('/app/node_modules/better-sqlite3');const d=new D('/dados/prova.db',{readonly:true});for(const t of ['obras','artistas','media','textos'])console.log(t,d.prepare('select count(*) as n from '+t).get().n)\""
+   ```
+
+   Um backup que nunca foi restaurado ainda não é um backup. Ensaiado em
+   staging a 20 de agosto de 2026: a base voltou do bucket com as 13
+   obras, os 4 artistas, os 95 ficheiros de media e as 388 linhas de
+   registo todas lá.
+
+2. **Exportação para JSON**, à mão. O Litestream copia a base tal e
+   qual, e por isso copia um engano com a mesma fidelidade. O export é a
+   rede por baixo dessa: um retrato legível que se abre sem SQLite.
+
+   ```bash
+   fly ssh console -a contagiarte -C "npx tsx scripts/copia-seguranca.ts"
+   ```
 
 Os ficheiros em si (fotografias, PDFs) vivem no R2, que tem a sua
 própria durabilidade. Active versionamento no bucket se quiser

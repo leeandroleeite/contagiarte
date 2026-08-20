@@ -4,7 +4,13 @@ import { BarraGuardar } from "@/components/admin/BarraGuardar";
 import { BotaoApagar } from "@/components/admin/BotaoApagar";
 import { CampoMedia } from "@/components/admin/CampoMedia";
 import { CampoLocalizado, CampoTexto } from "@/components/admin/Campos";
-import { Aviso, Grelha, Titulo, Vazio } from "@/components/admin/Pecas";
+import {
+  Aviso,
+  CabecalhoSeccao,
+  Conteudo,
+  Grelha,
+  Vazio,
+} from "@/components/admin/Pecas";
 import { apagarSala, guardarSala } from "@/lib/admin/accoes";
 import { listarMedia } from "@/lib/admin/media";
 import { db } from "@/lib/db";
@@ -46,9 +52,11 @@ export default async function PaginaPercurso({
 
   return (
     <>
-      <Titulo nota="As salas substituem-se umas às outras enquanto o visitante desce a página.">
-        Percurso
-      </Titulo>
+      <CabecalhoSeccao descricao="As salas que o visitante atravessa em scroll, pela ordem definida aqui.">
+        Percurso da adega
+      </CabecalhoSeccao>
+
+      <Conteudo>
 
       {erro === "sem-exposicao" && (
         <Aviso tom="erro">Escolha primeiro a exposição.</Aviso>
@@ -107,6 +115,7 @@ export default async function PaginaPercurso({
           </div>
         </>
       )}
+      </Conteudo>
     </>
   );
 }

@@ -8,11 +8,12 @@ import {
 } from "@/components/admin/Campos";
 import {
   Aviso,
-  Celula,
+  CabecalhoSeccao,
+  Cartao,
+  Conteudo,
   Estado,
   Grelha,
-  Tabela,
-  Titulo,
+  Linha,
 } from "@/components/admin/Pecas";
 import { apagarUtilizador, guardarUtilizador } from "@/lib/admin/accoes";
 import { exigirAdministrador } from "@/lib/auth";
@@ -44,33 +45,35 @@ export default async function PaginaUtilizadores({
 
   return (
     <>
-      <Titulo nota="Quem pode entrar no backoffice.">Utilizadores</Titulo>
+      <CabecalhoSeccao descricao="Quem pode entrar no backoffice.">Utilizadores</CabecalhoSeccao>
 
+      <Conteudo>
       {guardado && <Aviso tom="bom">Utilizador guardado.</Aviso>}
       {erro && <Aviso tom="erro">{ERROS[erro] ?? "Algo correu mal."}</Aviso>}
 
-      <Tabela colunas={["Nome", "Email", "Papel", "Estado", "Último acesso", ""]}>
+      <div className="flex flex-col gap-3 overflow-x-auto">
         {lista.map((u) => {
           const apagar = apagarUtilizador.bind(null, u.id);
           return (
-            <tr key={u.id}>
-              <Celula>{u.nome}</Celula>
-              <Celula className="text-adm-suave">{u.email}</Celula>
-              <Celula>
+            <Linha
+              key={u.id}
+              colunas="minmax(140px,1.4fr) minmax(180px,1.8fr) 130px 120px 150px 104px"
+            >
+              <span className="text-[16px]">{u.nome}</span>
+              <span className="text-[14px] text-adm-suave">{u.email}</span>
+              <span className="text-[14px]">
                 {u.papel === "administrador" ? "Administrador" : "Editor"}
-              </Celula>
-              <Celula>
-                <Estado valor={u.activo ? "activo" : "removido"} />
-              </Celula>
-              <Celula className="text-adm-suave">
+              </span>
+              <Estado valor={u.activo ? "activo" : "removido"} />
+              <span className="text-[13px] text-adm-suave">
                 {u.ultimoAcesso
                   ? new Intl.DateTimeFormat("pt-PT", {
                       dateStyle: "short",
                       timeStyle: "short",
                     }).format(u.ultimoAcesso)
                   : "nunca"}
-              </Celula>
-              <Celula>
+              </span>
+              <div className="flex justify-end">
                 {u.id !== sessao.id && (
                   <BotaoApagar
                     accao={apagar}
@@ -78,14 +81,15 @@ export default async function PaginaUtilizadores({
                     pergunta={`Apagar o acesso de ${u.email}?`}
                   />
                 )}
-              </Celula>
-            </tr>
+              </div>
+            </Linha>
           );
         })}
-      </Tabela>
+      </div>
 
       <h2 className="titulo-med mt-12 mb-5 text-[20px]">Novo utilizador</h2>
 
+      <Cartao>
       <form action={criar}>
         <Grelha>
           <CampoTexto nome="nome" rotulo="Nome" obrigatorio />
@@ -114,6 +118,8 @@ export default async function PaginaUtilizadores({
 
         <BarraGuardar voltarPara="/admin" />
       </form>
+      </Cartao>
+      </Conteudo>
     </>
   );
 }

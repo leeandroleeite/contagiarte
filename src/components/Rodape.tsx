@@ -6,8 +6,13 @@ import { colunas, linkWhatsApp } from "@/lib/utils";
 
 /**
  * Rodapé comum a todas as páginas. Repete o bloco "Fale connosco" do
- * design, com o título grande, três colunas de contacto e a linha de
- * direitos e parceiros.
+ * design, com o título grande e as colunas de contacto.
+ *
+ * A coluna "Explorar" existe por necessidade de navegação: a barra de
+ * topo só tem sete entradas, e abaixo de 1120px as restantes vivem no
+ * menu compacto. Sem esta coluna, quem está num ecrã grande não teria
+ * como chegar a "Ver na parede", "A obra como ativo", "Os lugares" ou
+ * "A galeria" a não ser por uma frase solta na homepage.
  */
 export function Rodape({
   idioma,
@@ -26,7 +31,7 @@ export function Rodape({
 
       <div
         className="mt-10 grid gap-10 border-b border-[rgba(242,237,228,0.16)] pb-14"
-        style={colunas(240)}
+        style={colunas(220)}
       >
         <Coluna titulo={t("rodape.direto", idioma)}>
           <a
@@ -51,9 +56,7 @@ export function Rodape({
           >
             @{d.instagram}
           </a>
-          {d.morada && (
-            <span className="text-claro-55">{d.morada}</span>
-          )}
+          {d.morada && <span className="text-claro-55">{d.morada}</span>}
           {d.responsavel && (
             <span className="text-claro-55">{d.responsavel}</span>
           )}
@@ -63,11 +66,26 @@ export function Rodape({
           <Link href={caminho(idioma, "/exposicoes")}>
             {t("nav.exposicoes", idioma)} →
           </Link>
+          <Link href={caminho(idioma, "/obras")}>
+            {t("nav.obras", idioma)} →
+          </Link>
           <Link href={caminho(idioma, "/descarregar")}>
             {t("nav.descarregar", idioma)} ↓
           </Link>
+        </Coluna>
+
+        <Coluna titulo={t("rodape.explorar", idioma)}>
           <Link href={caminho(idioma, "/ver-na-parede")}>
             {t("nav.parede", idioma)} →
+          </Link>
+          <Link href={caminho(idioma, "/a-obra-como-ativo")}>
+            {t("nav.ativo", idioma)} →
+          </Link>
+          <Link href={caminho(idioma, "/lugares")}>
+            {t("nav.lugares", idioma)} →
+          </Link>
+          <Link href={caminho(idioma, "/a-galeria")}>
+            {t("nav.galeria", idioma)} →
           </Link>
         </Coluna>
       </div>

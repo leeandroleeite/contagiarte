@@ -8,7 +8,7 @@ import {
   CampoSelect,
   CampoTexto,
 } from "@/components/admin/Campos";
-import { Grelha, Titulo } from "@/components/admin/Pecas";
+import { Grelha, CabecalhoSeccao, Conteudo } from "@/components/admin/Pecas";
 import { apagarArtista, guardarArtista } from "@/lib/admin/accoes";
 import { listarMedia } from "@/lib/admin/media";
 import { db } from "@/lib/db";
@@ -53,10 +53,11 @@ export default async function EditarArtista({
 
   return (
     <>
-      <Titulo nota={artista ? `/artistas/${artista.slug}` : undefined}>
+      <CabecalhoSeccao descricao={artista ? `/artistas/${artista.slug}` : undefined}>
         {novo ? "Novo artista" : artista!.nome}
-      </Titulo>
+      </CabecalhoSeccao>
 
+      <Conteudo>
       <form action={guardar}>
         <Grelha>
           <CampoTexto
@@ -173,6 +174,7 @@ export default async function EditarArtista({
           }
         />
       </form>
+      </Conteudo>
     </>
   );
 }

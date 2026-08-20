@@ -40,13 +40,30 @@ export default async function PaginaPrivacidade({
 
   return (
     <Seccao className="pt-[160px]" semFio>
-      <h1 className="titulo d-2 mb-12">
-        {idioma === "pt"
-          ? "POLÍTICA DE PRIVACIDADE"
-          : idioma === "en"
-            ? "PRIVACY POLICY"
-            : "POLÍTICA DE PRIVACIDAD"}
-      </h1>
+      <div className="mb-12 flex flex-col gap-4">
+        <span className="text-[11px] tracking-[0.28em] text-[rgba(242,237,228,0.5)] uppercase">
+          {idioma === "pt"
+            ? "Documento legal"
+            : idioma === "en"
+              ? "Legal document"
+              : "Documento legal"}
+        </span>
+        <h1 className="titulo text-[clamp(34px,5vw,68px)] leading-[0.92]">
+          {idioma === "pt"
+            ? "POLÍTICA DE PRIVACIDADE"
+            : idioma === "en"
+              ? "PRIVACY POLICY"
+              : "POLÍTICA DE PRIVACIDAD"}
+        </h1>
+        {/* Aviso do design. Sai quando um advogado rever o texto. */}
+        <p className="text-[14px] text-[rgba(242,237,228,0.5)]">
+          {idioma === "pt"
+            ? "Rascunho por rever juridicamente. Última atualização: por definir."
+            : idioma === "en"
+              ? "Draft pending legal review. Last updated: to be defined."
+              : "Borrador pendiente de revisión jurídica. Última actualización: por definir."}
+        </p>
+      </div>
 
       <div className="max-w-[72ch]">
         {conteudo.split(/\n\s*\n/).map((bloco, i) => {

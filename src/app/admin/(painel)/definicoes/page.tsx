@@ -1,6 +1,6 @@
 import { BarraGuardar } from "@/components/admin/BarraGuardar";
 import { CampoLocalizado, CampoTexto } from "@/components/admin/Campos";
-import { Aviso, Grelha, Titulo } from "@/components/admin/Pecas";
+import { Aviso, Grelha, CabecalhoSeccao, Conteudo } from "@/components/admin/Pecas";
 import { guardarDefinicoes } from "@/lib/admin/accoes";
 import { obterDefinicoes } from "@/lib/dados";
 import { env } from "@/lib/env";
@@ -17,10 +17,11 @@ export default async function PaginaDefinicoes({
 
   return (
     <>
-      <Titulo nota="Contactos, redes e cartão de partilha. Aparecem no rodapé de todas as páginas.">
+      <CabecalhoSeccao descricao="Contactos, redes e cartão de partilha. Aparecem no rodapé de todas as páginas.">
         Definições
-      </Titulo>
+      </CabecalhoSeccao>
 
+      <Conteudo>
       {guardado && <Aviso tom="bom">Definições guardadas.</Aviso>}
 
       <Aviso>
@@ -104,6 +105,7 @@ export default async function PaginaDefinicoes({
 
         <BarraGuardar voltarPara="/admin" />
       </form>
+      </Conteudo>
     </>
   );
 }

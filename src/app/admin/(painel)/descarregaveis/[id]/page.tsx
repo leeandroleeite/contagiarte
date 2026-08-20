@@ -8,7 +8,7 @@ import {
   CampoSelect,
   CampoTexto,
 } from "@/components/admin/Campos";
-import { Grelha, Titulo } from "@/components/admin/Pecas";
+import { Grelha, CabecalhoSeccao, Conteudo } from "@/components/admin/Pecas";
 import {
   apagarDescarregavel,
   guardarDescarregavel,
@@ -44,10 +44,11 @@ export default async function EditarDescarregavel({
 
   return (
     <>
-      <Titulo nota={doc ? `/api/descarregar/${doc.slug}` : undefined}>
+      <CabecalhoSeccao descricao={doc ? `/api/descarregar/${doc.slug}` : undefined}>
         {novo ? "Novo descarregável" : doc!.nome.pt}
-      </Titulo>
+      </CabecalhoSeccao>
 
+      <Conteudo>
       <form action={guardar}>
         <Grelha>
           <CampoLocalizado
@@ -109,6 +110,7 @@ export default async function EditarDescarregavel({
           }
         />
       </form>
+      </Conteudo>
     </>
   );
 }

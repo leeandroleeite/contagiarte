@@ -3,7 +3,8 @@ import { BotaoApagar } from "@/components/admin/BotaoApagar";
 import {
   Aviso,
   Estado,
-  Titulo,
+  CabecalhoSeccao,
+  Conteudo,
   Vazio,
 } from "@/components/admin/Pecas";
 import { actualizarPedido, apagarPedido } from "@/lib/admin/accoes";
@@ -45,8 +46,9 @@ export default async function PaginaPedidos() {
 
   return (
     <>
-      <Titulo nota="Tudo o que chega pelos formulários do site.">Pedidos</Titulo>
+      <CabecalhoSeccao descricao="Tudo o que chega pelos formulários do site.">Pedidos</CabecalhoSeccao>
 
+      <Conteudo>
       {!env.email.configurado && (
         <Aviso>
           Não há serviço de email configurado: os pedidos ficam guardados aqui,
@@ -189,6 +191,7 @@ export default async function PaginaPedidos() {
           />
         </>
       )}
+      </Conteudo>
     </>
   );
 }

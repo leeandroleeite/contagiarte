@@ -1,5 +1,5 @@
 import { GaleriaMedia } from "@/components/admin/GaleriaMedia";
-import { Aviso, Titulo, Vazio } from "@/components/admin/Pecas";
+import { Aviso, CabecalhoSeccao, Conteudo, Vazio } from "@/components/admin/Pecas";
 import { listarMedia } from "@/lib/admin/media";
 import { env } from "@/lib/env";
 
@@ -10,8 +10,9 @@ export default async function PaginaMedia() {
 
   return (
     <>
-      <Titulo nota="Fotografias e documentos usados no site.">Media</Titulo>
+      <CabecalhoSeccao descricao="Fotografias e documentos usados no site.">Media</CabecalhoSeccao>
 
+      <Conteudo>
       {!env.r2.configurado ? (
         <Aviso tom="erro">
           O armazenamento R2 não está configurado neste ambiente. Defina
@@ -26,6 +27,7 @@ export default async function PaginaMedia() {
           )}
         </>
       )}
+      </Conteudo>
     </>
   );
 }

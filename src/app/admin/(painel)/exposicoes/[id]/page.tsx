@@ -10,7 +10,7 @@ import {
   CampoSelect,
   CampoTexto,
 } from "@/components/admin/Campos";
-import { Grelha, Titulo } from "@/components/admin/Pecas";
+import { Grelha, CabecalhoSeccao, Conteudo } from "@/components/admin/Pecas";
 import { apagarExposicao, guardarExposicao } from "@/lib/admin/accoes";
 import { listarMedia } from "@/lib/admin/media";
 import { db } from "@/lib/db";
@@ -46,10 +46,11 @@ export default async function EditarExposicao({
 
   return (
     <>
-      <Titulo nota={expo ? `/exposicoes/${expo.slug}` : undefined}>
+      <CabecalhoSeccao descricao={expo ? `/exposicoes/${expo.slug}` : undefined}>
         {nova ? "Nova exposição" : expo!.titulo.pt}
-      </Titulo>
+      </CabecalhoSeccao>
 
+      <Conteudo>
       <form action={guardar}>
         <Grelha>
           <CampoLocalizado
@@ -226,6 +227,7 @@ export default async function EditarExposicao({
           }
         />
       </form>
+      </Conteudo>
     </>
   );
 }

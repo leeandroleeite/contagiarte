@@ -1,6 +1,6 @@
 import { and, desc, eq, sql } from "drizzle-orm";
 import Link from "next/link";
-import { Aviso, Estado, Titulo } from "@/components/admin/Pecas";
+import { Aviso, Estado, CabecalhoSeccao, Conteudo } from "@/components/admin/Pecas";
 import { db } from "@/lib/db";
 import {
   artistas,
@@ -79,8 +79,9 @@ export default async function Painel() {
 
   return (
     <>
-      <Titulo nota="Estado do site e o que falta tratar.">Painel</Titulo>
+      <CabecalhoSeccao descricao="Estado do site e o que falta tratar.">Painel</CabecalhoSeccao>
 
+      <Conteudo>
       {porFazer.length > 0 && (
         <div className="mb-8">
           {porFazer.map((p) => (
@@ -153,6 +154,7 @@ export default async function Painel() {
       <p className="mt-4 text-[14px]">
         <Link href="/admin/pedidos">Ver todos os pedidos →</Link>
       </p>
+      </Conteudo>
     </>
   );
 }

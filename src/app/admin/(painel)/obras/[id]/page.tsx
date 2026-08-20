@@ -9,7 +9,7 @@ import {
   CampoSelect,
   CampoTexto,
 } from "@/components/admin/Campos";
-import { Grelha, Titulo } from "@/components/admin/Pecas";
+import { Grelha, CabecalhoSeccao, Conteudo } from "@/components/admin/Pecas";
 import { apagarObra, guardarObra } from "@/lib/admin/accoes";
 import { listarMedia } from "@/lib/admin/media";
 import { db } from "@/lib/db";
@@ -44,10 +44,11 @@ export default async function EditarObra({
 
   return (
     <>
-      <Titulo nota={obra ? `/obras/${obra.slug}` : undefined}>
+      <CabecalhoSeccao descricao={obra ? `/obras/${obra.slug}` : undefined}>
         {nova ? "Nova obra" : obra!.titulo.pt}
-      </Titulo>
+      </CabecalhoSeccao>
 
+      <Conteudo>
       <form action={guardar}>
         <Grelha>
           <CampoLocalizado
@@ -191,6 +192,7 @@ export default async function EditarObra({
           extra={!nova && <BotaoApagar accao={apagar} rotulo="Apagar obra" />}
         />
       </form>
+      </Conteudo>
     </>
   );
 }

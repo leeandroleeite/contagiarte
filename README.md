@@ -94,6 +94,29 @@ Os textos de interface estão em `src/lib/i18n/dicionario.ts`. O conteúdo
 editorial é traduzido campo a campo no backoffice: cada campo tem
 separadores PT, EN e ES, e o que ficar vazio mostra o português.
 
+### Entrar no backoffice
+
+O backoffice vive em `/admin`. **Não há botão de login no site**, e é
+de propósito: quem visita a galeria não tem nada a fazer lá, e um link
+visível só serve para convidar tentativas de entrada. Escreve-se o
+endereço à mão:
+
+- local: <http://localhost:3000/admin>
+- staging: `https://staging.contagiarte.pt/admin`
+- produção: `https://www.contagiarte.pt/admin`
+
+O utilizador inicial é criado pelo `npm run semear`, que imprime a
+palavra-passe uma única vez. Para criar mais acessos ou repor uma
+palavra-passe:
+
+```bash
+npm run admin:criar -- pessoa@contagiarte.pt "Nome" editor
+```
+
+Dentro do painel, Utilizadores faz o mesmo pela interface. Há dois
+papéis: **editor** mexe em conteúdo, **administrador** mexe também em
+utilizadores.
+
 ### Estados do conteúdo
 
 Tudo o que é conteúdo tem `estado`: `rascunho`, `publicado` ou

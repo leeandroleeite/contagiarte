@@ -378,14 +378,23 @@ a:hover {
   min-height: 100dvh;
 }
 
-.admin a {
+/* Só a área de trabalho tem links escuros. A barra lateral é escura e
+   pinta os seus próprios links, por isso fica de fora desta regra:
+   caso contrário os rótulos ficavam pretos sobre preto. */
+.admin main a {
   color: var(--color-tinta);
   text-decoration: underline;
   text-underline-offset: 3px;
 }
 
-.admin a:hover {
+.admin main a:hover {
   color: #8a6636;
+}
+
+.admin main a.adm-botao,
+.admin main a.no-underline,
+.admin main a[class*="no-underline"] {
+  text-decoration: none;
 }
 
 .admin input,

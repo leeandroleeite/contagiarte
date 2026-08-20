@@ -8,7 +8,7 @@ import {
   CampoSelect,
   CampoTexto,
 } from "@/components/admin/Campos";
-import { Grelha, Titulo } from "@/components/admin/Pecas";
+import { Grelha, CabecalhoSeccao, Conteudo } from "@/components/admin/Pecas";
 import { apagarLugar, guardarLugar } from "@/lib/admin/accoes";
 import { listarMedia } from "@/lib/admin/media";
 import { db } from "@/lib/db";
@@ -41,8 +41,9 @@ export default async function EditarLugar({
 
   return (
     <>
-      <Titulo>{novo ? "Novo lugar" : lugar!.nome}</Titulo>
+      <CabecalhoSeccao>{novo ? "Novo lugar" : lugar!.nome}</CabecalhoSeccao>
 
+      <Conteudo>
       <form action={guardar}>
         <Grelha>
           <CampoTexto nome="nome" rotulo="Nome" valor={lugar?.nome} obrigatorio />
@@ -109,6 +110,7 @@ export default async function EditarLugar({
           extra={!novo && <BotaoApagar accao={apagar} rotulo="Apagar lugar" />}
         />
       </form>
+      </Conteudo>
     </>
   );
 }

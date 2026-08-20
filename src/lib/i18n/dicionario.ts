@@ -344,6 +344,7 @@ export const DICIONARIO = {
   "rodape.direto": { pt: "Direto", en: "Direct", es: "Directo" },
   "rodape.seguir": { pt: "Seguir", en: "Follow", es: "Seguir" },
   "rodape.visitar": { pt: "Visitar", en: "Visit", es: "Visitar" },
+  "rodape.explorar": { pt: "Explorar", en: "Explore", es: "Explorar" },
   "rodape.parceiros": { pt: "Parceiros", en: "Partners", es: "Socios" },
   "rodape.direitos": {
     pt: "Todos os direitos reservados",

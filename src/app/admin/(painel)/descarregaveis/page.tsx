@@ -1,10 +1,9 @@
 import { asc } from "drizzle-orm";
 import Link from "next/link";
 import {
-  Celula,
+  CabecalhoSeccao,
+  Conteudo,
   Estado,
-  Tabela,
-  Titulo,
   Vazio,
 } from "@/components/admin/Pecas";
 import { db } from "@/lib/db";
@@ -20,49 +19,59 @@ export default async function ListaDescarregaveis() {
 
   return (
     <>
-      <Titulo
-        nota="Catálogo, dossiers e flyers. Sem PDF associado, o cartão não aparece no site."
+      <CabecalhoSeccao
+        descricao="Catálogos e dossiers publicados na secção Descarregar."
         accao={{
           href: "/admin/descarregaveis/novo",
           rotulo: "Novo descarregável",
         }}
       >
         Descarregáveis
-      </Titulo>
+      </CabecalhoSeccao>
 
-      {lista.length === 0 ? (
-        <Vazio>
-          Ainda não há documentos.{" "}
-          <Link href="/admin/descarregaveis/novo">Criar o primeiro</Link>.
-        </Vazio>
-      ) : (
-        <Tabela
-          colunas={["Ordem", "Nome", "Ficheiro", "Descargas", "Estado", ""]}
-        >
-          {lista.map((d) => (
-            <tr key={d.id}>
-              <Celula className="text-adm-suave">{d.ordem}</Celula>
-              <Celula>
-                <Link href={`/admin/descarregaveis/${d.id}`}>{d.nome.pt}</Link>
-              </Celula>
-              <Celula className="text-adm-suave">
-                {d.ficheiro ? (
-                  d.ficheiro.nomeOriginal
-                ) : (
-                  <span className="text-[#9B3226]">falta o PDF</span>
-                )}
-              </Celula>
-              <Celula>{d.descargas}</Celula>
-              <Celula>
-                <Estado valor={d.estado} />
-              </Celula>
-              <Celula>
-                <Link href={`/admin/descarregaveis/${d.id}`}>Editar</Link>
-              </Celula>
-            </tr>
-          ))}
-        </Tabela>
-      )}
+      <Conteudo estreito>
+        {lista.length === 0 ? (
+          <Vazio>
+            Ainda não há documentos.{" "}
+            <Link href="/admin/descarregaveis/novo">Criar o primeiro</Link>.
+          </Vazio>
+        ) : (
+          <div className="flex flex-col gap-3.5">
+            {lista.map((d) => (
+              <div
+                key={d.id}
+                className="flex flex-wrap items-center justify-between gap-4 border border-adm-fio bg-adm-cartao p-[18px]"
+              >
+                <div className="flex flex-col gap-1">
+                  <span className="text-[16px]">{d.nome.pt}</span>
+                  <span className="text-[13px] text-[rgba(14,12,11,0.5)]">
+                    {d.ficheiro
+                      ? `${d.ficheiro.nomeOriginal} · ${(d.ficheiro.tamanho / 1024 / 1024).toFixed(1)} MB · ${d.descargas} descargas`
+                      : "Sem PDF associado: não aparece no site."}
+                  </span>
+                </div>
+
+                <div className="flex items-center gap-3">
+                  <Estado valor={d.estado} />
+                  <Link
+                    href={`/admin/descarregaveis/${d.id}`}
+                    className="inline-flex min-h-10 items-center border border-adm-fio-forte px-[18px] py-3 text-[12px] tracking-[0.1em] no-underline hover:border-tinta"
+                  >
+                    {d.ficheiro ? "Substituir ficheiro" : "Carregar PDF"}
+                  </Link>
+                </div>
+              </div>
+            ))}
+
+            <Link
+              href="/admin/descarregaveis/novo"
+              className="flex items-center justify-center border border-dashed border-adm-fio-forte p-9 text-center text-[14px] text-adm-suave no-underline hover:border-tinta"
+            >
+              Criar um documento novo para publicar um PDF na secção Descarregar
+            </Link>
+          </div>
+        )}
+      </Conteudo>
     </>
   );
 }

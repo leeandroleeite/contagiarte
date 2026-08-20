@@ -1,7 +1,7 @@
 import { asc } from "drizzle-orm";
 import { BarraGuardar } from "@/components/admin/BarraGuardar";
 import { CampoLocalizado } from "@/components/admin/Campos";
-import { Aviso, Titulo } from "@/components/admin/Pecas";
+import { Aviso, CabecalhoSeccao, Conteudo } from "@/components/admin/Pecas";
 import { guardarTextos } from "@/lib/admin/accoes";
 import { db } from "@/lib/db";
 import { textos } from "@/lib/db/schema";
@@ -39,10 +39,11 @@ export default async function PaginaTextos({
 
   return (
     <>
-      <Titulo nota="As frases fixas do site. O que estiver vazio em EN ou ES mostra o português.">
+      <CabecalhoSeccao descricao="As frases fixas do site. O que estiver vazio em EN ou ES mostra o português.">
         Textos do site
-      </Titulo>
+      </CabecalhoSeccao>
 
+      <Conteudo>
       {guardado && <Aviso tom="bom">Textos guardados.</Aviso>}
 
       <form action={guardarTextos}>
@@ -72,6 +73,7 @@ export default async function PaginaTextos({
 
         <BarraGuardar voltarPara="/admin" />
       </form>
+      </Conteudo>
     </>
   );
 }

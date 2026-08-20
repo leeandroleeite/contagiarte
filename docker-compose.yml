@@ -1,0 +1,22 @@
+# Postgres local para desenvolvimento. Produção e staging usam
+# Fly Postgres; isto só existe para correr o site na máquina.
+services:
+  postgres:
+    image: postgres:17-alpine
+    container_name: contagiarte-pg
+    environment:
+      POSTGRES_USER: contagiarte
+      POSTGRES_PASSWORD: contagiarte
+      POSTGRES_DB: contagiarte
+    ports:
+      - "5433:5432"
+    volumes:
+      - contagiarte-pg:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U contagiarte"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+volumes:
+  contagiarte-pg:

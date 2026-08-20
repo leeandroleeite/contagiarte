@@ -1,26 +1,361 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
+/* ---------------------------------------------------------------
+   Tokens da marca Contagiarte. Fonte: design handoff, secção
+   "Design Tokens". Não inventar cores fora desta lista.
+   --------------------------------------------------------------- */
+@theme {
+  --color-tinta: #0e0c0b;
+  --color-tinta-obra: #080706;
+  --color-papel: #f2ede4;
+  --color-ouro: #b4884a;
+
+  --color-claro-75: rgba(242, 237, 228, 0.75);
+  --color-claro-55: rgba(242, 237, 228, 0.55);
+  --color-claro-45: rgba(242, 237, 228, 0.45);
+  --color-escuro-78: rgba(14, 12, 11, 0.78);
+
+  --color-fio: rgba(242, 237, 228, 0.16);
+  --color-fio-forte: rgba(242, 237, 228, 0.25);
+  --color-fio-escuro: rgba(14, 12, 11, 0.16);
+
+  /* Carregadas por next/font, que expõe estas duas variáveis. */
+  --font-titulo: var(--fonte-titulo), "Bricolage Grotesque", ui-sans-serif,
+    system-ui, sans-serif;
+  --font-texto: var(--fonte-texto), "Spline Sans", ui-sans-serif, system-ui,
+    sans-serif;
+
+  --breakpoint-menu: 1120px;
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+html,
+body {
+  margin: 0;
+  padding: 0;
+  background: var(--color-tinta);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+* {
+  box-sizing: border-box;
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  color: var(--color-papel);
+  font-family: var(--font-texto);
+  font-weight: 300;
+  overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+}
+
+a {
+  color: var(--color-ouro);
+  text-decoration: none;
+}
+
+a:hover {
+  color: var(--color-papel);
+}
+
+::selection {
+  background: var(--color-ouro);
+  color: var(--color-tinta);
+}
+
+:focus-visible {
+  outline: 2px solid var(--color-ouro);
+  outline-offset: 3px;
+}
+
+/* --------------------------------------------------------------- */
+/* Animações                                                        */
+/* --------------------------------------------------------------- */
+
+@keyframes desliza {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+@keyframes cortina {
+  from {
+    transform: scaleY(1);
+  }
+  to {
+    transform: scaleY(0);
+  }
+}
+
+@keyframes surge {
+  from {
+    opacity: 0;
+    transform: translateY(40px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes pisca {
+  0%,
+  100% {
+    opacity: 0.25;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
+/* Entrada em scroll. O elemento nasce escondido e o
+   IntersectionObserver troca data-surge para "visivel".
+   Sem JS ou depois do timeout de segurança, fica visível. */
+[data-surge] {
+  opacity: 0;
+}
+
+[data-surge="visivel"] {
+  animation: surge 0.9s cubic-bezier(0.2, 0.7, 0.2, 1) forwards;
+}
+
+/* Revelação das imagens por clip-path, de cima para baixo. */
+[data-revelar] {
+  clip-path: inset(0 0 100% 0);
+  transition: clip-path 1.15s cubic-bezier(0.76, 0, 0.24, 1);
+}
+
+[data-revelar="visivel"] {
+  clip-path: inset(0 0 0 0);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+  }
+
+  [data-surge],
+  [data-surge="visivel"] {
+    opacity: 1;
+    animation: none;
+  }
+
+  [data-revelar],
+  [data-revelar="visivel"] {
+    clip-path: none;
+    transition: none;
+  }
+}
+
+/* --------------------------------------------------------------- */
+/* Faixa horizontal com scroll-snap (carrossel de obras)            */
+/* --------------------------------------------------------------- */
+
+.faixa-h {
+  scrollbar-width: thin;
+  scrollbar-color: var(--color-ouro) rgba(242, 237, 228, 0.12);
+}
+
+.faixa-h::-webkit-scrollbar {
+  height: 2px;
+}
+
+.faixa-h::-webkit-scrollbar-thumb {
+  background: var(--color-ouro);
+}
+
+.faixa-h::-webkit-scrollbar-track {
+  background: rgba(242, 237, 228, 0.12);
+}
+
+/* --------------------------------------------------------------- */
+/* Tipografia da marca                                              */
+/* --------------------------------------------------------------- */
+
+@utility titulo {
+  font-family: var(--font-titulo);
+  font-weight: 800;
+  font-stretch: 118%;
+  letter-spacing: -0.03em;
+  line-height: 0.88;
+  margin: 0;
+  overflow-wrap: break-word;
+}
+
+/* Títulos secundários e nomes de cartão: menos esticados. */
+@utility titulo-med {
+  font-family: var(--font-titulo);
+  font-weight: 700;
+  font-stretch: 104%;
+  letter-spacing: -0.02em;
+  line-height: 1.1;
+  margin: 0;
+}
+
+/* Etiqueta em maiúsculas, muito espaçada. */
+@utility etiqueta {
+  font-size: 11px;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  color: var(--color-claro-55);
+}
+
+/* Escalas fluidas usadas nos vários níveis de título. */
+@utility d-hero {
+  font-size: clamp(44px, 10.5vw, 190px);
+  line-height: 0.82;
+}
+
+@utility d-1 {
+  font-size: clamp(44px, 7vw, 120px);
+  line-height: 0.84;
+}
+
+@utility d-2 {
+  font-size: clamp(38px, 5.5vw, 88px);
+  line-height: 0.88;
+}
+
+@utility d-3 {
+  font-size: clamp(28px, 3.6vw, 56px);
+  line-height: 0.94;
+}
+
+@utility d-contactos {
+  font-size: clamp(44px, 9vw, 160px);
+  line-height: 0.84;
+}
+
+/* --------------------------------------------------------------- */
+/* Botões                                                           */
+/* --------------------------------------------------------------- */
+
+@utility btn-base {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 18px 32px;
+  min-height: 48px;
+  font-family: var(--font-texto);
+  font-size: 12px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  cursor: pointer;
+  border-radius: 0;
+  transition:
+    background-color 0.2s,
+    color 0.2s,
+    border-color 0.2s;
+}
+
+@utility btn-ouro {
+  background: var(--color-ouro);
+  color: var(--color-tinta);
+  border: 1px solid var(--color-ouro);
+}
+
+@utility btn-ouro-hover {
+  background: var(--color-papel);
+  color: var(--color-tinta);
+  border-color: var(--color-papel);
+}
+
+@utility btn-linha {
+  background: transparent;
+  color: var(--color-papel);
+  border: 1px solid rgba(242, 237, 228, 0.35);
+}
+
+@utility btn-linha-hover {
+  border-color: var(--color-ouro);
+  color: var(--color-ouro);
+}
+
+/* Campo de formulário sobre fundo escuro. */
+@utility campo {
+  width: 100%;
+  padding: 13px 12px;
+  min-height: 48px;
+  border: 1px solid var(--color-fio-forte);
+  background: transparent;
+  font-family: var(--font-texto);
+  font-size: 15px;
+  color: var(--color-papel);
+  outline: none;
+  border-radius: 0;
+}
+
+@utility campo-claro {
+  width: 100%;
+  padding: 13px 12px;
+  min-height: 48px;
+  border: 1px solid var(--color-fio-escuro);
+  background: #fff;
+  font-family: var(--font-texto);
+  font-size: 15px;
+  color: var(--color-tinta);
+  outline: none;
+  border-radius: 0;
+}
+
+::placeholder {
+  color: var(--color-claro-45);
+}
+
+.campo-claro::placeholder {
+  color: rgba(14, 12, 11, 0.4);
+}
+
+/* Esconde visualmente mas mantém para leitores de ecrã. */
+@utility so-leitor {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* Link de salto para o conteúdo: invisível até receber foco. */
+.link-saltar {
+  position: absolute;
+  left: -9999px;
+  top: 0;
+  z-index: 300;
+}
+
+.link-saltar:focus {
+  left: 12px;
+  top: 12px;
+  padding: 14px 20px;
+  background: var(--color-papel);
+  color: var(--color-tinta);
+  font-size: 12px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+}
+
+/* --------------------------------------------------------------- */
+/* Percurso pelas salas                                             */
+/* --------------------------------------------------------------- */
+
+/* Sem JavaScript, ou com movimento reduzido, fica a lista. */
+.percurso-palco {
+  display: none;
+}
+
+.percurso[data-modo="palco"] .percurso-palco {
+  display: block;
+}
+
+.percurso[data-modo="palco"] .percurso-lista {
+  display: none;
 }

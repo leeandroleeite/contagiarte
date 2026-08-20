@@ -6,21 +6,43 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "tipos": "tsc --noEmit",
+    "bd:gerar": "drizzle-kit generate",
+    "bd:migrar": "tsx scripts/migrar.ts",
+    "bd:empurrar": "drizzle-kit push",
+    "bd:estudio": "drizzle-kit studio",
+    "semear": "tsx --env-file=.env.local scripts/semear.ts",
+    "copia": "tsx --env-file=.env.local scripts/copia-seguranca.ts",
+    "admin:criar": "tsx --env-file=.env.local scripts/criar-utilizador.ts"
   },
   "dependencies": {
+    "@aws-sdk/client-s3": "^3.1114.0",
+    "@aws-sdk/s3-request-presigner": "^3.1114.0",
+    "bcryptjs": "^3.0.3",
+    "drizzle-orm": "^0.45.2",
+    "jose": "^6.2.9",
     "next": "16.3.1",
+    "nodemailer": "^9.0.5",
+    "postgres": "^3.4.9",
     "react": "19.2.8",
-    "react-dom": "19.2.8"
+    "react-dom": "19.2.8",
+    "server-only": "^0.0.1",
+    "sharp": "^0.35.3",
+    "zod": "^4.4.3"
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4",
     "@types/node": "^20",
+    "@types/nodemailer": "^8.0.1",
     "@types/react": "^19",
     "@types/react-dom": "^19",
+    "dotenv": "^17.4.2",
+    "drizzle-kit": "^0.31.10",
     "eslint": "^9",
     "eslint-config-next": "16.3.1",
     "tailwindcss": "^4",
+    "tsx": "^4.23.12",
     "typescript": "^5"
   }
 }

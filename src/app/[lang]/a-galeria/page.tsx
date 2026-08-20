@@ -89,7 +89,7 @@ export default async function PaginaGaleria({
                 legenda={l.nome}
                 sizes="(max-width: 700px) 50vw, 22vw"
               />
-              <span className="titulo-med text-[16px]">{l.nome}</span>
+              <span className="titulo-med text-[16px] uppercase">{l.nome}</span>
               <span className="text-[14px] text-claro-55">
                 {texto(l.localidade, idioma)}
               </span>

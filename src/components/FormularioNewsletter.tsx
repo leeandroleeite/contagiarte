@@ -1,6 +1,6 @@
 "use client";
 
-import { useActionState } from "react";
+import { useActionState, useState } from "react";
 import { subscrever, type Resultado } from "@/app/accoes";
 import { t } from "@/lib/i18n";
 import type { Idioma } from "@/lib/i18n/config";
@@ -8,6 +8,11 @@ import type { Idioma } from "@/lib/i18n/config";
 /**
  * Subscrição da newsletter. Sobre o bloco claro do design, por isso a
  * linha é preta e o botão é sólido.
+ *
+ * O campo é controlado de propósito: quando o servidor recusa o
+ * endereço, o formulário volta a renderizar, e um campo não controlado
+ * perderia o que a pessoa escreveu. Sem JavaScript continua a funcionar,
+ * porque a acção é uma server action normal.
  */
 export function FormularioNewsletter({
   idioma,
@@ -20,6 +25,11 @@ export function FormularioNewsletter({
     subscrever,
     null,
   );
+  const [email, setEmail] = useState("");
+
+  // Depois de subscrever com sucesso, o campo fica limpo para não dar
+  // a ideia de que é preciso submeter outra vez.
+  const valor = estado?.ok ? "" : email;
 
   return (
     <form action={accao} className="flex flex-col gap-4">
@@ -46,6 +56,8 @@ export function FormularioNewsletter({
           required
           autoComplete="email"
           placeholder={t("campo.email_exemplo", idioma)}
+          value={valor}
+          onChange={(e) => setEmail(e.target.value)}
           className="min-w-0 flex-1 border-0 bg-transparent px-1 py-[18px] text-[18px] text-tinta outline-none placeholder:text-[rgba(14,12,11,0.4)]"
         />
         <button

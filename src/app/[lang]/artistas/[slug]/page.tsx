@@ -103,7 +103,7 @@ export default async function PaginaArtista({
               {etiqueta}
             </span>
 
-            <h1 className="titulo text-[clamp(40px,6vw,104px)] leading-[0.88] tracking-[-0.02em]">
+            <h1 className="titulo text-[clamp(40px,6vw,104px)] leading-[0.88] tracking-[-0.02em] uppercase">
               {artista.nome}
             </h1>
 

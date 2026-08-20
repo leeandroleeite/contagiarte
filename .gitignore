@@ -43,3 +43,9 @@ next-env.d.ts
 
 # cópias locais de segurança
 copia-*.json
+
+# playwright
+/test-results
+/playwright-report
+/blob-report
+/.playwright

@@ -165,7 +165,7 @@ export default async function Homepage({
                   .join(" · ")}
               </span>
 
-              <h2 className="titulo d-1">{texto(expo.titulo, idioma)}</h2>
+              <h2 className="titulo d-1 uppercase">{texto(expo.titulo, idioma)}</h2>
 
               <p className="max-w-[46ch] text-[19px] leading-[1.55] text-[rgba(242,237,228,0.82)]">
                 {texto(expo.texto, idioma)}
@@ -375,6 +375,7 @@ export default async function Homepage({
       {lugares.length > 0 && (
         <Seccao id="lugares">
           <TituloSeccao
+            nivel={2}
             nota={
               <span className="max-w-[40ch] text-[16px] leading-relaxed normal-case">
                 {T("lugares.intro")}
@@ -398,7 +399,7 @@ export default async function Homepage({
                   legenda={l.nome}
                   sizes="(max-width: 900px) 50vw, 22vw"
                 />
-                <span className="titulo-med text-[16px]">{l.nome}</span>
+                <span className="titulo-med text-[16px] uppercase">{l.nome}</span>
                 <span className="text-[14px] text-claro-55">
                   {[texto(l.localidade, idioma), texto(l.tipo, idioma)]
                     .filter(Boolean)
@@ -414,6 +415,7 @@ export default async function Homepage({
       {arquivo.length > 0 && (
         <Seccao id="arquivo">
           <TituloSeccao
+            nivel={2}
             nota={
               idioma === "pt"
                 ? "EXPOSIÇÕES E CURADORIAS"

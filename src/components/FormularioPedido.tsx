@@ -1,10 +1,9 @@
 "use client";
 
-import { useActionState } from "react";
+import { useActionState, useState } from "react";
 import { enviarPedido, type Resultado } from "@/app/accoes";
 import { t } from "@/lib/i18n";
 import type { Idioma } from "@/lib/i18n/config";
-import { colunas } from "@/lib/utils";
 
 type Props = {
   idioma: Idioma;
@@ -18,10 +17,23 @@ type Props = {
   rotuloBotao?: string;
 };
 
+type Campos = {
+  nome: string;
+  contacto: string;
+  medidas: string;
+  mensagem: string;
+};
+
+const VAZIO: Campos = { nome: "", contacto: "", medidas: "", mensagem: "" };
+
 /**
  * Formulário de pedido. Serve a moldura, o interesse numa obra, a
  * marcação de visita e o contacto geral: muda só o tipo e os campos
  * extra. Funciona sem JavaScript, porque é uma server action normal.
+ *
+ * Os campos são controlados de propósito: se o servidor recusar o
+ * pedido, o formulário volta a renderizar, e campos não controlados
+ * perderiam tudo o que a pessoa escreveu.
  */
 export function FormularioPedido({
   idioma,
@@ -36,6 +48,10 @@ export function FormularioPedido({
     enviarPedido,
     null,
   );
+  const [campos, setCampos] = useState<Campos>(VAZIO);
+
+  const mudar = (chave: keyof Campos) => (valor: string) =>
+    setCampos((c) => ({ ...c, [chave]: valor }));
 
   if (estado?.ok) {
     return (
@@ -64,31 +80,48 @@ export function FormularioPedido({
         className="absolute left-[-9999px] h-0 w-0 opacity-0"
       />
 
-      <div className="grid gap-3" style={colunas(150)}>
+      <div
+        className="grid gap-3"
+        style={{ gridTemplateColumns: "repeat(auto-fit,minmax(min(150px,100%),1fr))" }}
+      >
         <Campo
+          prefixo={tipo}
           nome="nome"
           rotulo={t("campo.nome", idioma)}
           autoComplete="name"
           obrigatorio
+          valor={campos.nome}
+          aoMudar={mudar("nome")}
         />
         <Campo
+          prefixo={tipo}
           nome="contacto"
           rotulo={t("campo.contacto", idioma)}
           autoComplete="email"
           obrigatorio
+          valor={campos.contacto}
+          aoMudar={mudar("contacto")}
         />
         {comMedidas && (
-          <Campo nome="medidas" rotulo={t("campo.medidas", idioma)} />
+          <Campo
+            prefixo={tipo}
+            nome="medidas"
+            rotulo={t("campo.medidas", idioma)}
+            valor={campos.medidas}
+            aoMudar={mudar("medidas")}
+          />
         )}
       </div>
 
-      <label htmlFor="pedido-mensagem" className="so-leitor">
+      <label htmlFor={`pedido-mensagem-${tipo}`} className="so-leitor">
         {t("campo.mensagem", idioma)}
       </label>
       <textarea
-        id="pedido-mensagem"
+        id={`pedido-mensagem-${tipo}`}
         name="mensagem"
         rows={3}
+        value={campos.mensagem}
+        onChange={(e) => mudar("mensagem")(e.target.value)}
         placeholder={
           tipo === "moldura"
             ? t("campo.emoldurar", idioma)
@@ -121,17 +154,23 @@ export function FormularioPedido({
 }
 
 function Campo({
+  prefixo,
   nome,
   rotulo,
   autoComplete,
   obrigatorio = false,
+  valor,
+  aoMudar,
 }: {
+  prefixo: string;
   nome: string;
   rotulo: string;
   autoComplete?: string;
   obrigatorio?: boolean;
+  valor: string;
+  aoMudar: (valor: string) => void;
 }) {
-  const id = `pedido-${nome}`;
+  const id = `pedido-${prefixo}-${nome}`;
   return (
     <div>
       <label htmlFor={id} className="so-leitor">
@@ -144,6 +183,8 @@ function Campo({
         required={obrigatorio}
         autoComplete={autoComplete}
         placeholder={rotulo}
+        value={valor}
+        onChange={(e) => aoMudar(e.target.value)}
         className="campo"
       />
     </div>

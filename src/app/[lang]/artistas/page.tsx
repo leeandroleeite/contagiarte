@@ -76,7 +76,7 @@ export default async function PaginaArtistas({
                   legenda={a.nome}
                   sizes="(max-width: 700px) 50vw, 24vw"
                 />
-                <span className="titulo-med text-[18px] transition-colors group-hover:text-ouro">
+                <span className="titulo-med text-[18px] uppercase transition-colors group-hover:text-ouro">
                   {a.nome}
                 </span>
                 <span className="text-[14px] text-claro-55">

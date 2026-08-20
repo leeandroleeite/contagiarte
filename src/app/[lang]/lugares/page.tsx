@@ -60,7 +60,7 @@ export default async function PaginaLugares({
               legenda={l.nome}
               sizes="(max-width: 700px) 100vw, 25vw"
             />
-            <span className="titulo-med text-[18px]">{l.nome}</span>
+            <span className="titulo-med text-[18px] uppercase">{l.nome}</span>
             <span className="text-[14px] text-claro-55">
               {[texto(l.localidade, idioma), texto(l.tipo, idioma)]
                 .filter(Boolean)

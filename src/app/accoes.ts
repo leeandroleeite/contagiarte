@@ -20,7 +20,7 @@ const ERRO: Resultado = { ok: false, mensagem: "msg.erro" };
 /** Travão simples por IP, guardado em memória do processo. */
 const ultimos = new Map<string, number[]>();
 const JANELA = 60_000;
-const MAXIMO = 5;
+const MAXIMO = Number(process.env.LIMITE_FORMULARIOS ?? 5);
 
 async function demasiadosPedidos(): Promise<boolean> {
   const cabecalhos = await headers();
@@ -68,13 +68,16 @@ export async function subscrever(
   dados: FormData,
 ): Promise<Resultado> {
   if (eRobo(dados)) return { ok: true, mensagem: "msg.subscrito" };
-  if (await demasiadosPedidos()) return ERRO;
 
+  // A validação vem antes do travão: um erro de escrita não deve gastar
+  // a quota de quem depois quer mesmo subscrever.
   const analise = esquemaNewsletter.safeParse({
     email: dados.get("email"),
     nome: dados.get("nome") ?? undefined,
   });
   if (!analise.success) return { ok: false, mensagem: "msg.email_invalido" };
+
+  if (await demasiadosPedidos()) return ERRO;
 
   try {
     const token = crypto.randomUUID();
@@ -136,7 +139,6 @@ export async function enviarPedido(
   dados: FormData,
 ): Promise<Resultado> {
   if (eRobo(dados)) return { ok: true, mensagem: "msg.enviado" };
-  if (await demasiadosPedidos()) return ERRO;
 
   const analise = esquemaPedido.safeParse({
     tipo: dados.get("tipo"),
@@ -148,6 +150,9 @@ export async function enviarPedido(
     extra: dados.get("extra") ?? undefined,
   });
   if (!analise.success) return ERRO;
+
+  // Só depois de o pedido ser válido é que conta para o travão por IP.
+  if (await demasiadosPedidos()) return ERRO;
 
   const p = analise.data;
   const pareceEmail = p.contacto.includes("@");

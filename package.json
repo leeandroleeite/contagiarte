@@ -15,7 +15,10 @@
     "semear": "tsx --env-file=.env.local scripts/semear.ts",
     "copia": "tsx --env-file=.env.local scripts/copia-seguranca.ts",
     "admin:criar": "tsx --env-file=.env.local scripts/criar-utilizador.ts",
-    "bd:semear-ci": "tsx scripts/semear.ts"
+    "bd:semear-ci": "tsx scripts/semear.ts",
+    "e2e": "tsx --env-file=.env.local scripts/preparar-e2e.ts && playwright test",
+    "e2e:ver": "playwright test --ui",
+    "e2e:relatorio": "playwright show-report"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.1114.0",
@@ -34,6 +37,7 @@
     "zod": "^4.4.3"
   },
   "devDependencies": {
+    "@playwright/test": "^1.62.1",
     "@tailwindcss/postcss": "^4",
     "@types/node": "^20",
     "@types/nodemailer": "^8.0.1",

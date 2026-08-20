@@ -69,7 +69,7 @@ export function Percurso({ salas }: { salas: Sala[] }) {
             <span className="text-[11px] tracking-[0.3em] text-[rgba(242,237,228,0.6)] uppercase">
               {numero(i + 1)} / {numero(salas.length)}
             </span>
-            <h2 className="titulo text-[clamp(34px,5.5vw,86px)] leading-[0.88]">
+            <h2 className="titulo text-[clamp(34px,5.5vw,86px)] leading-[0.88] uppercase">
               {s.nome}
             </h2>
             <Imagem
@@ -137,7 +137,7 @@ export function Percurso({ salas }: { salas: Sala[] }) {
             <span className="text-[11px] tracking-[0.3em] text-[rgba(242,237,228,0.6)]">
               {numero(indice + 1)} / {numero(salas.length)}
             </span>
-            <h2 className="titulo text-[clamp(34px,5.5vw,86px)] leading-[0.88]">
+            <h2 className="titulo text-[clamp(34px,5.5vw,86px)] leading-[0.88] uppercase">
               {actual.nome}
             </h2>
             <p className="text-[18px] leading-[1.6] text-[rgba(242,237,228,0.82)]">

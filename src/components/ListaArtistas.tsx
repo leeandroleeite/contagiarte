@@ -69,7 +69,7 @@ export function ListaArtistas({
             href={caminho(idioma, `/artistas/${a.slug}`)}
             className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-4 border-t border-[rgba(242,237,228,0.16)] py-6 text-papel transition-colors hover:text-ouro sm:grid-cols-[minmax(0,2fr)_minmax(0,1.6fr)_auto] sm:gap-8 sm:py-[34px]"
           >
-            <span className="titulo text-[clamp(24px,3.4vw,52px)] leading-none">
+            <span className="titulo text-[clamp(24px,3.4vw,52px)] leading-none uppercase">
               {a.nome}
             </span>
             <span className="hidden text-[15px] text-[rgba(242,237,228,0.6)] sm:block">

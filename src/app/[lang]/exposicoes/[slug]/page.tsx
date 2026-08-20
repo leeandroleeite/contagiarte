@@ -154,7 +154,7 @@ export default async function PaginaExposicao({
               .filter(Boolean)
               .join(" · ")}
           </span>
-          <h1 className="titulo mt-3.5 text-[clamp(40px,7vw,120px)] leading-[0.86] tracking-[-0.02em]">
+          <h1 className="titulo mt-3.5 text-[clamp(40px,7vw,120px)] leading-[0.86] tracking-[-0.02em] uppercase">
             {titulo}
           </h1>
         </div>
@@ -284,7 +284,7 @@ export default async function PaginaExposicao({
                     legenda={ea.artista.nome}
                     sizes="(max-width: 700px) 50vw, 22vw"
                   />
-                  <span className="titulo-med text-[17px] transition-colors group-hover:text-ouro">
+                  <span className="titulo-med text-[17px] uppercase transition-colors group-hover:text-ouro">
                     {ea.artista.nome}
                   </span>
                   {texto(ea.artista.nota, idioma) && (

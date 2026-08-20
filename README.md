@@ -62,6 +62,41 @@ gerada uma única vez. Site em <http://localhost:3000>, backoffice em
 | `npm run copia` | Exporta o conteúdo todo para o R2 |
 | `npm run admin:criar -- email@dominio.pt "Nome" administrador` | Cria ou repõe um acesso ao backoffice |
 
+## Testes
+
+```bash
+npm run e2e          # tudo, em Chrome de secretária e iPhone
+npm run e2e:ver      # com o inspector do Playwright
+npm run e2e:relatorio
+```
+
+Correm contra uma compilação de produção, não contra o servidor de
+desenvolvimento: é a versão que vai para o ar. São 63 testes em dois
+aparelhos, e cobrem:
+
+- **rastreio recursivo**: parte da homepage, segue todos os links
+  internos até não haver endereços novos, e falha se algum responder
+  com erro, ficar sem `h1`, ou ganhar scroll lateral. É o que apanha um
+  link esquecido para uma rota que já não existe;
+- **navegação**: barra de topo, menu compacto, rodapé, avançar e
+  recuar no browser;
+- **idiomas**: `/pt` redirecciona para a raiz, EN e ES mantêm o
+  prefixo ao navegar, e cada página declara os três alternativos;
+- **conteúdo**: ficha técnica da obra, biografia e citação do artista,
+  texto curatorial e ficha de visita da exposição, salas do percurso;
+- **contactos**: o número de WhatsApp e a mensagem de cada contexto,
+  incluindo a combinação escolhida no simulador;
+- **formulários**: newsletter, orçamento de moldura e interesse numa
+  obra, com validação, armadilha para robôs, e a garantia de que a
+  fotografia da parede nunca sai do navegador;
+- **backoffice**: entrar, recusar credenciais erradas, criar uma obra e
+  vê-la publicada no site, alterá-la, apagá-la, confirmar que um
+  rascunho não aparece, mudar o número de WhatsApp e ver os links do
+  site mudarem, e encontrar no painel o pedido enviado pelo site.
+
+O CI corre-os em cada pull request, depois dos tipos, do lint e da
+compilação.
+
 ## Estrutura
 
 ```

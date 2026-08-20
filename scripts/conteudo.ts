@@ -24,7 +24,7 @@ export const L = (pt: string, en?: string, es?: string): Localizado => ({
 export const ARTISTAS = [
   {
     slug: "mario-ferreira",
-    nome: "MÁRIO FERREIRA",
+    nome: "Mário Ferreira",
     disciplina: "tecnica_mista",
     naturalidade: "Porto",
     ordem: 1,
@@ -48,7 +48,7 @@ export const ARTISTAS = [
   },
   {
     slug: "ana-betania",
-    nome: "ANA+BETÂNIA",
+    nome: "Ana+Betânia",
     disciplina: "escultura",
     naturalidade: null,
     ordem: 2,
@@ -72,7 +72,7 @@ export const ARTISTAS = [
   },
   {
     slug: "vanessa-teodoro",
-    nome: "VANESSA TEODORO",
+    nome: "Vanessa Teodoro",
     disciplina: "escultura",
     naturalidade: null,
     ordem: 3,
@@ -96,7 +96,7 @@ export const ARTISTAS = [
   },
   {
     slug: "pant",
-    nome: "PANT.",
+    nome: "Pant.",
     disciplina: "colagem",
     naturalidade: null,
     ordem: 4,
@@ -131,7 +131,7 @@ export const ARTISTAS = [
 export const LUGARES = [
   {
     slug: "quanta-terra",
-    nome: "QUANTA TERRA",
+    nome: "Quanta Terra",
     localidade: L("Favaios, Alijó"),
     tipo: L(
       "adega e enoturismo",
@@ -149,7 +149,7 @@ export const LUGARES = [
   },
   {
     slug: "forte-de-gaia",
-    nome: "FORTE DE GAIA",
+    nome: "Forte de Gaia",
     localidade: L("Vila Nova de Gaia"),
     tipo: L("Marriott · Autograph Collection"),
     morada: null,
@@ -163,7 +163,7 @@ export const LUGARES = [
   },
   {
     slug: "off-padel",
-    nome: "OFF PADEL",
+    nome: "Off Padel",
     localidade: L("Leça da Palmeira"),
     tipo: L(
       "seis campos e lounge",
@@ -177,7 +177,7 @@ export const LUGARES = [
   },
   {
     slug: "cafe-da-praca",
-    nome: "CAFÉ DA PRAÇA",
+    nome: "Café da Praça",
     localidade: L("Matosinhos"),
     tipo: L("centro cultural", "cultural centre", "centro cultural"),
     morada: null,
@@ -212,7 +212,7 @@ const TEXTO_PELE_DA_TERRA_ES = [
 export const EXPOSICOES = [
   {
     slug: "a-pele-da-terra",
-    titulo: L("A PELE DA TERRA", "THE SKIN OF THE EARTH", "LA PIEL DE LA TIERRA"),
+    titulo: L("A Pele da Terra", "The Skin of the Earth", "La Piel de la Tierra"),
     lugarSlug: "quanta-terra",
     dataInicio: "2026-05-01",
     dataFim: "2026-12-31",
@@ -558,7 +558,7 @@ export const OBRAS = [
 export const SALAS = [
   {
     slug: "a-chegada",
-    nome: L("A CHEGADA", "THE ARRIVAL", "LA LLEGADA"),
+    nome: L("A chegada", "The arrival", "La llegada"),
     texto: L(
       "A antiga destilaria da Casa do Douro, recuperada em 2022. Antes de qualquer obra, o território: socalcos, xisto e a luz baixa do vale.",
       "The old Casa do Douro distillery, restored in 2022. Before any work of art, the land: terraces, schist and the low light of the valley.",
@@ -569,7 +569,7 @@ export const SALAS = [
   },
   {
     slug: "sala-das-barricas",
-    nome: L("SALA DAS BARRICAS", "BARREL ROOM", "SALA DE BARRICAS"),
+    nome: L("Sala das barricas", "Barrel room", "Sala de barricas"),
     texto: L(
       "Onde o vinho envelhece lentamente. As peças partilham o silêncio, a temperatura e o cheiro da madeira: a contemplação passa a ter o mesmo tempo do vinho.",
       "Where the wine ages slowly. The pieces share the silence, the temperature and the smell of the wood: contemplation takes on the same time as the wine.",
@@ -584,7 +584,7 @@ export const SALAS = [
   },
   {
     slug: "cubas-centenarias",
-    nome: L("CUBAS CENTENÁRIAS", "CENTURY-OLD VATS", "CUBAS CENTENARIAS"),
+    nome: L("Cubas centenárias", "Century-old vats", "Cubas centenarias"),
     texto: L(
       "Cubas revestidas a azulejo, com um século de uso. A superfície fria e reflectora responde à matéria bruta das obras: barro, gesso, pigmento.",
       "Tiled vats, with a century of use. The cold, reflective surface answers the raw matter of the works: clay, plaster, pigment.",
@@ -599,7 +599,7 @@ export const SALAS = [
   },
   {
     slug: "sala-de-provas",
-    nome: L("SALA DE PROVAS", "TASTING ROOM", "SALA DE CATA"),
+    nome: L("Sala de provas", "Tasting room", "Sala de cata"),
     texto: L(
       "O fim do percurso, onde se prova o que a adega produz. Aqui a arte deixa de ser visita e passa a ser conversa.",
       "The end of the route, where you taste what the winery makes. Here art stops being a visit and becomes a conversation.",

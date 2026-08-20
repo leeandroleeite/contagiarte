@@ -31,16 +31,26 @@ export function Seccao({
   );
 }
 
-/** Cabeçalho de secção: título grande à esquerda, nota à direita. */
+/**
+ * Cabeçalho de secção: título grande à esquerda, nota à direita.
+ *
+ * Por omissão é o `h1` da página, porque é assim que é usado nas
+ * páginas de índice. Nas secções interiores de uma página que já tem
+ * `h1` (a homepage, por exemplo) passa-se `nivel={2}`: cada página tem
+ * de ter um `h1`, e só um.
+ */
 export function TituloSeccao({
   children,
   nota,
   className,
+  nivel = 1,
 }: {
   children: React.ReactNode;
   nota?: React.ReactNode;
   className?: string;
+  nivel?: 1 | 2;
 }) {
+  const Titulo = nivel === 1 ? "h1" : "h2";
   return (
     <div
       className={cx(
@@ -49,7 +59,7 @@ export function TituloSeccao({
       )}
       data-surge=""
     >
-      <h2 className="titulo d-2">{children}</h2>
+      <Titulo className="titulo d-2">{children}</Titulo>
       {nota && <span className="etiqueta">{nota}</span>}
     </div>
   );

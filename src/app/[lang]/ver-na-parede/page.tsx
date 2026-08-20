@@ -32,7 +32,9 @@ export default async function PaginaVerNaParede({
   const { obra: obraInicial } = await searchParams;
 
   const [obras, molduras, def] = await Promise.all([
-    listarObras({ soDisponiveis: true }),
+    // Só obras fotografadas: pôr um rectângulo vazio na parede de
+    // alguém não ajuda a decidir nada.
+    listarObras({ soDisponiveis: true, comFotografia: true }),
     listarMolduras(),
     obterDefinicoes(),
   ]);

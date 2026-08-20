@@ -1,6 +1,6 @@
 import "server-only";
 
-import { and, asc, desc, eq, inArray, ne, or, sql } from "drizzle-orm";
+import { and, asc, desc, eq, inArray, ne, sql } from "drizzle-orm";
 import { db } from "@/lib/db";
 import {
   artistas,
@@ -130,6 +130,8 @@ type FiltroObras = {
   exposicaoId?: string;
   soDisponiveis?: boolean;
   destaque?: boolean;
+  /** Só obras já fotografadas. O simulador não serve sem imagem. */
+  comFotografia?: boolean;
   limite?: number;
   excluir?: string;
 };
@@ -142,6 +144,8 @@ export async function listarObras(filtro: FiltroObras = {}) {
   if (filtro.soDisponiveis)
     condicoes.push(eq(obras.disponibilidade, "disponivel"));
   if (filtro.destaque) condicoes.push(eq(obras.destaque, true));
+  if (filtro.comFotografia)
+    condicoes.push(sql`${obras.fotografiaId} is not null`);
   if (filtro.excluir) condicoes.push(ne(obras.id, filtro.excluir));
 
   return db.query.obras.findMany({
@@ -166,25 +170,44 @@ export async function obraPorSlug(slug: string) {
 export type Obra = NonNullable<Awaited<ReturnType<typeof obraPorSlug>>>;
 export type ObraLista = Awaited<ReturnType<typeof listarObras>>[number];
 
-/** Obras da mesma exposição ou do mesmo artista, para o rodapé da ficha. */
+/**
+ * Obras a mostrar no fim da ficha.
+ *
+ * A preferência é pelo mesmo artista, porque é isso que o rodapé da
+ * ficha promete. Só quando o artista não tem mais nada é que se cai
+ * para as companheiras de exposição, e nesse caso o `mesmoArtista`
+ * devolvido diz à página para mudar o título: escrever "do mesmo
+ * artista" por cima de obras de outra pessoa seria mentira.
+ */
 export async function obrasRelacionadas(obra: Obra, limite = 3) {
-  const condicoes = [
-    obra.exposicaoId ? eq(obras.exposicaoId, obra.exposicaoId) : undefined,
-    obra.artistaId ? eq(obras.artistaId, obra.artistaId) : undefined,
-  ].filter(Boolean);
+  const base = [eq(obras.estado, PUBLICADO), ne(obras.id, obra.id)];
 
-  if (condicoes.length === 0) return listarObras({ limite, excluir: obra.id });
+  if (obra.artistaId) {
+    const doArtista = await db.query.obras.findMany({
+      where: and(...base, eq(obras.artistaId, obra.artistaId)),
+      with: comMediaObra,
+      orderBy: [asc(obras.ordem)],
+      limit: limite,
+    });
+    if (doArtista.length > 0) {
+      return { lista: doArtista, mesmoArtista: true as const };
+    }
+  }
 
-  return db.query.obras.findMany({
-    where: and(
-      eq(obras.estado, PUBLICADO),
-      ne(obras.id, obra.id),
-      or(...(condicoes as NonNullable<(typeof condicoes)[number]>[])),
-    ),
-    with: comMediaObra,
-    orderBy: [asc(obras.ordem)],
-    limit: limite,
-  });
+  if (obra.exposicaoId) {
+    const daExposicao = await db.query.obras.findMany({
+      where: and(...base, eq(obras.exposicaoId, obra.exposicaoId)),
+      with: comMediaObra,
+      orderBy: [asc(obras.ordem)],
+      limit: limite,
+    });
+    if (daExposicao.length > 0) {
+      return { lista: daExposicao, mesmoArtista: false as const };
+    }
+  }
+
+  const quaisquer = await listarObras({ limite, excluir: obra.id });
+  return { lista: quaisquer, mesmoArtista: false as const };
 }
 
 // --------------------------------------------------------------------

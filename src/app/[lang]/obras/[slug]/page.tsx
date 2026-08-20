@@ -279,11 +279,11 @@ export default async function PaginaObra({
         </div>
       </Seccao>
 
-      {/* Do mesmo artista. */}
-      {relacionadas.length > 0 && (
+      {/* Do mesmo artista, ou da mesma exposição quando não há mais. */}
+      {relacionadas.lista.length > 0 && (
         <Seccao semFio className="px-7 py-20 sm:px-10">
           <h2 className="titulo mb-8 text-[clamp(26px,3vw,44px)] leading-[0.92] tracking-[-0.02em]">
-            {obra.artistaId
+            {relacionadas.mesmoArtista
               ? idioma === "pt"
                 ? "DO MESMO ARTISTA"
                 : idioma === "en"
@@ -292,7 +292,7 @@ export default async function PaginaObra({
               : t("obra.relacionadas", idioma).toUpperCase()}
           </h2>
           <ul className="grid gap-6" style={colunas(220)}>
-            {relacionadas.map((o) => (
+            {relacionadas.lista.map((o) => (
               <li key={o.id}>
                 <Link
                   href={caminho(idioma, `/obras/${o.slug}`)}

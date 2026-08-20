@@ -5,8 +5,11 @@ import { revalidatePath } from "next/cache";
 import { db } from "@/lib/db";
 import { media } from "@/lib/db/schema";
 import { exigirSessao, registar, sessaoActual } from "@/lib/auth";
-import { env } from "@/lib/env";
-import { apagar, chaveParaFicheiro, guardar } from "@/lib/media/r2";
+import {
+  apagarFicheiro,
+  guardarFicheiro,
+} from "@/lib/media/armazenamento";
+import { chaveParaFicheiro } from "@/lib/media/r2";
 
 const MAXIMO_BYTES = 25 * 1024 * 1024;
 
@@ -30,21 +33,14 @@ export type ResultadoUpload =
   | { ok: false; erro: string };
 
 /**
- * Recebe um ficheiro do backoffice, guarda-o no R2 e cria o registo de
- * media. Para imagens calcula largura, altura, cor média e um
+ * Recebe um ficheiro do backoffice, guarda-o (no R2 ou em disco,
+ * conforme o ambiente) e cria o registo de media. Para imagens calcula largura, altura, cor média e um
  * placeholder de desfoque, para o site não saltar durante o carregamento.
  */
 export async function carregarFicheiro(
   dados: FormData,
 ): Promise<ResultadoUpload> {
   await exigirSessao();
-
-  if (!env.r2.configurado) {
-    return {
-      ok: false,
-      erro: "O armazenamento R2 ainda não está configurado neste ambiente.",
-    };
-  }
 
   const ficheiro = dados.get("ficheiro");
   if (!(ficheiro instanceof File) || ficheiro.size === 0) {
@@ -97,9 +93,9 @@ export async function carregarFicheiro(
   }
 
   try {
-    await guardar(chave, bytes, ficheiro.type);
+    await guardarFicheiro(chave, bytes, ficheiro.type);
   } catch (erro) {
-    console.error("[media] falhou o envio para o R2:", erro);
+    console.error("[media] falhou o envio:", erro);
     return { ok: false, erro: "Não foi possível guardar o ficheiro." };
   }
 
@@ -155,10 +151,10 @@ export async function apagarMedia(id: string) {
   if (!linha) return;
 
   try {
-    await apagar(linha.chave);
+    await apagarFicheiro(linha.chave);
   } catch (erro) {
-    // Se o objecto já não existe no bucket, o registo deve sair na mesma.
-    console.warn("[media] falhou a remoção no R2:", erro);
+    // Se o ficheiro já não existe, o registo deve sair na mesma.
+    console.warn("[media] falhou a remoção do ficheiro:", erro);
   }
 
   await db.delete(media).where(eq(media.id, id));

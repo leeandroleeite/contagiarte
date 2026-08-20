@@ -19,7 +19,8 @@
     "e2e": "tsx --env-file=.env.local scripts/preparar-e2e.ts && playwright test",
     "e2e:ver": "playwright test --ui",
     "e2e:relatorio": "playwright show-report",
-    "prestart": "cp -r public .next/standalone/public 2>/dev/null; mkdir -p .next/standalone/.next && cp -r .next/static .next/standalone/.next/static"
+    "prestart": "cp -r public .next/standalone/public 2>/dev/null; mkdir -p .next/standalone/.next && cp -r .next/static .next/standalone/.next/static",
+    "imagens": "tsx --env-file=.env.local scripts/importar-imagens.ts"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.1114.0",

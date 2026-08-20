@@ -63,7 +63,7 @@ export function Percurso({ salas }: { salas: Sala[] }) {
   return (
     <div ref={raiz} className="percurso">
       {/* Lista: base semântica, e o que vê quem não tem o palco. */}
-      <div className="percurso-lista flex flex-col gap-20 px-7 pb-28">
+      <div className="percurso-lista gap-20 px-7 pb-28">
         {salas.map((s, i) => (
           <article key={s.id} className="flex flex-col gap-6">
             <span className="text-[11px] tracking-[0.3em] text-[rgba(242,237,228,0.6)] uppercase">

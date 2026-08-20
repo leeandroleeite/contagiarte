@@ -5,9 +5,9 @@
  * Nunca correr contra produção: só mexe na base do DATABASE_URL local.
  */
 import bcrypt from "bcryptjs";
-import { eq } from "drizzle-orm";
+import { eq, like, or } from "drizzle-orm";
 import { db, sql } from "../src/lib/db";
-import { definicoes, utilizadores } from "../src/lib/db/schema";
+import { definicoes, obras, utilizadores } from "../src/lib/db/schema";
 import { DEFINICOES_OMISSAO } from "../src/lib/db/omissoes";
 
 const EMAIL = "galeria@contagiarte.pt";
@@ -42,6 +42,16 @@ async function principal() {
       papel: "administrador",
       palavraPasseHash: hash,
     });
+  }
+
+  // Restos de corridas anteriores. Um teste interrompido antes de
+  // apagar o que criou deixava obras de teste visíveis no site.
+  const limpos = await db
+    .delete(obras)
+    .where(or(like(obras.slug, "obra-de-teste-%"), like(obras.slug, "rascunho-%")))
+    .returning({ id: obras.id });
+  if (limpos.length > 0) {
+    console.log(`Limpas ${limpos.length} obras de teste que tinham ficado.`);
   }
 
   // As definições voltam ao estado conhecido. Sem isto, um teste

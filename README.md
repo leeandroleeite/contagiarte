@@ -234,6 +234,13 @@ no ar.
 
 ## Ficheiros e R2
 
+Sem R2 configurado, os ficheiros ficam em `public/media` e são servidos
+por `/api/media/...`. É o que permite ver e editar o site localmente
+sem abrir conta na Cloudflare. Em staging e em produção, o R2 toma
+conta: os endereços não mudam, e passam pela CDN assim que
+`NEXT_PUBLIC_R2_PUBLIC_URL` estiver definido.
+
+
 Crie dois buckets, `contagiarte` e `contagiarte-staging`. Dentro de cada
 um, os objectos ficam com prefixo do ambiente (`producao/`, `staging/`,
 `local/`), por isso um ambiente nunca escreve por cima do outro mesmo que
@@ -303,11 +310,18 @@ Herdado da secção "Por implementar" do handoff, e ainda por resolver:
 3. **Logótipo em vetor.** O ícone actual é provisório
    (`public/icone.svg`).
 4. **Fotografia em alta resolução** das obras, dos espaços e dos
-   galeristas. As imagens do protótipo eram extraídas de um PDF de
-   catálogo e não servem para produção, por isso não foram importadas.
-   Cada lugar sem fotografia mostra um marcador com o título, em vez de
-   um buraco no layout. É a única coisa que falta para o site parecer
-   acabado: o texto está todo lá.
+   galeristas. As imagens que estão no site vieram do catálogo da
+   galeria, extraídas de um PDF: têm 440px de largura no máximo, e por
+   isso ficam suaves quando ocupam meio ecrã. Servem para ver o site
+   como ficará; substituem-se uma a uma em Backoffice → Media, e o
+   endereço de cada obra não muda.
+
+   Faltam fotografias de: as quatro salas do percurso da adega, o
+   retrato dos galeristas, a moldura da MOLDARTPÓVOA em contexto, e a
+   obra de Pant. (a que veio no design chegou danificada e foi
+   retirada, porque mostrar um terço de um quadro como sendo a obra
+   engana quem compra). Cada sítio sem fotografia mostra um marcador
+   com o título, em vez de um buraco no layout.
 5. **Datas e títulos das exposições anteriores** (edições 2021 a 2023 da
    Quanta Terra, Off Padel, Café da Praça).
 6. **Traduções EN e ES.** A estrutura está pronta e o dicionário de

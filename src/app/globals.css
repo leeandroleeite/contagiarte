@@ -28,42 +28,44 @@
   --breakpoint-menu: 1120px;
 }
 
-html,
-body {
-  margin: 0;
-  padding: 0;
-  background: var(--color-tinta);
-}
+@layer base {
+  html,
+  body {
+    margin: 0;
+    padding: 0;
+    background: var(--color-tinta);
+  }
 
-* {
-  box-sizing: border-box;
-}
+  * {
+    box-sizing: border-box;
+  }
 
-body {
-  color: var(--color-papel);
-  font-family: var(--font-texto);
-  font-weight: 300;
-  overflow-x: hidden;
-  -webkit-font-smoothing: antialiased;
-}
+  body {
+    color: var(--color-papel);
+    font-family: var(--font-texto);
+    font-weight: 300;
+    overflow-x: hidden;
+    -webkit-font-smoothing: antialiased;
+  }
 
-a {
-  color: var(--color-ouro);
-  text-decoration: none;
-}
+  a {
+    color: var(--color-ouro);
+    text-decoration: none;
+  }
 
-a:hover {
-  color: var(--color-papel);
-}
+  a:hover {
+    color: var(--color-papel);
+  }
 
-::selection {
-  background: var(--color-ouro);
-  color: var(--color-tinta);
-}
+  ::selection {
+    background: var(--color-ouro);
+    color: var(--color-tinta);
+  }
 
-:focus-visible {
-  outline: 2px solid var(--color-ouro);
-  outline-offset: 3px;
+  :focus-visible {
+    outline: 2px solid var(--color-ouro);
+    outline-offset: 3px;
+  }
 }
 
 /* --------------------------------------------------------------- */
@@ -156,21 +158,23 @@ a:hover {
 /* Faixa horizontal com scroll-snap (carrossel de obras)            */
 /* --------------------------------------------------------------- */
 
-.faixa-h {
-  scrollbar-width: thin;
-  scrollbar-color: var(--color-ouro) rgba(242, 237, 228, 0.12);
-}
+@layer components {
+  .faixa-h {
+    scrollbar-width: thin;
+    scrollbar-color: var(--color-ouro) rgba(242, 237, 228, 0.12);
+  }
 
-.faixa-h::-webkit-scrollbar {
-  height: 2px;
-}
+  .faixa-h::-webkit-scrollbar {
+    height: 2px;
+  }
 
-.faixa-h::-webkit-scrollbar-thumb {
-  background: var(--color-ouro);
-}
+  .faixa-h::-webkit-scrollbar-thumb {
+    background: var(--color-ouro);
+  }
 
-.faixa-h::-webkit-scrollbar-track {
-  background: rgba(242, 237, 228, 0.12);
+  .faixa-h::-webkit-scrollbar-track {
+    background: rgba(242, 237, 228, 0.12);
+  }
 }
 
 /* --------------------------------------------------------------- */
@@ -303,12 +307,14 @@ a:hover {
   border-radius: 0;
 }
 
-::placeholder {
-  color: var(--color-claro-45);
-}
+@layer base {
+  ::placeholder {
+    color: var(--color-claro-45);
+  }
 
-.campo-claro::placeholder {
-  color: rgba(14, 12, 11, 0.4);
+  .campo-claro::placeholder {
+    color: rgba(14, 12, 11, 0.4);
+  }
 }
 
 /* Esconde visualmente mas mantém para leitores de ecrã. */
@@ -324,40 +330,53 @@ a:hover {
   border: 0;
 }
 
-/* Link de salto para o conteúdo: invisível até receber foco. */
-.link-saltar {
-  position: absolute;
-  left: -9999px;
-  top: 0;
-  z-index: 300;
-}
+@layer components {
+  /* Link de salto para o conteúdo: invisível até receber foco. */
+  .link-saltar {
+    position: absolute;
+    left: -9999px;
+    top: 0;
+    z-index: 300;
+  }
 
-.link-saltar:focus {
-  left: 12px;
-  top: 12px;
-  padding: 14px 20px;
-  background: var(--color-papel);
-  color: var(--color-tinta);
-  font-size: 12px;
-  letter-spacing: 0.18em;
-  text-transform: uppercase;
+  .link-saltar:focus {
+    left: 12px;
+    top: 12px;
+    padding: 14px 20px;
+    background: var(--color-papel);
+    color: var(--color-tinta);
+    font-size: 12px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+  }
 }
 
 /* --------------------------------------------------------------- */
 /* Percurso pelas salas                                             */
 /* --------------------------------------------------------------- */
 
-/* Sem JavaScript, ou com movimento reduzido, fica a lista. */
-.percurso-palco {
-  display: none;
-}
+/* Sem JavaScript, ou com movimento reduzido, fica a lista.
+   O `display` dos dois é definido aqui e não por utilidades no
+   elemento: as utilidades vivem numa camada mais forte e ganhariam à
+   regra que esconde, deixando as duas versões visíveis ao mesmo
+   tempo. */
+@layer components {
+  .percurso-lista {
+    display: flex;
+    flex-direction: column;
+  }
 
-.percurso[data-modo="palco"] .percurso-palco {
-  display: block;
-}
+  .percurso-palco {
+    display: none;
+  }
 
-.percurso[data-modo="palco"] .percurso-lista {
-  display: none;
+  .percurso[data-modo="palco"] .percurso-palco {
+    display: block;
+  }
+
+  .percurso[data-modo="palco"] .percurso-lista {
+    display: none;
+  }
 }
 
 /* --------------------------------------------------------------- */
@@ -372,125 +391,127 @@ a:hover {
   --color-adm-suave: rgba(14, 12, 11, 0.55);
 }
 
-.admin {
-  background: var(--color-adm-fundo);
-  color: var(--color-tinta);
-  min-height: 100dvh;
-}
+@layer components {
+  .admin {
+    background: var(--color-adm-fundo);
+    color: var(--color-tinta);
+    min-height: 100dvh;
+  }
 
-/* Só a área de trabalho tem links escuros. A barra lateral é escura e
-   pinta os seus próprios links, por isso fica de fora desta regra:
-   caso contrário os rótulos ficavam pretos sobre preto. */
-.admin main a {
-  color: var(--color-tinta);
-  text-decoration: underline;
-  text-underline-offset: 3px;
-}
+  /* Só a área de trabalho tem links escuros. A barra lateral é escura e
+     pinta os seus próprios links, por isso fica de fora desta regra:
+     caso contrário os rótulos ficavam pretos sobre preto. */
+  .admin main a {
+    color: var(--color-tinta);
+    text-decoration: underline;
+    text-underline-offset: 3px;
+  }
 
-.admin main a:hover {
-  color: #8a6636;
-}
+  .admin main a:hover {
+    color: #8a6636;
+  }
 
-.admin main a.adm-botao,
-.admin main a.no-underline,
-.admin main a[class*="no-underline"] {
-  text-decoration: none;
-}
+  .admin main a.adm-botao,
+  .admin main a.no-underline,
+  .admin main a[class*="no-underline"] {
+    text-decoration: none;
+  }
 
-.admin input,
-.admin textarea,
-.admin select {
-  width: 100%;
-  padding: 11px 12px;
-  min-height: 44px;
-  border: 1px solid var(--color-adm-fio-forte);
-  background: #fff;
-  font-family: var(--font-texto);
-  font-size: 15px;
-  color: var(--color-tinta);
-  border-radius: 0;
-  outline: none;
-}
+  .admin input,
+  .admin textarea,
+  .admin select {
+    width: 100%;
+    padding: 11px 12px;
+    min-height: 44px;
+    border: 1px solid var(--color-adm-fio-forte);
+    background: #fff;
+    font-family: var(--font-texto);
+    font-size: 15px;
+    color: var(--color-tinta);
+    border-radius: 0;
+    outline: none;
+  }
 
-.admin input:focus-visible,
-.admin textarea:focus-visible,
-.admin select:focus-visible {
-  border-color: var(--color-ouro);
-  outline: 2px solid var(--color-ouro);
-  outline-offset: 1px;
-}
+  .admin input:focus-visible,
+  .admin textarea:focus-visible,
+  .admin select:focus-visible {
+    border-color: var(--color-ouro);
+    outline: 2px solid var(--color-ouro);
+    outline-offset: 1px;
+  }
 
-.admin input[type="checkbox"] {
-  width: 20px;
-  min-height: 20px;
-  height: 20px;
-  accent-color: var(--color-ouro);
-}
+  .admin input[type="checkbox"] {
+    width: 20px;
+    min-height: 20px;
+    height: 20px;
+    accent-color: var(--color-ouro);
+  }
 
-.admin ::placeholder {
-  color: rgba(14, 12, 11, 0.35);
-}
+  .admin ::placeholder {
+    color: rgba(14, 12, 11, 0.35);
+  }
 
-/* Botão primário e secundário do painel.
-   A regra é escrita com `.admin` à frente para ganhar à cor genérica
-   dos links do painel, que de outro modo apagaria o texto do botão. */
-.admin .adm-botao,
-.adm-botao {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-  min-height: 44px;
-  padding: 11px 20px;
-  border: 1px solid var(--color-tinta);
-  background: var(--color-tinta);
-  color: var(--color-papel);
-  font-family: var(--font-texto);
-  font-size: 12px;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
-  text-decoration: none;
-  cursor: pointer;
-  transition: background-color 0.15s, color 0.15s, border-color 0.15s;
-}
+  /* Botão primário e secundário do painel.
+     A regra é escrita com `.admin` à frente para ganhar à cor genérica
+     dos links do painel, que de outro modo apagaria o texto do botão. */
+  .admin .adm-botao,
+  .adm-botao {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    min-height: 44px;
+    padding: 11px 20px;
+    border: 1px solid var(--color-tinta);
+    background: var(--color-tinta);
+    color: var(--color-papel);
+    font-family: var(--font-texto);
+    font-size: 12px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    text-decoration: none;
+    cursor: pointer;
+    transition: background-color 0.15s, color 0.15s, border-color 0.15s;
+  }
 
-.admin .adm-botao:hover,
-.adm-botao:hover {
-  background: var(--color-ouro);
-  border-color: var(--color-ouro);
-  color: var(--color-tinta);
-}
+  .admin .adm-botao:hover,
+  .adm-botao:hover {
+    background: var(--color-ouro);
+    border-color: var(--color-ouro);
+    color: var(--color-tinta);
+  }
 
-.adm-botao[disabled] {
-  opacity: 0.5;
-  cursor: not-allowed;
-}
+  .adm-botao[disabled] {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
 
-.admin .adm-botao-linha,
-.adm-botao-linha {
-  background: transparent;
-  color: var(--color-tinta);
-}
+  .admin .adm-botao-linha,
+  .adm-botao-linha {
+    background: transparent;
+    color: var(--color-tinta);
+  }
 
-.admin .adm-botao-perigo,
-.adm-botao-perigo {
-  background: transparent;
-  border-color: #9b3226;
-  color: #9b3226;
-}
+  .admin .adm-botao-perigo,
+  .adm-botao-perigo {
+    background: transparent;
+    border-color: #9b3226;
+    color: #9b3226;
+  }
 
-.admin .adm-botao-perigo:hover,
-.adm-botao-perigo:hover {
-  background: #9b3226;
-  border-color: #9b3226;
-  color: #fff;
-}
+  .admin .adm-botao-perigo:hover,
+  .adm-botao-perigo:hover {
+    background: #9b3226;
+    border-color: #9b3226;
+    color: #fff;
+  }
 
-.adm-rotulo {
-  display: block;
-  margin-bottom: 6px;
-  font-size: 10px;
-  letter-spacing: 0.22em;
-  text-transform: uppercase;
-  color: var(--color-adm-suave);
+  .adm-rotulo {
+    display: block;
+    margin-bottom: 6px;
+    font-size: 10px;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: var(--color-adm-suave);
+  }
 }

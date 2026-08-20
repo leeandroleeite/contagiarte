@@ -7,7 +7,7 @@ import { caminho } from "@/lib/i18n/config";
 import { comMarca, metadados } from "@/lib/metadados";
 import { colunas, linkWhatsApp } from "@/lib/utils";
 
-export const revalidate = 3600;
+export const dynamic = "force-dynamic";
 
 /**
  * Série do gráfico. É a FORMA de uma carreira que se consolida, não a

@@ -25,7 +25,7 @@ import { caminho } from "@/lib/i18n/config";
 import { metadados } from "@/lib/metadados";
 import { colunas, linkWhatsApp } from "@/lib/utils";
 
-export const revalidate = 300;
+export const dynamic = "force-dynamic";
 
 export async function generateMetadata({
   params,

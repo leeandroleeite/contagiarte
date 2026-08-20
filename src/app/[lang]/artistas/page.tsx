@@ -9,7 +9,7 @@ import { comMarca, metadados } from "@/lib/metadados";
 import Link from "next/link";
 import { colunas } from "@/lib/utils";
 
-export const revalidate = 300;
+export const dynamic = "force-dynamic";
 
 export async function generateMetadata({
   params,

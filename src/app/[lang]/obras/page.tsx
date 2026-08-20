@@ -8,7 +8,7 @@ import { caminho } from "@/lib/i18n/config";
 import { comMarca, metadados } from "@/lib/metadados";
 import { colunas, cx } from "@/lib/utils";
 
-export const revalidate = 300;
+export const dynamic = "force-dynamic";
 
 type Busca = { artista?: string; estado?: string };
 

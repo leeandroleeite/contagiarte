@@ -1,5 +1,6 @@
 import { Botao } from "@/components/Botao";
-import { obterDefinicoes, obterTextos } from "@/lib/dados";
+import { obterDefinicoes, obterTextos, type MapaTextos } from "@/lib/dados";
+import { DEFINICOES_OMISSAO } from "@/lib/db/omissoes";
 import { t, texto } from "@/lib/i18n";
 import { caminho, IDIOMA_BASE, type Idioma } from "@/lib/i18n/config";
 import { linkWhatsApp } from "@/lib/utils";
@@ -9,13 +10,21 @@ import { linkWhatsApp } from "@/lib/utils";
  * pode pedir: o `not-found` da raiz (endereços que não correspondem a
  * rota nenhuma) e o do segmento de idioma (quando uma página chama
  * `notFound()` por não encontrar o registo).
+ *
+ * Com `semBase`, não lê a base de dados e usa os contactos de origem.
+ * É o que o 404 da raiz precisa: o Next gera-o na compilação, onde não
+ * há base nenhuma para ler.
  */
 export async function Pagina404({
   idioma = IDIOMA_BASE,
+  semBase = false,
 }: {
   idioma?: Idioma;
+  semBase?: boolean;
 }) {
-  const [txt, def] = await Promise.all([obterTextos(), obterDefinicoes()]);
+  const [txt, def]: [MapaTextos, typeof DEFINICOES_OMISSAO] = semBase
+    ? [{}, DEFINICOES_OMISSAO]
+    : await Promise.all([obterTextos(), obterDefinicoes()]);
 
   const titulo = texto(txt["404.titulo"], idioma) || t("404.titulo", idioma);
   const corpo = texto(txt["404.texto"], idioma) || t("404.texto", idioma);

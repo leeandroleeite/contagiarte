@@ -27,6 +27,9 @@ ARG NEXT_PUBLIC_R2_PUBLIC_URL=""
 ENV NEXT_PUBLIC_R2_PUBLIC_URL=$NEXT_PUBLIC_R2_PUBLIC_URL
 ENV NEXT_TELEMETRY_DISABLED=1
 
+# Sem base de dados: as páginas do site são todas geradas a pedido, e
+# a compilação corre em qualquer sítio — no construtor do Fly, no
+# runner do GitHub, numa máquina qualquer.
 RUN npm run build
 
 # --- Execução ----------------------------------------------------
@@ -47,6 +50,11 @@ COPY --from=build --chown=nextjs:nodejs /app/.next/static ./.next/static
 # Migrações e o script que as aplica, para o release_command da Fly.
 COPY --from=build --chown=nextjs:nodejs /app/drizzle ./drizzle
 COPY --from=build --chown=nextjs:nodejs /app/scripts/migrar.mjs ./scripts/migrar.mjs
+
+# O migrador corre fora do bundle do Next, por isso precisa dos módulos
+# a sério. São dois, e nenhum deles tem dependências próprias.
+COPY --from=deps --chown=nextjs:nodejs /app/node_modules/drizzle-orm ./node_modules/drizzle-orm
+COPY --from=deps --chown=nextjs:nodejs /app/node_modules/postgres ./node_modules/postgres
 
 USER nextjs
 EXPOSE 3000

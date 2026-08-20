@@ -4,7 +4,7 @@ import { obterDefinicoes, obterTextos } from "@/lib/dados";
 import { texto, type Idioma } from "@/lib/i18n";
 import { comMarca, metadados } from "@/lib/metadados";
 
-export const revalidate = 3600;
+export const dynamic = "force-dynamic";
 
 export async function generateMetadata({
   params,

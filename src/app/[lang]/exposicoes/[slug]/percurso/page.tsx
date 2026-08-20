@@ -13,7 +13,7 @@ import { caminho } from "@/lib/i18n/config";
 import { comMarca, metadados } from "@/lib/metadados";
 import { colunas, linkWhatsApp, resumir } from "@/lib/utils";
 
-export const revalidate = 300;
+export const dynamic = "force-dynamic";
 
 export async function generateMetadata({
   params,

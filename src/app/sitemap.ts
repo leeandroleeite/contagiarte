@@ -5,7 +5,16 @@ import { artistas, exposicoes, obras } from "@/lib/db/schema";
 import { env } from "@/lib/env";
 import { caminho, HREFLANG, IDIOMAS } from "@/lib/i18n/config";
 
-export const revalidate = 3600;
+/**
+ * Gerada a pedido, não na compilação.
+ *
+ * O construtor do Fly não chega à rede privada da base de dados, e o
+ * runner do GitHub também não. Uma compilação que precisasse de ler a
+ * base não corria em lado nenhum a não ser nesta máquina. Além disso,
+ * assim uma alteração no backoffice aparece no site logo, em vez de
+ * daqui a cinco minutos.
+ */
+export const dynamic = "force-dynamic";
 
 const ESTATICAS = [
   { path: "/", prioridade: 1, frequencia: "weekly" as const },

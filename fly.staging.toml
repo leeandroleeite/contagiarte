@@ -20,7 +20,12 @@ kill_timeout = 30
 
 [env]
   APP_ENV = "staging"
-  PUBLIC_URL = "https://staging.contagiarte.pt"
+  # Enquanto o DNS não aponta para cá, o endereço público é o do Fly.
+  # Trocar para https://staging.contagiarte.pt quando o CNAME existir:
+  # isto alimenta canonicals, sitemap e os links de confirmação da
+  # newsletter, e apontar para um domínio que ainda não responde só
+  # criava links partidos.
+  PUBLIC_URL = "https://contagiarte-staging.fly.dev"
   NODE_ENV = "production"
   PORT = "3000"
 

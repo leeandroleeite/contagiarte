@@ -1,4 +1,3 @@
-import { eq } from "drizzle-orm";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
@@ -12,24 +11,14 @@ import {
   obterDefinicoes,
   situacao,
 } from "@/lib/dados";
-import { db } from "@/lib/db";
-import { exposicoes as tExposicoes } from "@/lib/db/schema";
 import { env } from "@/lib/env";
 import { periodo, t, texto, type Idioma } from "@/lib/i18n";
 import { caminho } from "@/lib/i18n/config";
 import { comMarca, metadados } from "@/lib/metadados";
 import { colunas, linkWhatsApp, resumir } from "@/lib/utils";
 
-export const revalidate = 300;
+export const dynamic = "force-dynamic";
 export const dynamicParams = true;
-
-export async function generateStaticParams() {
-  const linhas = await db
-    .select({ slug: tExposicoes.slug })
-    .from(tExposicoes)
-    .where(eq(tExposicoes.estado, "publicado"));
-  return linhas.map((l) => ({ slug: l.slug }));
-}
 
 export async function generateMetadata({
   params,

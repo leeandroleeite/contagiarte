@@ -46,7 +46,7 @@ export function lerBool(dados: FormData, nome: string): boolean {
   return dados.get(nome) === "1";
 }
 
-/** Data em ISO curto (yyyy-mm-dd), como o Postgres `date` espera. */
+/** Data em ISO curto (aaaa-mm-dd), que é como as colunas de data ficam guardadas. */
 export function lerData(dados: FormData, nome: string): string | null {
   const v = String(dados.get(nome) ?? "").trim();
   return /^\d{4}-\d{2}-\d{2}$/.test(v) ? v : null;

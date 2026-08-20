@@ -22,8 +22,7 @@
     "e2e:relatorio": "playwright show-report",
     "prestart": "cp -r public .next/standalone/public 2>/dev/null; mkdir -p .next/standalone/.next && cp -r .next/static .next/standalone/.next/static",
     "imagens": "tsx --env-file=.env.local scripts/importar-imagens.ts",
-    "galeria": "tsx --env-file=.env.local scripts/importar-galeria.ts",
-    "bd:de-postgres": "tsx --env-file=.env.local scripts/migrar-de-postgres.ts"
+    "galeria": "tsx --env-file=.env.local scripts/importar-galeria.ts"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.1114.0",
@@ -34,7 +33,6 @@
     "jose": "^6.2.9",
     "next": "16.3.1",
     "nodemailer": "^9.0.5",
-    "postgres": "^3.4.9",
     "react": "19.2.8",
     "react-dom": "19.2.8",
     "server-only": "^0.0.1",

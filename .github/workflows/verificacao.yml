@@ -9,22 +9,10 @@ jobs:
   verificar:
     runs-on: ubuntu-latest
 
-    services:
-      postgres:
-        image: postgres:17-alpine
-        env:
-          POSTGRES_USER: contagiarte
-          POSTGRES_PASSWORD: contagiarte
-          POSTGRES_DB: contagiarte
-        ports: ["5432:5432"]
-        options: >-
-          --health-cmd "pg_isready -U contagiarte"
-          --health-interval 5s
-          --health-timeout 5s
-          --health-retries 10
-
     env:
-      DATABASE_URL: postgres://contagiarte:contagiarte@localhost:5432/contagiarte
+      # A base de dados é um ficheiro em `var/`: não é preciso serviço
+      # nenhum a acompanhar o runner.
+      DADOS_DIR: var
       SESSION_SECRET: chave-de-teste-com-mais-de-trinta-e-dois-caracteres
       PUBLIC_URL: http://localhost:3000
       APP_ENV: local
@@ -46,7 +34,7 @@ jobs:
         run: npm run lint -- --max-warnings=0
 
       - name: Migrações
-        run: npm run bd:migrar
+        run: node scripts/migrar.mjs
 
       - name: Semear
         run: npm run bd:semear-ci

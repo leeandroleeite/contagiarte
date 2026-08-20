@@ -2,7 +2,8 @@
  * Prepara a base de dados local para os testes ponta a ponta:
  * garante o conteúdo semeado e uma palavra-passe conhecida.
  *
- * Nunca correr contra produção: só mexe na base do DATABASE_URL local.
+ * Nunca correr contra produção: recusa qualquer DADOS_DIR que não
+ * seja a pasta `var/` local.
  */
 import path from "node:path";
 import bcrypt from "bcryptjs";

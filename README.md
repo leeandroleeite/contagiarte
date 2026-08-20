@@ -169,12 +169,16 @@ fly auth login
 fly apps create contagiarte
 fly postgres create --name contagiarte-db --region cdg \
   --initial-cluster-size 1 --vm-size shared-cpu-1x --volume-size 3
+# 256MB não chega ao Postgres 18 do Fly: o OOM mata-o assim que se
+# carregam dados. Subir a memória logo a seguir a criar.
+fly machine update <id> --app contagiarte-db --vm-memory 1024
 fly postgres attach contagiarte-db --app contagiarte
 
 # Staging
 fly apps create contagiarte-staging
 fly postgres create --name contagiarte-db-staging --region cdg \
   --initial-cluster-size 1 --vm-size shared-cpu-1x --volume-size 1
+fly machine update <id> --app contagiarte-db-staging --vm-memory 512
 fly postgres attach contagiarte-db-staging --app contagiarte-staging
 ```
 

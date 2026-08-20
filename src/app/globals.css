@@ -359,3 +359,129 @@ a:hover {
 .percurso[data-modo="palco"] .percurso-lista {
   display: none;
 }
+
+/* --------------------------------------------------------------- */
+/* Backoffice: interface clara, mesma tipografia da marca           */
+/* --------------------------------------------------------------- */
+
+@theme {
+  --color-adm-fundo: #efece6;
+  --color-adm-cartao: #f6f4f0;
+  --color-adm-fio: rgba(14, 12, 11, 0.14);
+  --color-adm-fio-forte: rgba(14, 12, 11, 0.28);
+  --color-adm-suave: rgba(14, 12, 11, 0.55);
+}
+
+.admin {
+  background: var(--color-adm-fundo);
+  color: var(--color-tinta);
+  min-height: 100dvh;
+}
+
+.admin a {
+  color: var(--color-tinta);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.admin a:hover {
+  color: #8a6636;
+}
+
+.admin input,
+.admin textarea,
+.admin select {
+  width: 100%;
+  padding: 11px 12px;
+  min-height: 44px;
+  border: 1px solid var(--color-adm-fio-forte);
+  background: #fff;
+  font-family: var(--font-texto);
+  font-size: 15px;
+  color: var(--color-tinta);
+  border-radius: 0;
+  outline: none;
+}
+
+.admin input:focus-visible,
+.admin textarea:focus-visible,
+.admin select:focus-visible {
+  border-color: var(--color-ouro);
+  outline: 2px solid var(--color-ouro);
+  outline-offset: 1px;
+}
+
+.admin input[type="checkbox"] {
+  width: 20px;
+  min-height: 20px;
+  height: 20px;
+  accent-color: var(--color-ouro);
+}
+
+.admin ::placeholder {
+  color: rgba(14, 12, 11, 0.35);
+}
+
+/* Botão primário e secundário do painel.
+   A regra é escrita com `.admin` à frente para ganhar à cor genérica
+   dos links do painel, que de outro modo apagaria o texto do botão. */
+.admin .adm-botao,
+.adm-botao {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 44px;
+  padding: 11px 20px;
+  border: 1px solid var(--color-tinta);
+  background: var(--color-tinta);
+  color: var(--color-papel);
+  font-family: var(--font-texto);
+  font-size: 12px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  text-decoration: none;
+  cursor: pointer;
+  transition: background-color 0.15s, color 0.15s, border-color 0.15s;
+}
+
+.admin .adm-botao:hover,
+.adm-botao:hover {
+  background: var(--color-ouro);
+  border-color: var(--color-ouro);
+  color: var(--color-tinta);
+}
+
+.adm-botao[disabled] {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.admin .adm-botao-linha,
+.adm-botao-linha {
+  background: transparent;
+  color: var(--color-tinta);
+}
+
+.admin .adm-botao-perigo,
+.adm-botao-perigo {
+  background: transparent;
+  border-color: #9b3226;
+  color: #9b3226;
+}
+
+.admin .adm-botao-perigo:hover,
+.adm-botao-perigo:hover {
+  background: #9b3226;
+  border-color: #9b3226;
+  color: #fff;
+}
+
+.adm-rotulo {
+  display: block;
+  margin-bottom: 6px;
+  font-size: 10px;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--color-adm-suave);
+}

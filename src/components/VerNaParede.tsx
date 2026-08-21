@@ -199,7 +199,11 @@ export function VerNaParede({
 
   const obra = obras.find((o) => o.slug === obraSlug) ?? obras[0];
   const moldura = molduras.find((m) => m.slug === molduraSlug) ?? molduras[0];
-  const larguraObra = larguraEscolhida ?? obra?.larguraCm ?? 90;
+  // Com medidas na ficha não há nada a escolher: a peça mede o que mede.
+  const medidaFixa = Boolean(obra?.larguraCm && obra?.alturaCm);
+  const larguraObra = medidaFixa
+    ? obra!.larguraCm!
+    : (larguraEscolhida ?? obra?.larguraCm ?? 90);
 
   // O arrasto continua mesmo quando o cursor sai do palco, como no
   // design: os ouvintes vivem na janela, não no elemento.
@@ -575,23 +579,45 @@ export function VerNaParede({
             idioma === "en" ? "Size" : idioma === "es" ? "Tamaño" : "O tamanho"
           }
         >
-          <label
-            htmlFor="largura-obra"
-            className="flex justify-between text-[10px] tracking-[0.24em] text-[rgba(242,237,228,0.55)] uppercase"
-          >
-            <span>{t("parede.largura_obra", idioma)}</span>
-            <span>{larguraObra} cm</span>
-          </label>
-          <input
-            id="largura-obra"
-            type="range"
-            min={30}
-            max={200}
-            step={5}
-            value={larguraObra}
-            onChange={(e) => setLarguraEscolhida(Number(e.target.value))}
-            className="h-8 w-full accent-[#B4884A]"
-          />
+          {medidaFixa ? (
+            /* Uma obra original tem o tamanho que tem. Onde a ficha traz
+               as medidas, não se oferece um cursor: oferecer escolha
+               onde não há nenhuma é o que fazia o site mandar para a
+               galeria um tamanho inventado. */
+            <div className="flex flex-col gap-2">
+              <Rotulo>{t("parede.largura_obra", idioma)}</Rotulo>
+              <span className="text-[22px] tabular-nums">
+                {obra?.larguraCm} × {obra?.alturaCm} cm
+              </span>
+              <span className="text-[13px] leading-[1.5] text-[rgba(242,237,228,0.55)]">
+                {idioma === "en"
+                  ? "The measurements of the piece itself."
+                  : idioma === "es"
+                    ? "Las medidas de la propia pieza."
+                    : "As medidas da própria peça."}
+              </span>
+            </div>
+          ) : (
+            <>
+              <label
+                htmlFor="largura-obra"
+                className="flex justify-between text-[10px] tracking-[0.24em] text-[rgba(242,237,228,0.55)] uppercase"
+              >
+                <span>{t("parede.largura_obra", idioma)}</span>
+                <span className="tabular-nums">{larguraObra} cm</span>
+              </label>
+              <input
+                id="largura-obra"
+                type="range"
+                min={30}
+                max={200}
+                step={5}
+                value={larguraObra}
+                onChange={(e) => setLarguraEscolhida(Number(e.target.value))}
+                className="h-8 w-full accent-[#B4884A]"
+              />
+            </>
+          )}
         </Grupo>
 
         <Grupo

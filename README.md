@@ -21,7 +21,7 @@ dados para a galeria poder acrescentar obras sem programador.
 | Ficheiros | Cloudflare R2 | Sem custo de saída, CDN à frente, separado da aplicação |
 | Cópias | Litestream para o R2 | Contínuo em vez de diário: o pior caso é um segundo, não um dia |
 | Alojamento | Fly.io (região `cdg`) | A mais perto de Portugal, dois ambientes fáceis |
-| Email | Resend ou SMTP | Opcional: sem ele os pedidos ficam na base de dados na mesma |
+| Email | Brevo por SMTP, ou Resend | Opcional: sem ele os pedidos ficam na base de dados na mesma |
 
 ## Pôr a correr localmente
 
@@ -187,8 +187,9 @@ fly secrets set --app contagiarte \
   R2_ACCESS_KEY_ID=... \
   R2_SECRET_ACCESS_KEY=... \
   R2_BUCKET=contagiarte \
-  RESEND_API_KEY=... \
-  EMAIL_PARA=galeria@contagiarte.pt
+  SMTP_URL="smtp://<login>:<chave-smtp>@smtp-relay.brevo.com:587" \
+  EMAIL_PARA=galeria@contagiarte.pt \
+  EMAIL_DE="Galeria Contagiarte <site@contagiarte.pt>"
 ```
 
 O muro de password não é uma coisa de staging: havendo
@@ -307,6 +308,24 @@ passam todos por server actions em `src/app/accoes.ts`. Cada pedido:
 - desencadeia um aviso por email, se houver serviço configurado;
 - tem travão de cinco pedidos por minuto e por IP, e um campo escondido
   que apanha robôs.
+
+### Email
+
+Chega definir uma das duas coisas: `SMTP_URL` ou `RESEND_API_KEY`. Com a
+Brevo é o SMTP, e a chave não é a password da conta: gera-se no painel,
+em SMTP & API.
+
+```
+SMTP_URL=smtp://<login>:<chave-smtp>@smtp-relay.brevo.com:587
+```
+
+O aviso sai com o endereço da galeria no `From`, o destinatário em
+`EMAIL_PARA`, e o `Reply-To` de quem escreveu, o que deixa responder
+carregando em responder.
+
+Para provar o caminho sem mandar nada a ninguém, há um servidor SMTP de
+mentira em `scripts/smtp-falso.mjs`; as instruções estão no cabeçalho do
+ficheiro. Verificado a 21 de agosto de 2026.
 
 Se o email falhar, o pedido não se perde: fica no backoffice, em
 Pedidos.

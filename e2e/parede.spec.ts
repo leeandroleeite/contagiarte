@@ -12,7 +12,10 @@ import { expect, test } from "@playwright/test";
 
 async function comParede(page: import("@playwright/test").Page) {
   await page.goto("/ver-na-parede");
-  await expect(page.getByText(/× \d+ cm/)).toBeVisible({ timeout: 15000 });
+  // A legenda por baixo da imagem, não o painel de medidas fixas.
+  await expect(page.getByText(/·.*× \d+ cm/).first()).toBeVisible({
+    timeout: 15000,
+  });
 }
 
 test("abre a funcionar, sem ser preciso carregar nada", async ({ page }) => {

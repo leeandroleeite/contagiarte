@@ -246,16 +246,25 @@ test.describe("Ver na parede", () => {
       page.getByRole("heading", { name: /A OBRA NA SUA PAREDE/i }),
     ).toBeVisible();
 
-    // Escolher a moldura de alumínio e mudar a largura.
+    // Escolher a moldura de alumínio. A largura não se escolhe: a
+    // Wonder Frida tem medidas na ficha e o cursor não existe para ela.
     await page.getByRole("button", { name: /Alumínio/i }).click();
-    await page.locator("#largura-obra").fill("150");
+    await page.waitForTimeout(300);
 
     const { numero, texto } = await mensagemWhatsApp(
       page,
       'a[href*="wa.me"][href*="experimentei"]',
     );
     expect(numero).toBe(NUMERO);
-    expect(texto).toContain("150");
+    // As medidas que a mensagem leva têm de ser as que estão no ecrã,
+    // e não um número inventado por um cursor.
+    const naLegenda = await page
+      .getByText(/·.*× \d+ cm/)
+      .first()
+      .innerText();
+    const medida = /(\d+) × (\d+) cm/.exec(naLegenda);
+    expect(medida, `legenda sem medidas: ${naLegenda}`).not.toBeNull();
+    expect(texto).toContain(`${medida![1]} × ${medida![2]} cm`);
     expect(texto).toContain("alumínio");
   });
 

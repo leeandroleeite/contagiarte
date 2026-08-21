@@ -30,6 +30,71 @@ export type MolduraParede = {
   espessuraMm: number;
 };
 
+/**
+ * Passe-partout.
+ *
+ * Todas as amostras de emolduramento da galeria o têm, e não havia aqui
+ * nenhum. É metade da decisão de emoldurar, e o que muda não é só a cor:
+ * é a largura da margem e o que se põe junto à obra. As larguras e as
+ * cores saíram das fotografias das amostras da oficina.
+ *
+ * `interiorCm` é a segunda camada: com 1 cm ou mais é uma dupla margem,
+ * com poucos milímetros é um filete, a linha fina que se vê na amostra
+ * de margem creme com azul.
+ */
+type Passe = {
+  slug: string;
+  cm: number;
+  cor: string;
+  interiorCm?: number;
+  interiorCor?: string;
+};
+
+const PASSES: Passe[] = [
+  { slug: "sem-passe", cm: 0, cor: "" },
+  { slug: "estreita", cm: 4, cor: "#E8E2D9" },
+  { slug: "larga", cm: 10, cor: "#E8E2D9" },
+  {
+    slug: "dupla",
+    cm: 8,
+    cor: "#E8E2D9",
+    interiorCm: 1.2,
+    interiorCor: "#2E2A26",
+  },
+  {
+    slug: "filete",
+    cm: 8,
+    cor: "#E4DBCB",
+    interiorCm: 0.4,
+    interiorCor: "#314263",
+  },
+];
+
+function nomePasse(slug: string, idioma: Idioma): string {
+  const pt: Record<string, string> = {
+    "sem-passe": "Sem margem",
+    estreita: "Margem estreita, 4 cm",
+    larga: "Margem larga, 10 cm",
+    dupla: "Dupla margem",
+    filete: "Filete azul",
+  };
+  const en: Record<string, string> = {
+    "sem-passe": "No mount",
+    estreita: "Narrow mount, 4 cm",
+    larga: "Wide mount, 10 cm",
+    dupla: "Double mount",
+    filete: "Navy fillet",
+  };
+  const es: Record<string, string> = {
+    "sem-passe": "Sin pasepartú",
+    estreita: "Margen estrecho, 4 cm",
+    larga: "Margen ancho, 10 cm",
+    dupla: "Doble margen",
+    filete: "Filete azul",
+  };
+  return (idioma === "en" ? en : idioma === "es" ? es : pt)[slug] ?? slug;
+}
+
 /** Parede da própria galeria, para a ferramenta abrir a funcionar. */
 const PAREDE_EXEMPLO = "/parede-exemplo.jpg";
 
@@ -88,6 +153,9 @@ export function VerNaParede({
   // `null` significa "usar a largura real da obra"; assim que o
   // visitante mexe no cursor, passa a mandar o valor escolhido.
   const [larguraEscolhida, setLarguraEscolhida] = useState<number | null>(null);
+  // Começa com margem estreita: todas as amostras da oficina têm
+  // passe-partout, e é assim que a galeria emoldura.
+  const [passeSlug, setPasseSlug] = useState<string>("estreita");
   const [larguraParede, setLarguraParede] = useState(320);
   const [pos, setPos] = useState({ x: 0.5, y: 0.45 });
   const [erroFicheiro, setErroFicheiro] = useState<string | null>(null);
@@ -197,13 +265,26 @@ export function VerNaParede({
   // 100 para 81 cm: a ferramenta invertia exactamente aquilo que o
   // visitante ali foi perceber.
   const perfil = molduraCm(moldura);
-  const conjuntoLargura = larguraObra + perfil * 2;
-  const conjuntoAltura = alturaCm + perfil * 2;
+  const passe = PASSES.find((p) => p.slug === passeSlug) ?? PASSES[0];
+  const passeTotal = passe.cm + (passe.interiorCm ?? 0);
+  // Na parede a ordem é: obra, filete ou segunda margem, margem, e a
+  // moldura por fora de tudo.
+  const conjuntoLargura = larguraObra + (passeTotal + perfil) * 2;
+  const conjuntoAltura = alturaCm + (passeTotal + perfil) * 2;
 
   const fraccao = conjuntoLargura / Math.max(larguraParede, 1);
   // Percentagem da largura do conjunto que a perfilaria ocupa de cada
   // lado. É o que desenha a moldura à escala certa.
   const perfilPct = conjuntoLargura > 0 ? (perfil / conjuntoLargura) * 100 : 0;
+  // O passe mede-se contra a largura do que sobra dentro da moldura,
+  // porque é essa a caixa onde ele é desenhado.
+  const dentroDaMoldura = conjuntoLargura - perfil * 2;
+  const passePct = dentroDaMoldura > 0 ? (passe.cm / dentroDaMoldura) * 100 : 0;
+  const dentroDoPasse = dentroDaMoldura - passe.cm * 2;
+  const interiorPct =
+    passe.interiorCm && dentroDoPasse > 0
+      ? (passe.interiorCm / dentroDoPasse) * 100
+      : 0;
   const naoCabe = conjuntoLargura > larguraParede;
 
   const srcObra = urlMedia(obra?.chave);
@@ -221,8 +302,9 @@ export function VerNaParede({
     };
   }, [fraccao, conjuntoAltura, conjuntoLargura, formaParede]);
 
-  const medidas = perfil
-    ? `${larguraObra} × ${alturaCm} cm · com moldura ${Math.round(conjuntoLargura)} × ${Math.round(conjuntoAltura)} cm`
+  const comMolduraOuPasse = perfil > 0 || passeTotal > 0;
+  const medidas = comMolduraOuPasse
+    ? `${larguraObra} × ${alturaCm} cm · emoldurada ${Math.round(conjuntoLargura)} × ${Math.round(conjuntoAltura)} cm`
     : `${larguraObra} × ${alturaCm} cm`;
 
   const legenda = obra
@@ -314,25 +396,53 @@ export function VerNaParede({
                     : undefined,
                 }}
               >
+                {/* A margem exterior. */}
                 <div
                   className="w-full"
                   style={{
-                    aspectRatio: `1 / ${obra.proporcao}`,
-                    ...(srcObra
-                      ? {
-                          backgroundImage: `url(${srcObra})`,
-                          // `contain` e não `cover`: a obra tem uma
-                          // forma e não se corta para caber numa caixa.
-                          backgroundSize: "contain",
-                          backgroundRepeat: "no-repeat",
-                          backgroundPosition: "center",
-                        }
-                      : {
-                          background: "#1b1715",
-                          border: "1px dashed rgba(242,237,228,0.25)",
-                        }),
+                    padding: passe.cm ? `${passePct}%` : 0,
+                    background: passe.cm ? passe.cor : "transparent",
+                    boxShadow: passe.cm
+                      ? "inset 0 0 0 1px rgba(0,0,0,0.12)"
+                      : undefined,
                   }}
-                />
+                >
+                  {/* A segunda camada: larga, é uma dupla margem; com
+                      poucos milímetros, é um filete. */}
+                  <div
+                    className="w-full"
+                    style={{
+                      padding: passe.interiorCm ? `${interiorPct}%` : 0,
+                      background: passe.interiorCm
+                        ? passe.interiorCor
+                        : "transparent",
+                    }}
+                  >
+                    <div
+                      className="w-full"
+                      style={{
+                        aspectRatio: `1 / ${obra.proporcao}`,
+                        // A obra recuada dá a sombra que o rebaixo faz.
+                        boxShadow: passe.cm
+                          ? "0 0 0 1px rgba(0,0,0,0.18), 0 1px 4px rgba(0,0,0,0.22)"
+                          : undefined,
+                        ...(srcObra
+                          ? {
+                              backgroundImage: `url(${srcObra})`,
+                              // `contain` e não `cover`: a obra tem uma
+                              // forma e não se corta para caber numa caixa.
+                              backgroundSize: "contain",
+                              backgroundRepeat: "no-repeat",
+                              backgroundPosition: "center",
+                            }
+                          : {
+                              background: "#1b1715",
+                              border: "1px dashed rgba(242,237,228,0.25)",
+                            }),
+                      }}
+                    />
+                  </div>
+                </div>
               </div>
             </div>
           )}
@@ -520,6 +630,39 @@ export function VerNaParede({
           <span className="text-[13px] text-[rgba(242,237,228,0.55)]">
             {t("parede.escala", idioma)}
           </span>
+        </div>
+
+        <div className="flex flex-col gap-3.5">
+          <span className="text-[10px] tracking-[0.24em] text-[rgba(242,237,228,0.55)] uppercase">
+            {idioma === "en"
+              ? "Mount"
+              : idioma === "es"
+                ? "Pasepartú"
+                : "Passe-partout"}
+          </span>
+          <div className="flex flex-wrap gap-2.5">
+            {PASSES.map((p) => (
+              <button
+                key={p.slug}
+                type="button"
+                onClick={() => setPasseSlug(p.slug)}
+                aria-pressed={p.slug === passeSlug}
+                className={cx(
+                  "flex min-h-11 cursor-pointer items-center gap-2.5 border px-4 py-2.5 text-[11px] tracking-[0.14em] uppercase transition-colors",
+                  p.slug === passeSlug
+                    ? "border-papel bg-papel text-tinta"
+                    : "border-[rgba(242,237,228,0.25)] text-[rgba(242,237,228,0.7)] hover:border-papel",
+                )}
+              >
+                <span
+                  aria-hidden="true"
+                  className="h-4 w-4 border border-[rgba(14,12,11,0.25)]"
+                  style={{ background: p.cor || "transparent" }}
+                />
+                {nomePasse(p.slug, idioma)}
+              </button>
+            ))}
+          </div>
         </div>
 
         <div className="flex flex-col gap-3.5">

@@ -53,7 +53,7 @@ test("a moldura acrescenta-se por fora e não come a obra", async ({ page }) => 
   const com = await largura();
 
   expect(com, "o conjunto tem de crescer com a moldura").toBeGreaterThan(sem);
-  await expect(page.getByText(/com moldura \d+ × \d+ cm/)).toBeVisible();
+  await expect(page.getByText(/emoldurada \d+ × \d+ cm/)).toBeVisible();
 });
 
 test("cada obra mantém a sua forma", async ({ page }) => {

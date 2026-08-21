@@ -618,6 +618,15 @@ export const SALAS = [
 // Molduras do simulador
 // --------------------------------------------------------------------
 
+/**
+ * As molduras, com as cores tiradas das fotografias das amostras da
+ * própria oficina e não de um mock.
+ *
+ * As fotografias mostram três perfis: um preto fino, um preto largo e
+ * um bordô. O alumínio e a madeira clara ficam como estavam, porque não
+ * aparecem em amostra nenhuma e não me cabe inventar o catálogo: se a
+ * galeria os vende, corrige as cores no backoffice.
+ */
 export const MOLDURAS = [
   {
     slug: "sem-moldura",
@@ -635,16 +644,32 @@ export const MOLDURAS = [
   },
   {
     slug: "preto-fino",
+    // Um preto absoluto lê-se chapado. Nas fotografias, o perfil preto
+    // da oficina devolve luz e fica neste tom.
     nome: L("Preto fino", "Slim black", "Negro fino"),
-    cor: "#141210",
+    cor: "#24211E",
     espessuraMm: 8,
     ordem: 2,
+  },
+  {
+    slug: "preto-largo",
+    nome: L("Preto largo", "Wide black", "Negro ancho"),
+    cor: "#2E2A26",
+    espessuraMm: 22,
+    ordem: 3,
+  },
+  {
+    slug: "bordo",
+    nome: L("Bordô", "Burgundy", "Burdeos"),
+    cor: "#8D2E29",
+    espessuraMm: 14,
+    ordem: 4,
   },
   {
     slug: "aluminio",
     nome: L("Alumínio", "Aluminium", "Aluminio"),
     cor: "#B9BCC0",
     espessuraMm: 6,
-    ordem: 3,
+    ordem: 5,
   },
 ];

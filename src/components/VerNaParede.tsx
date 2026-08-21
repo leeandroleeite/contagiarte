@@ -95,6 +95,38 @@ function nomePasse(slug: string, idioma: Idioma): string {
   return (idioma === "en" ? en : idioma === "es" ? es : pt)[slug] ?? slug;
 }
 
+/**
+ * Título de um grupo de controlos.
+ *
+ * Antes as quatro secções tinham todas o mesmo rótulo de 10px em
+ * maiúsculas, e nada dizia ao visitante que "a obra" e "o tamanho" são
+ * decisões diferentes de "a parede", que é calibração. Sem hierarquia,
+ * a coluna lê-se como uma lista de campos.
+ */
+function Grupo({
+  titulo,
+  children,
+}: {
+  titulo: string;
+  children: React.ReactNode;
+}) {
+  return (
+    <section className="flex flex-col gap-4 border-t border-[rgba(242,237,228,0.16)] pt-6">
+      <h2 className="titulo-med text-[15px] tracking-[0.02em]">{titulo}</h2>
+      {children}
+    </section>
+  );
+}
+
+/** Rótulo de um controlo dentro de um grupo. */
+function Rotulo({ children }: { children: React.ReactNode }) {
+  return (
+    <span className="text-[10px] tracking-[0.24em] text-[rgba(242,237,228,0.55)] uppercase">
+      {children}
+    </span>
+  );
+}
+
 /** Parede da própria galeria, para a ferramenta abrir a funcionar. */
 const PAREDE_EXEMPLO = "/parede-exemplo.jpg";
 
@@ -317,8 +349,17 @@ export function VerNaParede({
 
   return (
     <div className="grid items-start gap-10" style={colunas(320)}>
-      {/* Palco -------------------------------------------------------- */}
-      <div>
+      {/*
+        Palco
+        --------------------------------------------------------------
+        Fica preso ao topo enquanto se rola. Sem isto, medido: no
+        telemóvel a imagem estava a y=440 e o selector de moldura a
+        y=1735, ou seja, mudava-se a moldura com o efeito fora do ecrã.
+        No portátil acontecia o mesmo a partir da moldura. Uma
+        ferramenta que mostra o resultado tem de o mostrar enquanto se
+        mexe nos controlos.
+      */}
+      <div className="sticky top-[80px] z-[10] -mx-7 bg-tinta px-7 pb-3 sm:mx-0 sm:bg-transparent sm:px-0 sm:pb-0">
         <div
           ref={palco}
           /* `w-full` é obrigatório: com `aspect-[4/3]` e `min-h`, sem
@@ -464,72 +505,11 @@ export function VerNaParede({
                 : `Com moldura fica com ${Math.round(conjuntoLargura)} cm e não cabe numa parede de ${larguraParede} cm.`}
           </p>
         )}
-
-        <div className="flex flex-wrap gap-2.5 pt-3">
-          <button
-            type="button"
-            onClick={() => setPos({ x: 0.5, y: 0.45 })}
-            className="min-h-11 cursor-pointer border border-[rgba(242,237,228,0.25)] px-4 text-[11px] tracking-[0.14em] text-[rgba(242,237,228,0.7)] uppercase transition-colors hover:border-papel"
-          >
-            {idioma === "en"
-              ? "Centre"
-              : idioma === "es"
-                ? "Centrar"
-                : "Centrar"}
-          </button>
-          {/* Regra de quem pendura: o centro da obra a cerca de 150 cm
-                do chão. É a dúvida que toda a gente tem a seguir. */}
-          <button
-            type="button"
-            onClick={() => setPos((p) => ({ x: p.x, y: 0.55 }))}
-            className="min-h-11 cursor-pointer border border-[rgba(242,237,228,0.25)] px-4 text-[11px] tracking-[0.14em] text-[rgba(242,237,228,0.7)] uppercase transition-colors hover:border-papel"
-          >
-            {idioma === "en"
-              ? "Eye level"
-              : idioma === "es"
-                ? "Altura de los ojos"
-                : "Altura do olhar"}
-          </button>
-        </div>
-
-        <div className="mt-3 flex flex-col gap-2">
-          <label className="inline-flex min-h-11 w-fit cursor-pointer items-center border border-[rgba(242,237,228,0.25)] px-4 text-[11px] tracking-[0.16em] text-papel uppercase transition-colors focus-within:border-ouro hover:border-papel">
-            {daGaleria
-              ? t("parede.carregar", idioma)
-              : t("acao.escolher", idioma)}
-            <input
-              type="file"
-              accept="image/*"
-              onChange={escolherFicheiro}
-              className="so-leitor"
-            />
-          </label>
-
-          {erroFicheiro ? (
-            <span role="alert" className="text-[13px] text-[#E0765C]">
-              {erroFicheiro}
-            </span>
-          ) : (
-            <span className="max-w-[46ch] text-[13px] leading-[1.5] text-[rgba(242,237,228,0.55)]">
-              {daGaleria
-                ? idioma === "en"
-                  ? "This is a wall at the gallery. Use a photograph of yours to see the piece at home."
-                  : idioma === "es"
-                    ? "Esta es una pared de la galería. Use una fotografía suya para ver la pieza en su casa."
-                    : "Esta é uma parede da galeria. Use uma fotografia sua para ver a peça em casa."
-                : t("parede.privado", idioma)}
-            </span>
-          )}
-        </div>
       </div>
 
       {/* Controlos ---------------------------------------------------- */}
       <aside className="flex flex-col gap-8">
-        <div className="flex flex-col gap-3.5">
-          <span className="text-[10px] tracking-[0.24em] text-[rgba(242,237,228,0.55)] uppercase">
-            {t("parede.obra", idioma)}
-          </span>
-
+        <Grupo titulo={t("parede.obra", idioma)}>
           <div className="grid gap-2.5" style={colunas(74)}>
             {obras.map((o) => {
               const src = urlMedia(o.chave);
@@ -588,9 +568,13 @@ export function VerNaParede({
               </span>
             )}
           </span>
-        </div>
+        </Grupo>
 
-        <div className="flex flex-col gap-3.5">
+        <Grupo
+          titulo={
+            idioma === "en" ? "Size" : idioma === "es" ? "Tamaño" : "O tamanho"
+          }
+        >
           <label
             htmlFor="largura-obra"
             className="flex justify-between text-[10px] tracking-[0.24em] text-[rgba(242,237,228,0.55)] uppercase"
@@ -608,38 +592,24 @@ export function VerNaParede({
             onChange={(e) => setLarguraEscolhida(Number(e.target.value))}
             className="h-8 w-full accent-[#B4884A]"
           />
+        </Grupo>
 
-          <label
-            htmlFor="largura-parede"
-            className="flex justify-between text-[10px] tracking-[0.24em] text-[rgba(242,237,228,0.55)] uppercase"
-          >
-            <span>{t("parede.largura_parede", idioma)}</span>
-            <span>{larguraParede} cm</span>
-          </label>
-          <input
-            id="largura-parede"
-            type="range"
-            min={150}
-            max={600}
-            step={10}
-            value={larguraParede}
-            onChange={(e) => setLarguraParede(Number(e.target.value))}
-            className="h-8 w-full accent-[#B4884A]"
-          />
-
-          <span className="text-[13px] text-[rgba(242,237,228,0.55)]">
-            {t("parede.escala", idioma)}
-          </span>
-        </div>
-
-        <div className="flex flex-col gap-3.5">
-          <span className="text-[10px] tracking-[0.24em] text-[rgba(242,237,228,0.55)] uppercase">
+        <Grupo
+          titulo={
+            idioma === "en"
+              ? "Framing"
+              : idioma === "es"
+                ? "Enmarcado"
+                : "O enquadramento"
+          }
+        >
+          <Rotulo>
             {idioma === "en"
               ? "Mount"
               : idioma === "es"
                 ? "Pasepartú"
-                : "Passe-partout"}
-          </span>
+                : "Margem"}
+          </Rotulo>
           <div className="flex flex-wrap gap-2.5">
             {PASSES.map((p) => (
               <button
@@ -663,12 +633,8 @@ export function VerNaParede({
               </button>
             ))}
           </div>
-        </div>
 
-        <div className="flex flex-col gap-3.5">
-          <span className="text-[10px] tracking-[0.24em] text-[rgba(242,237,228,0.55)] uppercase">
-            {t("parede.moldura", idioma)}
-          </span>
+          <Rotulo>{t("parede.moldura", idioma)}</Rotulo>
           <div className="flex flex-wrap gap-2.5">
             {molduras.map((m) => (
               <button
@@ -701,7 +667,95 @@ export function VerNaParede({
                 ? "Made with MOLDARTPÓVOA: Tru-Vue® museum glass, natural woods and precision aluminium."
                 : "Producidos con MOLDARTPÓVOA: vidrio museo Tru-Vue®, maderas naturales y aluminio de precisión."}
           </span>
-        </div>
+        </Grupo>
+
+        <Grupo
+          titulo={
+            idioma === "en"
+              ? "The wall"
+              : idioma === "es"
+                ? "La pared"
+                : "A parede"
+          }
+        >
+          <label
+            htmlFor="largura-parede"
+            className="flex justify-between text-[10px] tracking-[0.24em] text-[rgba(242,237,228,0.55)] uppercase"
+          >
+            <span>{t("parede.largura_parede", idioma)}</span>
+            <span>{larguraParede} cm</span>
+          </label>
+          <input
+            id="largura-parede"
+            type="range"
+            min={150}
+            max={600}
+            step={10}
+            value={larguraParede}
+            onChange={(e) => setLarguraParede(Number(e.target.value))}
+            className="h-8 w-full accent-[#B4884A]"
+          />
+          <span className="text-[13px] leading-[1.5] text-[rgba(242,237,228,0.55)]">
+            {t("parede.escala", idioma)}
+          </span>
+
+          <div className="flex flex-wrap gap-2.5 pt-3">
+            <button
+              type="button"
+              onClick={() => setPos({ x: 0.5, y: 0.45 })}
+              className="min-h-11 cursor-pointer border border-[rgba(242,237,228,0.25)] px-4 text-[11px] tracking-[0.14em] text-[rgba(242,237,228,0.7)] uppercase transition-colors hover:border-papel"
+            >
+              {idioma === "en"
+                ? "Centre"
+                : idioma === "es"
+                  ? "Centrar"
+                  : "Centrar"}
+            </button>
+            {/* Regra de quem pendura: o centro da obra a cerca de 150 cm
+                  do chão. É a dúvida que toda a gente tem a seguir. */}
+            <button
+              type="button"
+              onClick={() => setPos((p) => ({ x: p.x, y: 0.55 }))}
+              className="min-h-11 cursor-pointer border border-[rgba(242,237,228,0.25)] px-4 text-[11px] tracking-[0.14em] text-[rgba(242,237,228,0.7)] uppercase transition-colors hover:border-papel"
+            >
+              {idioma === "en"
+                ? "Eye level"
+                : idioma === "es"
+                  ? "Altura de los ojos"
+                  : "Altura do olhar"}
+            </button>
+          </div>
+
+          <div className="mt-3 flex flex-col gap-2">
+            <label className="inline-flex min-h-11 w-fit cursor-pointer items-center border border-[rgba(242,237,228,0.25)] px-4 text-[11px] tracking-[0.16em] text-papel uppercase transition-colors focus-within:border-ouro hover:border-papel">
+              {daGaleria
+                ? t("parede.carregar", idioma)
+                : t("acao.escolher", idioma)}
+              <input
+                type="file"
+                accept="image/*"
+                onChange={escolherFicheiro}
+                className="so-leitor"
+              />
+            </label>
+
+            {erroFicheiro ? (
+              <span role="alert" className="text-[13px] text-[#E0765C]">
+                {erroFicheiro}
+              </span>
+            ) : (
+              <span className="max-w-[46ch] text-[13px] leading-[1.5] text-[rgba(242,237,228,0.55)]">
+                {daGaleria
+                  ? idioma === "en"
+                    ? "This is a wall at the gallery. Use a photograph of yours to see the piece at home."
+                    : idioma === "es"
+                      ? "Esta es una pared de la galería. Use una fotografía suya para ver la pieza en su casa."
+                      : "Esta é uma parede da galeria. Use uma fotografia sua para ver a peça em casa."
+                  : t("parede.privado", idioma)}
+              </span>
+            )}
+          </div>
+        </Grupo>
 
         <div className="flex flex-col gap-3 border-t border-[rgba(242,237,228,0.16)] pt-6">
           <a

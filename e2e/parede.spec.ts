@@ -10,11 +10,6 @@ import { expect, test } from "@playwright/test";
  * mensagem de WhatsApp para a galeria.
  */
 
-const PNG = Buffer.from(
-  "iVBORw0KGgoAAAANSUhEUgAAAAQAAAAECAYAAACp8Z5+AAAAHElEQVQI12P8//8/AzbAxIAHjEqOSo5KjkoSkgQAWm4EFaQ2s8sAAAAASUVORK5CYII=",
-  "base64",
-);
-
 async function comParede(page: import("@playwright/test").Page) {
   await page.goto("/ver-na-parede");
   await expect(page.getByText(/× \d+ cm/)).toBeVisible({ timeout: 15000 });

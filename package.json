@@ -20,7 +20,7 @@
     "e2e:preparar": "tsx --env-file=.env.local scripts/preparar-e2e.ts",
     "e2e:ver": "playwright test --ui",
     "e2e:relatorio": "playwright show-report",
-    "prestart": "cp -r public .next/standalone/public 2>/dev/null; mkdir -p .next/standalone/.next && cp -r .next/static .next/standalone/.next/static",
+    "prestart": "mkdir -p .next/standalone/public .next/standalone/.next && cp -R public/. .next/standalone/public/ && cp -R .next/static/. .next/standalone/.next/static/",
     "imagens": "tsx --env-file=.env.local scripts/importar-imagens.ts",
     "galeria": "tsx --env-file=.env.local scripts/importar-galeria.ts"
   },

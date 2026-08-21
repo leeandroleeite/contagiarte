@@ -30,6 +30,9 @@ export type MolduraParede = {
   espessuraMm: number;
 };
 
+/** Parede da própria galeria, para a ferramenta abrir a funcionar. */
+const PAREDE_EXEMPLO = "/parede-exemplo.jpg";
+
 /** A perfilaria em centímetros, que é a unidade de tudo o resto aqui. */
 function molduraCm(m: MolduraParede | undefined): number {
   return (m?.espessuraMm ?? 0) / 10;
@@ -61,7 +64,15 @@ export function VerNaParede({
   /** Meia peça, em fracção do palco. Alimenta os limites do arrasto. */
   const limites = useRef({ x: 0.06, y: 0.06 });
 
-  const [parede, setParede] = useState<string | null>(null);
+  /**
+   * Abre com uma parede de exemplo: uma parede a sério da galeria, com
+   * um aplique que dá a escala. Antes a página abria com um rectângulo
+   * tracejado vazio e cem por cento do valor ficava atrás de um upload,
+   * o que exige que a pessoa já tenha a fotografia à mão. Quem chegava
+   * de uma pesquisa, saía.
+   */
+  const [parede, setParede] = useState<string>(PAREDE_EXEMPLO);
+  const daGaleria = parede === PAREDE_EXEMPLO;
   const [obraSlug, setObraSlug] = useState(
     obraInicial && obras.some((o) => o.slug === obraInicial)
       ? obraInicial
@@ -87,8 +98,7 @@ export function VerNaParede({
   const [aArrastarFicheiro, setAArrastarFicheiro] = useState(false);
 
   const obra = obras.find((o) => o.slug === obraSlug) ?? obras[0];
-  const moldura =
-    molduras.find((m) => m.slug === molduraSlug) ?? molduras[0];
+  const moldura = molduras.find((m) => m.slug === molduraSlug) ?? molduras[0];
   const larguraObra = larguraEscolhida ?? obra?.larguraCm ?? 90;
 
   // O arrasto continua mesmo quando o cursor sai do palco, como no
@@ -101,8 +111,14 @@ export function VerNaParede({
       // desapareça pela borda e fique sem forma de a trazer de volta.
       const meia = limites.current;
       setPos({
-        x: Math.min(1 - meia.x, Math.max(meia.x, (e.clientX - r.left) / r.width)),
-        y: Math.min(1 - meia.y, Math.max(meia.y, (e.clientY - r.top) / r.height)),
+        x: Math.min(
+          1 - meia.x,
+          Math.max(meia.x, (e.clientX - r.left) / r.width),
+        ),
+        y: Math.min(
+          1 - meia.y,
+          Math.max(meia.y, (e.clientY - r.top) / r.height),
+        ),
       });
     };
     const largar = () => {
@@ -120,10 +136,11 @@ export function VerNaParede({
 
   useEffect(() => {
     return () => {
-      if (parede) URL.revokeObjectURL(parede);
+      // Só os endereços que este componente criou. Revogar a parede de
+      // exemplo, que é um ficheiro do site, não faria nada de bom.
+      if (parede.startsWith("blob:")) URL.revokeObjectURL(parede);
     };
   }, [parede]);
-
 
   /**
    * Aceita a fotografia depois de a conseguir descodificar.
@@ -150,7 +167,7 @@ export function VerNaParede({
     const url = URL.createObjectURL(ficheiro);
     const teste = new Image();
     teste.onload = () => {
-      if (parede) URL.revokeObjectURL(parede);
+      if (parede.startsWith("blob:")) URL.revokeObjectURL(parede);
       setErroFicheiro(null);
       // Entre 3:4 e 16:9: respeita a forma da fotografia sem deixar o
       // palco ficar tão alto que os controlos saiam do ecrã.
@@ -204,8 +221,6 @@ export function VerNaParede({
     };
   }, [fraccao, conjuntoAltura, conjuntoLargura, formaParede]);
 
-
-
   const medidas = perfil
     ? `${larguraObra} × ${alturaCm} cm · com moldura ${Math.round(conjuntoLargura)} × ${Math.round(conjuntoAltura)} cm`
     : `${larguraObra} × ${alturaCm} cm`;
@@ -252,36 +267,16 @@ export function VerNaParede({
               : undefined),
           }}
         >
-          {!parede && (
-            <label
-              className={cx(
-                "absolute inset-0 flex cursor-pointer flex-col items-center justify-center gap-3 border border-dashed p-6 text-center transition-colors focus-within:border-ouro",
-                aArrastarFicheiro
-                  ? "border-ouro bg-[rgba(180,136,74,0.08)]"
-                  : "border-[rgba(242,237,228,0.2)]",
-              )}
-            >
-              <span className="text-[11px] tracking-[0.24em] text-[rgba(242,237,228,0.55)] uppercase">
-                {t("parede.carregar", idioma)}
-              </span>
-              <span className="max-w-[34ch] text-[13px] text-[rgba(242,237,228,0.55)]">
-                {t("parede.privado", idioma)}
-              </span>
-              {erroFicheiro && (
-                <span role="alert" className="text-[13px] text-[#E0765C]">
-                  {erroFicheiro}
-                </span>
-              )}
-              <input
-                type="file"
-                accept="image/*"
-                onChange={escolherFicheiro}
-                className="so-leitor"
-              />
-            </label>
+          {/* O convite para usar a parede própria fica num canto, sem
+              tapar a de exemplo. Aceita clique e também arrastar. */}
+          {aArrastarFicheiro && (
+            <div
+              aria-hidden="true"
+              className="pointer-events-none absolute inset-0 border-2 border-dashed border-ouro bg-[rgba(180,136,74,0.12)]"
+            />
           )}
 
-          {parede && obra && (
+          {obra && (
             <div
               onPointerDown={(e) => {
                 e.preventDefault();
@@ -309,7 +304,9 @@ export function VerNaParede({
                 style={{
                   width: "100%",
                   padding: perfil ? `${perfilPct}%` : 0,
-                  background: perfil ? (moldura?.cor ?? "transparent") : "transparent",
+                  background: perfil
+                    ? (moldura?.cor ?? "transparent")
+                    : "transparent",
                   // Bisel: uma aresta clara e a oposta escura, para a
                   // perfilaria ter espessura em vez de ser cor chapada.
                   boxShadow: perfil
@@ -342,16 +339,8 @@ export function VerNaParede({
         </div>
 
         <div className="flex flex-wrap justify-between gap-4 pt-3.5 text-[13px] text-[rgba(242,237,228,0.55)]">
-          <span>
-            {parede
-              ? legenda
-              : idioma === "en"
-                ? "Choose a photograph to begin."
-                : idioma === "es"
-                  ? "Elija una fotografía para empezar."
-                  : "Escolha uma fotografia para começar."}
-          </span>
-          {parede && <span>{t("parede.arraste", idioma)}</span>}
+          <span>{legenda}</span>
+          <span>{t("parede.arraste", idioma)}</span>
         </div>
 
         {/* Se não cabe, o visitante tem de saber que não cabe. Antes a
@@ -366,34 +355,38 @@ export function VerNaParede({
           </p>
         )}
 
-        {parede && (
-          <div className="flex flex-wrap gap-2.5 pt-3">
-            <button
-              type="button"
-              onClick={() => setPos({ x: 0.5, y: 0.45 })}
-              className="min-h-11 cursor-pointer border border-[rgba(242,237,228,0.25)] px-4 text-[11px] tracking-[0.14em] text-[rgba(242,237,228,0.7)] uppercase transition-colors hover:border-papel"
-            >
-              {idioma === "en" ? "Centre" : idioma === "es" ? "Centrar" : "Centrar"}
-            </button>
-            {/* Regra de quem pendura: o centro da obra a cerca de 150 cm
+        <div className="flex flex-wrap gap-2.5 pt-3">
+          <button
+            type="button"
+            onClick={() => setPos({ x: 0.5, y: 0.45 })}
+            className="min-h-11 cursor-pointer border border-[rgba(242,237,228,0.25)] px-4 text-[11px] tracking-[0.14em] text-[rgba(242,237,228,0.7)] uppercase transition-colors hover:border-papel"
+          >
+            {idioma === "en"
+              ? "Centre"
+              : idioma === "es"
+                ? "Centrar"
+                : "Centrar"}
+          </button>
+          {/* Regra de quem pendura: o centro da obra a cerca de 150 cm
                 do chão. É a dúvida que toda a gente tem a seguir. */}
-            <button
-              type="button"
-              onClick={() => setPos((p) => ({ x: p.x, y: 0.55 }))}
-              className="min-h-11 cursor-pointer border border-[rgba(242,237,228,0.25)] px-4 text-[11px] tracking-[0.14em] text-[rgba(242,237,228,0.7)] uppercase transition-colors hover:border-papel"
-            >
-              {idioma === "en"
-                ? "Eye level"
-                : idioma === "es"
-                  ? "Altura de los ojos"
-                  : "Altura do olhar"}
-            </button>
-          </div>
-        )}
+          <button
+            type="button"
+            onClick={() => setPos((p) => ({ x: p.x, y: 0.55 }))}
+            className="min-h-11 cursor-pointer border border-[rgba(242,237,228,0.25)] px-4 text-[11px] tracking-[0.14em] text-[rgba(242,237,228,0.7)] uppercase transition-colors hover:border-papel"
+          >
+            {idioma === "en"
+              ? "Eye level"
+              : idioma === "es"
+                ? "Altura de los ojos"
+                : "Altura do olhar"}
+          </button>
+        </div>
 
-        {parede && (
-          <label className="mt-2 inline-block cursor-pointer text-[12px] tracking-[0.18em] text-ouro uppercase">
-            {t("acao.escolher", idioma)}
+        <div className="mt-3 flex flex-col gap-2">
+          <label className="inline-flex min-h-11 w-fit cursor-pointer items-center border border-[rgba(242,237,228,0.25)] px-4 text-[11px] tracking-[0.16em] text-papel uppercase transition-colors focus-within:border-ouro hover:border-papel">
+            {daGaleria
+              ? t("parede.carregar", idioma)
+              : t("acao.escolher", idioma)}
             <input
               type="file"
               accept="image/*"
@@ -401,7 +394,23 @@ export function VerNaParede({
               className="so-leitor"
             />
           </label>
-        )}
+
+          {erroFicheiro ? (
+            <span role="alert" className="text-[13px] text-[#E0765C]">
+              {erroFicheiro}
+            </span>
+          ) : (
+            <span className="max-w-[46ch] text-[13px] leading-[1.5] text-[rgba(242,237,228,0.55)]">
+              {daGaleria
+                ? idioma === "en"
+                  ? "This is a wall at the gallery. Use a photograph of yours to see the piece at home."
+                  : idioma === "es"
+                    ? "Esta es una pared de la galería. Use una fotografía suya para ver la pieza en su casa."
+                    : "Esta é uma parede da galeria. Use uma fotografia sua para ver a peça em casa."
+                : t("parede.privado", idioma)}
+            </span>
+          )}
+        </div>
       </div>
 
       {/* Controlos ---------------------------------------------------- */}

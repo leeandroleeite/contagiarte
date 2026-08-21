@@ -17,12 +17,26 @@ const PNG = Buffer.from(
 
 async function comParede(page: import("@playwright/test").Page) {
   await page.goto("/ver-na-parede");
-  await page
-    .locator('input[type="file"]')
-    .first()
-    .setInputFiles({ name: "parede.png", mimeType: "image/png", buffer: PNG });
   await expect(page.getByText(/× \d+ cm/)).toBeVisible({ timeout: 15000 });
 }
+
+test("abre a funcionar, sem ser preciso carregar nada", async ({ page }) => {
+  await page.goto("/ver-na-parede");
+
+  // A parede de exemplo tem de existir mesmo, não só ser referida.
+  const resposta = await page.request.get("/parede-exemplo.jpg");
+  expect(resposta.status()).toBe(200);
+  expect(resposta.headers()["content-type"]).toContain("image");
+
+  const fundo = await page.evaluate(() => {
+    const p = document.querySelector('[class*="min-h-[260px]"]') as HTMLElement;
+    return getComputedStyle(p).backgroundImage;
+  });
+  expect(fundo).toContain("parede-exemplo");
+
+  // E a obra já lá está pendurada.
+  await expect(page.locator('[role="img"][aria-label*="parede"]')).toBeVisible();
+});
 
 test("a moldura acrescenta-se por fora e não come a obra", async ({ page }) => {
   await comParede(page);

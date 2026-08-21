@@ -41,7 +41,11 @@ function iguais(a: string, b: string): boolean {
 export default async function proxy(pedido: NextRequest) {
   const { pathname } = pedido.nextUrl;
 
-  if (IGNORAR.some((p) => pathname.startsWith(p))) {
+  // Ficheiros estáticos de `public` também não são páginas: sem isto
+  // levavam prefixo de idioma e davam 404.
+  const EXTENSAO = /\.[a-z0-9]{2,5}$/i;
+
+  if (IGNORAR.some((p) => pathname.startsWith(p)) || EXTENSAO.test(pathname)) {
     return NextResponse.next();
   }
 

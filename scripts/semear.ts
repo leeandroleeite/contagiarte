@@ -155,9 +155,28 @@ async function semearSalas() {
   console.log(`· ${SALAS.length} salas do percurso`);
 }
 
+/**
+ * As molduras são catálogo da oficina e não conteúdo da galeria: não
+ * há página no backoffice para as editar, vivem em `conteudo.ts`. Por
+ * isso, ao contrário de tudo o resto aqui, actualizam-se em vez de
+ * serem ignoradas quando já existem. Sem isto, os tons corrigidos
+ * pelas fotografias da oficina ficaram só na base local e produção
+ * continuou com as quatro molduras e as cores inventadas do início.
+ */
 async function semearMolduras() {
   for (const m of MOLDURAS) {
-    await db.insert(molduras).values(m).onConflictDoNothing();
+    await db
+      .insert(molduras)
+      .values(m)
+      .onConflictDoUpdate({
+        target: molduras.slug,
+        set: {
+          nome: m.nome,
+          cor: m.cor,
+          espessuraMm: m.espessuraMm,
+          ordem: m.ordem,
+        },
+      });
   }
   console.log(`· ${MOLDURAS.length} molduras`);
 }

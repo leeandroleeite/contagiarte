@@ -6,6 +6,7 @@ import { db } from "@/lib/db";
 import { media } from "@/lib/db/schema";
 import { exigirSessao, registar, sessaoActual } from "@/lib/auth";
 import { POR_PAGINA } from "@/lib/admin/paginacao";
+import { usosDeMedia } from "@/lib/admin/usos";
 import {
   apagarFicheiro,
   guardarFicheiro,
@@ -213,8 +214,12 @@ export async function procurarMedia(opcoes?: {
     .limit(POR_PAGINA)
     .offset((pagina - 1) * POR_PAGINA);
 
+  // Onde é que cada ficheiro está a ser usado, para não se apagar às
+  // cegas a capa de uma exposição.
+  const usos = await usosDeMedia(linhas.map((l) => l.id));
+
   return {
-    linhas,
+    linhas: linhas.map((l) => ({ ...l, usos: usos.get(l.id) ?? [] })),
     total,
     pagina,
     paginas: Math.max(1, Math.ceil(total / POR_PAGINA)),

@@ -8,6 +8,7 @@ import {
 } from "@/components/admin/Pecas";
 import { db } from "@/lib/db";
 import { descarregaveis } from "@/lib/db/schema";
+import { urlMedia } from "@/lib/media/url";
 
 export const dynamic = "force-dynamic";
 
@@ -58,6 +59,19 @@ export default async function ListaDescarregaveis() {
 
                 <div className="flex items-center gap-3">
                   <Estado valor={d.estado} />
+                  {/* Abrir o PDF aqui não conta como descarga: quem
+                      está a gerir precisa de ver qual é o ficheiro,
+                      e isso não é um download do público. */}
+                  {d.ficheiro && (
+                    <a
+                      href={urlMedia(d.ficheiro.chave) ?? "#"}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-[13px]"
+                    >
+                      Abrir
+                    </a>
+                  )}
                   <Link
                     href={`/admin/descarregaveis/${d.id}`}
                     className="inline-flex min-h-10 items-center border border-adm-fio-forte px-[18px] py-3 text-[12px] tracking-[0.1em] no-underline hover:border-tinta"

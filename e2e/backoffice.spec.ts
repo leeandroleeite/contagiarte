@@ -90,6 +90,49 @@ test.describe("Media", () => {
 
     await expect(page.getByText(nome)).toHaveCount(0, { timeout: 15000 });
   });
+
+  test("a mediateca diz onde é que cada ficheiro está a ser usado", async ({
+    page,
+  }) => {
+    await entrarNoBackoffice(page);
+
+    const m = marca();
+    const titulo = `Obra de teste ${m}`;
+    const slug = `obra-de-teste-${m}`;
+
+    await page.goto("/admin/obras/novo");
+    await page.locator('input[name="titulo.pt"]').fill(titulo);
+    await page.locator('input[name="slug"]').fill(slug);
+    const nome = await carregarImagem(page);
+    await guardar(page);
+    await expect(page.getByText("Obra guardada.")).toBeVisible();
+
+    // O cartão da imagem passa a dizer a que obra pertence. Sem isto,
+    // apagar da mediateca era às cegas.
+    await page.goto("/admin/media");
+    const cartao = page.locator("main li").filter({ hasText: nome });
+    await expect(cartao).toContainText(titulo);
+
+    // E a obra apagada devolve-a ao monte das que ninguém usa.
+    await page.goto("/admin/obras");
+    await page.getByRole("link", { name: titulo }).click();
+    page.once("dialog", (d) => d.accept());
+    await page.getByRole("button", { name: /Apagar obra/i }).click();
+    await expect(page).toHaveURL(/\/admin\/obras$/);
+
+    await page.goto("/admin/media");
+    await expect(
+      page.locator("main li").filter({ hasText: nome }),
+    ).toContainText("Não está a ser usado");
+
+    page.once("dialog", (d) => d.accept());
+    await page
+      .locator("main li")
+      .filter({ hasText: nome })
+      .getByRole("button", { name: "Apagar" })
+      .click();
+    await expect(page.getByText(nome)).toHaveCount(0, { timeout: 15000 });
+  });
 });
 
 test.describe("Obras", () => {

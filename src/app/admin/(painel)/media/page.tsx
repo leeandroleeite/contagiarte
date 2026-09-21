@@ -2,6 +2,7 @@ import { GaleriaMedia } from "@/components/admin/GaleriaMedia";
 import { Aviso, CabecalhoSeccao, Conteudo, Vazio } from "@/components/admin/Pecas";
 import { procurarMedia } from "@/lib/admin/media";
 import { POR_PAGINA } from "@/lib/admin/paginacao";
+import { retratoDaMediateca } from "@/lib/admin/usos";
 import { env } from "@/lib/env";
 
 export const dynamic = "force-dynamic";
@@ -17,6 +18,7 @@ export default async function PaginaMedia({
     pagina: Number(p) || 1,
   });
   const local = !env.r2.configurado;
+  const retrato = await retratoDaMediateca();
 
   return (
     <>
@@ -35,16 +37,30 @@ export default async function PaginaMedia({
           </Aviso>
         )}
 
-        <Aviso>
-          Há aqui dois conjuntos. As dezasseis com nomes como
-          <code>obra-1.png</code> ou <code>artista-2.png</code> saíram do
-          catálogo em PDF e têm 440px no lado maior: dão para ver como o
-          site fica, mas num ecrã grande ficam desfocadas. As restantes
-          vieram do sítio antigo da galeria, são originais e vão até
-          2000px. Estas últimas não foram atribuídas a nenhuma obra, porque
-          só quem conhece o espólio sabe qual é qual: abra a obra, escolha
-          a fotografia certa, e o endereço dela não muda.
-        </Aviso>
+        {/* Um retrato calculado, e não uma nota escrita à mão: a
+            mediateca muda todas as semanas e uma nota fixa passa a
+            mentir sem ninguém dar por isso. */}
+        {(retrato.pequenas > 0 || retrato.orfas > 0) && (
+          <Aviso>
+            {retrato.total} ficheiros.
+            {retrato.pequenas > 0 && (
+              <>
+                {" "}
+                <strong>{retrato.pequenas}</strong> com menos de 800px no lado
+                maior: chegam para ver como o site fica, mas num ecrã grande
+                saem desfocadas.
+              </>
+            )}
+            {retrato.orfas > 0 && (
+              <>
+                {" "}
+                <strong>{retrato.orfas}</strong> não estão a ser usados em
+                lado nenhum. Cada cartão diz onde está, para não se apagar à
+                sorte.
+              </>
+            )}
+          </Aviso>
+        )}
 
         {/* Pesquisa por formulário simples: funciona sem JavaScript e
             deixa o endereço guardar a procura. */}

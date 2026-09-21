@@ -14,6 +14,8 @@ export type ItemMedia = {
   largura: number | null;
   altura: number | null;
   alt: Localizado | null;
+  /** Onde este ficheiro está a ser usado. Vazio quer dizer em lado nenhum. */
+  usos?: Array<{ onde: string; nome: string }>;
 };
 
 /**
@@ -89,6 +91,7 @@ function Cartao({ media }: { media: ItemMedia }) {
   const [aGuardar, iniciar] = useTransition();
   const url = urlMedia(media.chave);
   const ePdf = media.tipoMime === "application/pdf";
+  const usos = media.usos ?? [];
 
   return (
     <li className="flex flex-col gap-3 border border-adm-fio bg-adm-cartao p-4">
@@ -113,6 +116,28 @@ function Cartao({ media }: { media: ItemMedia }) {
           ? `${media.largura} × ${media.altura} px · `
           : ""}
         {(media.tamanho / 1024 / 1024).toFixed(2)} MB
+        {url && (
+          <>
+            {" · "}
+            <a href={url} target="_blank" rel="noopener noreferrer">
+              abrir
+            </a>
+          </>
+        )}
+      </span>
+
+      {/* Onde está a ser usado. Sem isto, apagar é às cegas. */}
+      <span className="text-[12px] text-adm-suave">
+        {usos.length === 0 ? (
+          "Não está a ser usado em lado nenhum."
+        ) : (
+          <>
+            Em uso:{" "}
+            {usos
+              .map((u) => `${u.onde}${u.nome ? ` (${u.nome})` : ""}`)
+              .join(", ")}
+          </>
+        )}
       </span>
 
       <div>
@@ -151,7 +176,11 @@ function Cartao({ media }: { media: ItemMedia }) {
           onClick={() => {
             if (
               !window.confirm(
-                "Apagar este ficheiro? Sai do armazenamento e das páginas que o usam.",
+                usos.length === 0
+                  ? "Apagar este ficheiro? Não está a ser usado em lado nenhum."
+                  : `Apagar este ficheiro? Fica sem imagem em: ${usos
+                      .map((u) => `${u.onde}${u.nome ? ` (${u.nome})` : ""}`)
+                      .join(", ")}.`,
               )
             )
               return;

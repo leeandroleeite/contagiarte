@@ -11,6 +11,12 @@ const config: NextConfig = {
   compress: true,
 
   experimental: {
+    // O `proxy.ts` corre em todos os pedidos, e o Next corta o corpo
+    // que lhe entrega aos 10 MB por omissão. O catálogo da galeria tem
+    // 17,6 e chegava truncado, com um "Unexpected end of form" do outro
+    // lado. São dois limites diferentes e é preciso levantar os dois.
+    proxyClientMaxBodySize: "30mb",
+
     serverActions: {
       // O backoffice promete 25 MB e valida-os, mas o Next corta o
       // corpo de uma server action nos 1 MB por omissão. Qualquer

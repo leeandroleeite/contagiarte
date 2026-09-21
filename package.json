@@ -22,7 +22,8 @@
     "e2e:relatorio": "playwright show-report",
     "prestart": "mkdir -p .next/standalone/public .next/standalone/.next && cp -R public/. .next/standalone/public/ && cp -R .next/static/. .next/standalone/.next/static/",
     "imagens": "tsx --env-file=.env.local scripts/importar-imagens.ts",
-    "galeria": "tsx --env-file=.env.local scripts/importar-galeria.ts"
+    "galeria": "tsx --env-file=.env.local scripts/importar-galeria.ts",
+    "pasta": "tsx --env-file=.env.local scripts/importar-pasta.ts"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.1114.0",

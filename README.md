@@ -240,6 +240,30 @@ no ar.
 Só `FLY_API_TOKEN`, para publicar. A cópia de segurança deixou de correr
 no GitHub: a base vive num volume a que o runner não chega.
 
+## Trazer fotografias de fora
+
+Material que chega por fora, a entrega de um fotógrafo ou uma pasta do
+Drive, entra por aqui:
+
+```bash
+npm run pasta -- ~/Downloads/contagiarte-quantaterra quanta-terra \
+  --alt "Exposição A Pele da Terra, na adega da Quanta Terra"
+```
+
+Reduz para 2000px de lado maior, converte para JPEG e é idempotente:
+correr duas vezes não duplica nada. Não atribui nada a obras nem a
+exposições, porque isso é escolha de quem conhece o espólio e faz-se no
+backoffice.
+
+Para carregar no bucket de produção em vez do disco local, corre com as
+chaves de produção no ambiente:
+
+```bash
+APP_ENV=producao R2_BUCKET=contagiarte \
+  R2_ACCOUNT_ID=... R2_ACCESS_KEY_ID=... R2_SECRET_ACCESS_KEY=... \
+  npx tsx scripts/importar-pasta.ts <pasta> <prefixo> --alt "..."
+```
+
 ## Ficheiros e R2
 
 Sem R2 configurado, os ficheiros ficam em `public/media` e são servidos

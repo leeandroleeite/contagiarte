@@ -11,7 +11,7 @@
  *   npm run semear
  */
 import bcrypt from "bcryptjs";
-import { eq, sql } from "drizzle-orm";
+import { eq } from "drizzle-orm";
 import { db } from "../src/lib/db";
 import {
   artistas,
@@ -246,9 +246,11 @@ async function principal() {
   await semearDescarregaveis();
   await semearAdministrador();
 
-  const [{ total }] = await db
-    .select({ total: sql<number>`count(*)::int` })
-    .from(obras);
+  // `count(*)` e não `count(*)::int`: o cast é do Postgres e o SQLite
+  // não o entende. Ficou da migração e partia o seed na última linha,
+  // depois de escrever tudo, o que no CI dava um trabalho vermelho com
+  // a base já semeada.
+  const total = await db.$count(obras);
   console.log(`Pronto. ${total} obras na base de dados.`);
   process.exit(0);
 }

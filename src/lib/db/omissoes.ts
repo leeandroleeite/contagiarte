@@ -26,4 +26,6 @@ export const DEFINICOES_OMISSAO: Definicoes = {
   },
   ogImagemId: null,
   avisoTopo: null,
+  // Zero é o desenho original: as letras fundem-se com a fotografia.
+  inversaoHeroi: 0,
 };

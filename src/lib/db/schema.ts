@@ -436,6 +436,11 @@ export type Definicoes = {
   /** Chave de media da imagem de partilha. */
   ogImagemId?: string | null;
   avisoTopo?: Localizado | null;
+  /**
+   * Quanto destacar o título da entrada da fotografia que tem por
+   * baixo, de 0 a 100. Ver `src/lib/veu.ts`.
+   */
+  inversaoHeroi?: number;
 };
 
 export const definicoes = sqliteTable("definicoes", {

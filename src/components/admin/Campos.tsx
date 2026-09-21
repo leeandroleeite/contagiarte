@@ -118,6 +118,63 @@ export function CampoInterruptor({
 }
 
 /**
+ * Escala de 0 a 100, com o número à vista enquanto se arrasta.
+ *
+ * Um cursor sem valor obriga a guardar para saber onde se ficou, e a
+ * diferença entre 30 e 40 não se vê no cursor.
+ */
+export function CampoEscala({
+  nome,
+  rotulo,
+  valor = 0,
+  passo = 5,
+  nota,
+  legendas,
+  largo = false,
+}: {
+  nome: string;
+  rotulo: string;
+  valor?: number;
+  passo?: number;
+  nota?: string;
+  /** O que significam as pontas, ex. ["fundido", "destacado"]. */
+  legendas?: [string, string];
+  largo?: boolean;
+}) {
+  const [actual, setActual] = useState(valor);
+
+  return (
+    <Bloco rotulo={rotulo} nota={nota} htmlFor={nome} largo={largo}>
+      <div className="flex items-center gap-4">
+        <input
+          id={nome}
+          name={nome}
+          type="range"
+          min={0}
+          max={100}
+          step={passo}
+          value={actual}
+          onChange={(e) => setActual(Number(e.target.value))}
+          className="min-w-0 flex-1"
+        />
+        <output
+          htmlFor={nome}
+          className="w-12 shrink-0 text-right text-[15px] tabular-nums"
+        >
+          {actual}
+        </output>
+      </div>
+      {legendas && (
+        <div className="mt-1 flex justify-between text-[12px] text-adm-suave">
+          <span>{legendas[0]}</span>
+          <span>{legendas[1]}</span>
+        </div>
+      )}
+    </Bloco>
+  );
+}
+
+/**
  * Campo traduzível. Guarda um valor por idioma no mesmo formulário,
  * com separadores PT / EN / ES. O português é obrigatório porque é a
  * língua de origem; os outros dois caem para ele quando ficam vazios.

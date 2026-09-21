@@ -1,5 +1,9 @@
 import { BarraGuardar } from "@/components/admin/BarraGuardar";
-import { CampoLocalizado, CampoTexto } from "@/components/admin/Campos";
+import {
+  CampoEscala,
+  CampoLocalizado,
+  CampoTexto,
+} from "@/components/admin/Campos";
 import { Aviso, Grelha, CabecalhoSeccao, Conteudo } from "@/components/admin/Pecas";
 import { guardarDefinicoes } from "@/lib/admin/accoes";
 import { obterDefinicoes } from "@/lib/dados";
@@ -91,6 +95,15 @@ export default async function PaginaDefinicoes({
             valor={d.ogDescricao}
             linhas={3}
             nota="Até 155 caracteres, para não ficar cortada."
+            largo
+          />
+
+          <CampoEscala
+            nome="inversaoHeroi"
+            rotulo="Destaque do título na entrada"
+            valor={d.inversaoHeroi ?? 0}
+            legendas={["fundido na fotografia", "destacado"]}
+            nota="O título da entrada é desenhado com o inverso da fotografia que tem por baixo, e por isso funde-se com ela. Em zero fica o desenho original. Subir escurece e satura a fotografia só na faixa do título, o que separa as letras sem lhes tirar a cor. Sobre capas claras e movimentadas, 70 costuma chegar."
             largo
           />
 

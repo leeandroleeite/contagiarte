@@ -148,6 +148,46 @@ test.describe("Gerir conteúdo", () => {
 });
 
 test.describe("Definições e textos", () => {
+  test("o cursor do destaque do título chega à entrada", async ({ page }) => {
+    await entrarNoBackoffice(page);
+
+    const definir = async (nivel: string) => {
+      await page.goto("/admin/definicoes");
+      await page
+        .locator('input[name="inversaoHeroi"]')
+        .fill(nivel);
+      await page.getByRole("button", { name: /^Guardar$/ }).click();
+      await expect(page.getByText("Definições guardadas.")).toBeVisible();
+    };
+
+    await page.goto("/admin/definicoes");
+    const original = await page
+      .locator('input[name="inversaoHeroi"]')
+      .inputValue();
+
+    const camada = () => page.locator('[data-camada="inversao"]');
+
+    try {
+      // Em zero o herói fica como foi desenhado, sem camada nenhuma.
+      await definir("0");
+      await page.goto("/");
+      await expect(camada()).toHaveCount(0);
+
+      await definir("70");
+      await page.goto("/");
+      await expect(camada()).toHaveCount(1);
+      // O filtro é o que separa as letras da fotografia.
+      await expect(camada()).toHaveCSS("filter", /brightness/);
+    } finally {
+      // Repõe sempre: um teste interrompido deixava a entrada com um
+      // aspecto que ninguém escolheu.
+      await definir(original);
+    }
+
+    await page.goto("/");
+    if (original === "0") await expect(camada()).toHaveCount(0);
+  });
+
   test("mudar o número de WhatsApp muda os links do site", async ({ page }) => {
     await entrarNoBackoffice(page);
     await page.goto("/admin/definicoes");

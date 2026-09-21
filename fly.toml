@@ -69,10 +69,13 @@ kill_timeout = 30
   min_machines_running = 1
   processes = ["app"]
 
-  [http_service.concurrency]
-    type = "requests"
-    hard_limit = 200
-    soft_limit = 150
+  # Sem bloco de concorrência, por ora. Com `type = "requests"` e um
+  # tecto de 200, o proxy da Fly passou a recusar a única máquina com
+  # "could not find a good candidate within 40 attempts", mesmo sem
+  # tráfego nenhum: a máquina respondia 200 por dentro e pela rede
+  # privada, a verificação de saúde passava, e o mundo via 502. O
+  # staging, que nunca declarou concorrência, nunca teve o problema.
+  # Reavaliar quando houver tráfego a sério e mais de uma máquina.
 
 [[http_service.checks]]
   interval = "30s"

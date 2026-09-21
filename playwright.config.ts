@@ -40,7 +40,7 @@ export default defineConfig({
     {
       name: "telemovel",
       use: { ...devices["iPhone 13"] },
-      testIgnore: /(admin|backoffice)\.spec\.ts/,
+      testIgnore: /(admin|backoffice|ficheiros-grandes)\.spec\.ts/,
     },
   ],
 

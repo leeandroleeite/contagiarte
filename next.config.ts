@@ -10,6 +10,16 @@ const config: NextConfig = {
   poweredByHeader: false,
   compress: true,
 
+  experimental: {
+    serverActions: {
+      // O backoffice promete 25 MB e valida-os, mas o Next corta o
+      // corpo de uma server action nos 1 MB por omissão. Qualquer
+      // fotografia de máquina ou catálogo em PDF morria com um erro de
+      // servidor sem explicação. A margem é para o envelope multipart.
+      bodySizeLimit: "30mb",
+    },
+  },
+
   images: {
     formats: ["image/avif", "image/webp"],
     // As obras são vistas em grande; vale a pena ter larguras altas.

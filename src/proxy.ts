@@ -19,6 +19,13 @@ const IGNORAR = [
   "/sitemap.xml",
 ];
 
+/**
+ * Marca posta nos pedidos que já passaram pela reescrita de idioma. O
+ * servidor volta a passá-los por aqui, e sem esta marca não havia como
+ * distinguir `/pt` pedido por um visitante de `/pt` vindo de `/`.
+ */
+const MARCA_REESCRITA = "x-contagiarte-reescrito";
+
 function pedirPalavraPasse() {
   return new NextResponse("Acesso restrito.", {
     status: 401,
@@ -83,22 +90,41 @@ export default async function proxy(pedido: NextRequest) {
   // --- Idioma ----------------------------------------------------------
   // O português vive na raiz. Um caminho sem prefixo é reescrito para
   // /pt sem o utilizador ver a mudança; EN e ES ficam com prefixo.
-  //
-  // Não há redireccionamento de /pt para a raiz, e é de propósito: o
-  // servidor de produção volta a passar o pedido reescrito por aqui, e
-  // um redireccionamento nesse ramo punha o site num ciclo infinito
-  // (/ reescreve para /pt, /pt redirecciona para /, e assim sem fim).
-  // A duplicação fica resolvida pelo canónico que cada página declara,
-  // que aponta sempre para o endereço sem prefixo.
   const primeiro = pathname.split("/")[1] ?? "";
-  if (eIdioma(primeiro)) return NextResponse.next();
+  if (eIdioma(primeiro)) {
+    // `/pt` é o mesmo sítio que `/`, e ter os dois a responder não era
+    // só uma duplicação para os motores de busca: a entrada aberta em
+    // `/pt` pedia os links do cabeçalho vezes sem conta, cerca de
+    // oitocentas por segundo, enquanto a página estivesse aberta. O
+    // router do Next pedia, recebia uma árvore com outro caminho, não
+    // a guardava, e voltava a pedir.
+    //
+    // O redireccionamento não pode correr no pedido já reescrito, ou
+    // o site entrava em ciclo: `/` reescreve para `/pt`, `/pt`
+    // redirecciona para `/`. O endereço não serve para distinguir,
+    // porque na reentrada já vem reescrito; a marca posta no cabeçalho
+    // da reescrita, sim.
+    const reescrito = pedido.headers.get(MARCA_REESCRITA) === "1";
+    if (primeiro === IDIOMA_BASE && !reescrito) {
+      const semIdioma = pathname.slice(IDIOMA_BASE.length + 1) || "/";
+      return NextResponse.redirect(
+        new URL(`${semIdioma}${pedido.nextUrl.search}`, pedido.url),
+        308,
+      );
+    }
+    return NextResponse.next();
+  }
 
   // O endereço é construído a partir de `pedido.url`, e não de
   // `nextUrl.clone()`, porque o `nextUrl` pode trazer outro anfitrião
   // do que aquele por onde o pedido entrou quando há um proxy à frente,
   // como acontece na Fly.
   const destino = `/${IDIOMA_BASE}${pathname === "/" ? "" : pathname}${pedido.nextUrl.search}`;
-  return NextResponse.rewrite(new URL(destino, pedido.url));
+  const cabecalhos = new Headers(pedido.headers);
+  cabecalhos.set(MARCA_REESCRITA, "1");
+  return NextResponse.rewrite(new URL(destino, pedido.url), {
+    request: { headers: cabecalhos },
+  });
 }
 
 export const config = {

@@ -94,24 +94,47 @@ test.describe("Navegação e estrutura", () => {
 });
 
 test.describe("Idiomas", () => {
-  test("o português vive na raiz, e /pt aponta o canónico para lá", async ({
+  test("o português vive na raiz, e /pt manda para lá", async ({
     page,
     baseURL,
   }) => {
-    // Não há redireccionamento de /pt para a raiz: na saída standalone
-    // a reescrita reentra no proxy e o site entrava em ciclo infinito.
-    // A duplicação resolve-se pelo canónico.
+    // Ter `/pt` a responder não era só uma duplicação para os motores
+    // de busca: a entrada aberta em `/pt` pedia os links do cabeçalho
+    // cerca de oitocentas vezes por segundo, sem parar, porque o
+    // router recebia uma árvore com outro caminho e nunca a guardava.
     const resposta = await page.goto("/pt/obras");
     expect(resposta?.status()).toBe(200);
+    expect(page.url()).toBe(`${baseURL}/obras`);
 
     await expect(page.locator('link[rel="canonical"]')).toHaveAttribute(
       "href",
       `${baseURL}/obras`,
     );
 
-    // E a raiz continua a servir português sem prefixo nenhum.
+    // A raiz serve português sem prefixo nenhum, e não entra em ciclo.
     await page.goto("/obras");
     await expect(page.getByRole("heading", { name: "OBRAS" })).toBeVisible();
+  });
+
+  test("uma página aberta não fica a pedir coisas ao servidor", async ({
+    page,
+  }) => {
+    let pedidos = 0;
+    page.on("request", (r) => {
+      if (r.url().includes("_rsc=")) pedidos++;
+    });
+
+    await page.goto("/", { waitUntil: "domcontentloaded" });
+    await page.waitForTimeout(1200);
+    pedidos = 0;
+    await page.waitForTimeout(2500);
+
+    // Alguns prefetch são normais e bem-vindos. Centenas por segundo,
+    // para sempre, é uma fuga: foi o que `/pt` fazia.
+    expect(
+      pedidos,
+      `a entrada pediu ${pedidos} vezes em 2,5s sem ninguém lhe tocar`,
+    ).toBeLessThan(30);
   });
 
   test("inglês e espanhol têm prefixo e traduzem o conteúdo", async ({

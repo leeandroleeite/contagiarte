@@ -18,7 +18,9 @@ import {
   lugares,
   media as tMedia,
   obras,
+  pedidos,
   salas,
+  subscritores,
   textos,
   utilizadores,
 } from "../src/lib/db/schema";
@@ -111,6 +113,26 @@ async function principal() {
         .delete(salas)
         .where(bruto`json_extract(${salas.nome}, '$.pt') like 'Sala de teste %'`)
         .returning({ id: salas.id }),
+    ],
+    // Os formulários deixavam rasto: cada corrida somava pedidos e
+    // subscritores que ninguém apagava. Ao fim de umas dezenas de
+    // corridas, o painel abria com 69 pedidos por ver, todos falsos,
+    // e a caixa de entrada da galeria deixava de dizer nada.
+    // `@exemplo.pt` é o domínio que os testes usam e que nunca é o
+    // endereço de uma pessoa.
+    [
+      "pedidos",
+      db
+        .delete(pedidos)
+        .where(like(pedidos.email, "%@exemplo.pt"))
+        .returning({ id: pedidos.id }),
+    ],
+    [
+      "subscritores",
+      db
+        .delete(subscritores)
+        .where(like(subscritores.email, "%@exemplo.pt"))
+        .returning({ id: subscritores.id }),
     ],
   ];
 

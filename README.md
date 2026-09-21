@@ -235,6 +235,35 @@ O `release_command` corre as migrações antes de a versão nova receber
 tráfego. Se a migração falhar, o deploy pára e a versão anterior fica
 no ar.
 
+### Quando o site dá 502 e a máquina parece bem
+
+Aconteceu a 21 de Setembro de 2026, durante quase meia hora. Vale a
+pena ter isto à mão, porque todos os sinais habituais diziam que estava
+tudo bem:
+
+- a aplicação respondia 200 em `127.0.0.1:3000`, dentro da máquina
+- respondia 200 pela rede privada, chamada a partir do staging
+- a verificação de saúde da Fly passava, com o corpo certo
+- os IPs estavam atribuídos e o certificado emitido
+- só havia uma máquina, no grupo certo, na região certa
+
+E o proxy devolvia `502` com `could not find a good candidate within
+40 attempts at load balancing`. Duas causas, encontradas por comparação
+com o staging, que nunca falhou:
+
+1. **Os limites de concorrência.** O `[http_service.concurrency]` com
+   `type = "requests"` levava o proxy a recusar a única máquina por
+   capacidade, sem tráfego nenhum. Tirar o bloco devolveu o site em
+   150ms. Se um dia fizer falta afinar concorrência, confirmar primeiro
+   num ambiente que se possa deitar abaixo.
+2. **O endereço de escuta.** O servidor escutava em `0.0.0.0`, que é só
+   IPv4, e a Fly chega às máquinas por IPv6. Ver com
+   `fly ssh console -C "cat /proc/net/tcp6"`: se só aparecer a porta 22,
+   é isto. Corrigido com `ENV HOSTNAME=::` no Dockerfile.
+
+A segunda não era a causa do 502 daquele dia, mas era um defeito real à
+espera de vez, e do pior tipo: verde por dentro, vermelho por fora.
+
 ### Segredos que o GitHub precisa
 
 Só `FLY_API_TOKEN`, para publicar. A cópia de segurança deixou de correr

@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { Imagem, type MediaLeve } from "@/components/Imagem";
+import { VEU_PERCURSO } from "@/lib/veu";
 
 export type Sala = {
   id: string;
@@ -128,13 +129,10 @@ export function Percurso({ salas }: { salas: Sala[] }) {
             ))}
 
             {/* Degradê da esquerda para a direita: o texto fica legível
-                sem escurecer a fotografia toda. */}
+                sem escurecer a fotografia toda. Ver `src/lib/veu.ts`. */}
             <div
               className="pointer-events-none absolute inset-0"
-              style={{
-                background:
-                  "linear-gradient(to right, rgba(14,12,11,0.92) 0%, rgba(14,12,11,0.4) 46%, rgba(14,12,11,0.15) 100%)",
-              }}
+              style={{ background: VEU_PERCURSO }}
             />
           </div>
 

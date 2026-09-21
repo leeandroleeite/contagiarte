@@ -28,6 +28,7 @@ import {
 import { anos, periodo, t, texto, type Idioma } from "@/lib/i18n";
 import { caminho } from "@/lib/i18n/config";
 import { metadados } from "@/lib/metadados";
+import { camadaInvertida, VEU_HEROI } from "@/lib/veu";
 import { colunas, linkWhatsApp } from "@/lib/utils";
 
 export const dynamic = "force-dynamic";
@@ -73,6 +74,9 @@ export default async function Homepage({
 
   const arquivo = exposicoes.filter((e) => !e.destaque).slice(0, 5);
 
+  // Quanto destacar o título da fotografia. Regula-se em Definições.
+  const inversao = camadaInvertida(def.inversaoHeroi);
+
   return (
     <>
       <DadosEstruturados dados={galeria(def, idioma)} />
@@ -106,14 +110,43 @@ export default async function Homepage({
           />
         </div>
 
+        {inversao && (
+          /* A mesma fotografia outra vez, escurecida e saturada, a
+             aparecer só na banda do título. Dá cor às letras, que são
+             desenhadas com o inverso do que têm por baixo. Vai numa
+             camada de paralaxe igual à de cima para as duas andarem
+             sempre alinhadas. Ver `src/lib/veu.ts`. */
+          <div
+            aria-hidden="true"
+            data-camada="inversao"
+            data-paralaxe="scroll"
+            data-factor="0.22"
+            className="pointer-events-none absolute inset-x-0 -inset-y-[8%]"
+            style={{
+              filter: inversao.filtro,
+              maskImage: inversao.mascara,
+              WebkitMaskImage: inversao.mascara,
+            }}
+          >
+            <Imagem
+              media={expo?.imagem ?? null}
+              alt=""
+              legenda=""
+              revelar={false}
+              sizes="100vw"
+              className="h-full"
+            />
+          </div>
+        )}
+
         <div
           aria-hidden="true"
           className="pointer-events-none absolute inset-0"
           style={{
-            background:
-              "linear-gradient(to bottom, rgba(14,12,11,0.55), rgba(14,12,11,0.15) 40%, rgba(14,12,11,0.9))",
+            background: VEU_HEROI,
           }}
         />
+
 
         {/* Título e linha de rodapé numa coluna só: em ecrãs estreitos
             o título ocupa três linhas e não pode tapar o "Desça". */}

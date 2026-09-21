@@ -17,6 +17,7 @@ import { caminho } from "@/lib/i18n/config";
 import { comMarca, metadados } from "@/lib/metadados";
 import { colunas, linkWhatsApp, resumir } from "@/lib/utils";
 import { DadosEstruturados, migalhas } from "@/lib/dados-estruturados";
+import { VEU_FICHA } from "@/lib/veu";
 
 export const dynamic = "force-dynamic";
 export const dynamicParams = true;
@@ -135,13 +136,13 @@ export default async function PaginaExposicao({
           sizes="100vw"
           className="h-full"
         />
+        {/* O véu apanha a capa toda e não uma faixa de altura fixa:
+            um título de duas linhas saía fora dela e ficava por ler.
+            Ver `src/lib/veu.ts`. */}
         <div
           aria-hidden="true"
-          className="pointer-events-none absolute inset-x-0 bottom-0 p-7 pt-32 sm:p-10 sm:pt-40"
-          style={{
-            background:
-              "linear-gradient(to top, rgba(14,12,11,0.92), transparent)",
-          }}
+          className="pointer-events-none absolute inset-0"
+          style={{ background: VEU_FICHA }}
         />
         <div className="pointer-events-none absolute inset-x-7 bottom-10 sm:inset-x-10">
           <span className="text-[11px] tracking-[0.28em] text-[rgba(242,237,228,0.55)] uppercase">

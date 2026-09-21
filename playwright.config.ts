@@ -51,7 +51,13 @@ export default defineConfig({
     // A preparação corre aqui e não só no `npm run e2e`: assim, uma
     // corrida directa do Playwright encontra sempre a base limpa dos
     // restos de uma corrida anterior interrompida.
-    command: `npm run e2e:preparar && npm run build && npm run prestart && node .next/standalone/server.js`,
+    // O `--env-file` não é um pormenor: o servidor standalone não lê
+    // ficheiros `.env`, porque em produção as variáveis vêm do
+    // `fly.toml`. Sem isto arranca sem SESSION_SECRET e todo o
+    // backoffice responde 500. Passou despercebido porque
+    // `reuseExistingServer` apanhava sempre um `next dev` já de pé,
+    // que lê o ficheiro, e este caminho nunca chegou a correr.
+    command: `npm run e2e:preparar && npm run build && npm run prestart && node --env-file=.env.local .next/standalone/server.js`,
     url: `${BASE}/api/saude`,
     reuseExistingServer: !process.env.CI,
     timeout: 240_000,

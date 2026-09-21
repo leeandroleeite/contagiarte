@@ -54,7 +54,12 @@ RUN apt-get update \
 ENV NODE_ENV=production
 ENV NEXT_TELEMETRY_DISABLED=1
 ENV PORT=3000
-ENV HOSTNAME=0.0.0.0
+# `::` e não `0.0.0.0`: o proxy da Fly chega às máquinas pela rede
+# privada, que é IPv6. Com 0.0.0.0 o servidor só escutava em IPv4, e o
+# resultado era o pior dos mundos: a verificação de saúde passava,
+# porque corre dentro da máquina, e o mundo lá fora via 502 com
+# "could not find a good candidate". O `::` do Node aceita as duas.
+ENV HOSTNAME=::
 
 RUN groupadd -g 1001 nodejs && useradd -u 1001 -g nodejs -m nextjs
 

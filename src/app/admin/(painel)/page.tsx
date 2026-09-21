@@ -1,10 +1,10 @@
-import { and, desc, eq, sql } from "drizzle-orm";
+import { desc, eq } from "drizzle-orm";
 import Link from "next/link";
 import { Aviso, Estado, CabecalhoSeccao, Conteudo } from "@/components/admin/Pecas";
+import { levantarLacunas } from "@/lib/admin/lacunas";
 import { db } from "@/lib/db";
 import {
   artistas,
-  descarregaveis,
   exposicoes,
   lugares,
   obras,
@@ -27,25 +27,19 @@ export default async function Painel() {
   const [
     totalObras,
     obrasPublicadas,
-    obrasSemFoto,
     totalArtistas,
     totalExposicoes,
     totalLugares,
-    docsSemFicheiro,
     pedidosNovos,
     subscritoresActivos,
     ultimosPedidos,
+    lacunas,
   ] = await Promise.all([
     db.$count(obras),
     db.$count(obras, eq(obras.estado, "publicado")),
-    db.$count(
-      obras,
-      and(eq(obras.estado, "publicado"), sql`${obras.fotografiaId} is null`),
-    ),
     db.$count(artistas, eq(artistas.estado, "publicado")),
     db.$count(exposicoes, eq(exposicoes.estado, "publicado")),
     db.$count(lugares, eq(lugares.estado, "publicado")),
-    db.$count(descarregaveis, sql`${descarregaveis.ficheiroId} is null`),
     db.$count(pedidos, eq(pedidos.estado, "novo")),
     db.$count(subscritores, eq(subscritores.estado, "activo")),
     db
@@ -53,22 +47,13 @@ export default async function Painel() {
       .from(pedidos)
       .orderBy(desc(pedidos.criadoEm))
       .limit(6),
+    levantarLacunas(),
   ]);
 
   const porFazer: string[] = [];
   if (!env.r2.configurado) {
     porFazer.push(
       "O armazenamento R2 ainda não está configurado: não é possível carregar fotografias nem PDFs.",
-    );
-  }
-  if (obrasSemFoto > 0) {
-    porFazer.push(
-      `${obrasSemFoto} obra(s) publicada(s) sem fotografia. Aparecem no site com um marcador em vez da imagem.`,
-    );
-  }
-  if (docsSemFicheiro > 0) {
-    porFazer.push(
-      `${docsSemFicheiro} descarregável(is) sem PDF associado. Ficam escondidos até o ficheiro entrar.`,
     );
   }
   if (!env.email.configurado) {
@@ -89,6 +74,8 @@ export default async function Painel() {
           ))}
         </div>
       )}
+
+      <OQueFalta {...lacunas} />
 
       <div className="mb-10 grid grid-cols-2 gap-4 lg:grid-cols-4">
         <Numero
@@ -178,5 +165,83 @@ function Numero({
       </span>
       <span className="titulo text-[30px] leading-none">{valor}</span>
     </Link>
+  );
+}
+
+/**
+ * O que falta preencher, com o nome de cada coisa e o caminho para a
+ * corrigir. Um número não se corrige; um link abre-se.
+ */
+function OQueFalta({
+  lista,
+  mediaSemDescricao,
+  totalMedia,
+}: Awaited<ReturnType<typeof levantarLacunas>>) {
+  if (lista.length === 0 && mediaSemDescricao === 0) {
+    return (
+      <div className="mb-10 border border-adm-fio bg-adm-cartao p-5">
+        <h2 className="titulo-med mb-1 text-[20px]">O que falta</h2>
+        <p className="text-[15px] text-adm-suave">
+          Nada. Todas as fichas publicadas estão completas.
+        </p>
+      </div>
+    );
+  }
+
+  const grupos = new Map<string, typeof lista>();
+  for (const l of lista) {
+    grupos.set(l.grupo, [...(grupos.get(l.grupo) ?? []), l]);
+  }
+
+  return (
+    <div className="mb-10 border border-adm-fio bg-adm-cartao p-5">
+      <h2 className="titulo-med mb-1 text-[20px]">O que falta</h2>
+      <p className="mb-5 text-[14px] text-adm-suave">
+        {lista.length} ficha(s) publicada(s) por completar. Só conta o que já
+        está no site: um rascunho por acabar é um rascunho.
+      </p>
+
+      {[...grupos.entries()].map(([grupo, itens]) => {
+        // A explicação é a mesma para todos os itens com a mesma
+        // falha. Repetida doze vezes seguidas deixa de se ler, por
+        // isso vai uma vez no topo do grupo.
+        const porques = [...new Set(itens.map((l) => l.porque).filter(Boolean))];
+        return (
+          <section key={grupo} className="mb-5 last:mb-0">
+            <h3 className="mb-2 text-[11px] tracking-[0.2em] text-adm-suave uppercase">
+              {grupo} · {itens.length}
+            </h3>
+            {porques.map((p) => (
+              <p key={p} className="mb-2 text-[13px] text-adm-suave">
+                {p}
+              </p>
+            ))}
+            <ul className="flex flex-col border-t border-adm-fio">
+              {itens.map((l) => (
+                <li
+                  key={l.href + l.nome}
+                  className="flex flex-wrap items-baseline gap-x-3 border-b border-adm-fio py-2.5"
+                >
+                  <Link href={l.href} className="font-medium">
+                    {l.nome}
+                  </Link>
+                  <span className="text-[14px] text-adm-suave">
+                    falta {l.falta.join(", ")}
+                  </span>
+                </li>
+              ))}
+            </ul>
+          </section>
+        );
+      })}
+
+      {mediaSemDescricao > 0 && (
+        <p className="mt-5 text-[14px] text-adm-suave">
+          <Link href="/admin/media">{mediaSemDescricao}</Link> de {totalMedia}{" "}
+          ficheiros da mediateca sem descrição. Sem ela não se encontram pela
+          pesquisa, e um leitor de ecrã não os sabe anunciar.
+        </p>
+      )}
+    </div>
   );
 }

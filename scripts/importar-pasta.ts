@@ -101,7 +101,12 @@ async function importar(ficheiro: string, prefixo: string, alt: string) {
 async function principal() {
   const args = process.argv.slice(2);
   const iAlt = args.indexOf("--alt");
-  const alt = iAlt >= 0 ? (args[iAlt + 1] ?? "") : "";
+  // Tudo o que vem depois de `--alt` é a descrição. O npm come as
+  // aspas a caminho do guião, por isso uma frase chega aqui partida em
+  // palavras soltas: ficar só com a primeira dava descrições de uma
+  // palavra sem ninguém reparar, que foi o que aconteceu às 258
+  // fotografias da adega.
+  const alt = iAlt >= 0 ? args.slice(iAlt + 1).join(" ").trim() : "";
   const posicionais = (iAlt >= 0 ? args.slice(0, iAlt) : args).filter(Boolean);
   const [pasta, prefixo = "foto"] = posicionais;
 
@@ -109,9 +114,11 @@ async function principal() {
     console.error("Falta a pasta. npm run pasta -- <pasta> [prefixo] [--alt \"texto\"]");
     process.exit(1);
   }
-  if (!alt) {
+  if (alt.length < 12) {
     console.error(
-      "Falta o --alt. Uma fotografia sem descrição é uma fotografia que ninguém encontra no backoffice, e que um leitor de ecrã não sabe anunciar.",
+      alt
+        ? `Descrição curta de mais: "${alt}". Uma palavra não chega para distinguir uma fotografia de outras duzentas.`
+        : "Falta o --alt. Uma fotografia sem descrição é uma fotografia que ninguém encontra no backoffice, e que um leitor de ecrã não sabe anunciar.",
     );
     process.exit(1);
   }

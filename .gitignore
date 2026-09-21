@@ -53,3 +53,7 @@ copia-*.json
 
 # base de dados local
 /var/
+
+# guiões pontuais, que não são testes
+/pontuais/
+playwright.pontual.ts

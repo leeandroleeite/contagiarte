@@ -30,7 +30,11 @@ kill_timeout = 30
   # newsletter: apontar para um domínio que ainda não responde só criava
   # links partidos. Trocar para https://www.contagiarte.pt no dia em que
   # o DNS mudar.
-  PUBLIC_URL = "https://contagiarte.fly.dev"
+  # Enquanto o apex não muda, o endereço público é o subdomínio novo.
+  # Alimenta canónicos, sitemap, cartões de partilha e os links de
+  # confirmação da newsletter: apontá-lo a um domínio que ainda não
+  # responde só criava links partidos.
+  PUBLIC_URL = "https://novo.contagiarte.pt"
   NODE_ENV = "production"
   DADOS_DIR = "/dados"
   # O Litestream lê estes nomes. Ficam no ambiente da máquina, e não só

@@ -8,6 +8,7 @@ import {
   media,
   obras,
   salas,
+  textos,
   type Localizado,
 } from "@/lib/db/schema";
 
@@ -43,6 +44,7 @@ export async function levantarLacunas(): Promise<{
   lista: Lacuna[];
   mediaSemDescricao: number;
   totalMedia: number;
+  provisorios: Array<{ chave: string; nota: string }>;
 }> {
   const [
     listaObras,
@@ -52,6 +54,7 @@ export async function levantarLacunas(): Promise<{
     listaSalas,
     listaDocs,
     listaMedia,
+    listaTextos,
   ] = await Promise.all([
     db.select().from(obras).where(eq(obras.estado, "publicado")).orderBy(asc(obras.slug)),
     db.select().from(artistas).where(eq(artistas.estado, "publicado")).orderBy(asc(artistas.nome)),
@@ -60,6 +63,7 @@ export async function levantarLacunas(): Promise<{
     db.select().from(salas).orderBy(asc(salas.ordem)),
     db.select().from(descarregaveis),
     db.select({ alt: media.alt }).from(media),
+    db.select({ chave: textos.chave, nota: textos.nota }).from(textos),
   ]);
 
   const lista: Lacuna[] = [];
@@ -152,5 +156,13 @@ export async function levantarLacunas(): Promise<{
 
   const mediaSemDescricao = listaMedia.filter((m) => !temPt(m.alt)).length;
 
-  return { lista, mediaSemDescricao, totalMedia: listaMedia.length };
+  // Textos escritos durante o desenho, à espera da versão da galeria.
+  // Estão marcados na nota e vivem no site como se fossem definitivos:
+  // quem não abrir a página dos textos nunca sabe que ali está um
+  // rascunho a fazer de copy.
+  const provisorios = listaTextos
+    .filter((t) => /provis/i.test(t.nota ?? ""))
+    .map((t) => ({ chave: t.chave, nota: (t.nota ?? "").replace(/^PROVISÓRIO[.:]?\s*/i, "") }));
+
+  return { lista, mediaSemDescricao, totalMedia: listaMedia.length, provisorios };
 }

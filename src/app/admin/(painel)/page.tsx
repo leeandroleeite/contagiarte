@@ -176,8 +176,9 @@ function OQueFalta({
   lista,
   mediaSemDescricao,
   totalMedia,
+  provisorios,
 }: Awaited<ReturnType<typeof levantarLacunas>>) {
-  if (lista.length === 0 && mediaSemDescricao === 0) {
+  if (lista.length === 0 && mediaSemDescricao === 0 && provisorios.length === 0) {
     return (
       <div className="mb-10 border border-adm-fio bg-adm-cartao p-5">
         <h2 className="titulo-med mb-1 text-[20px]">O que falta</h2>
@@ -234,6 +235,33 @@ function OQueFalta({
           </section>
         );
       })}
+
+      {provisorios.length > 0 && (
+        <section className="mb-5">
+          <h3 className="mb-2 text-[11px] tracking-[0.2em] text-adm-suave uppercase">
+            Textos provisórios · {provisorios.length}
+          </h3>
+          <p className="mb-2 text-[13px] text-adm-suave">
+            Escritos durante o desenho, à espera da versão da galeria. Estão
+            no site como se fossem definitivos.
+          </p>
+          <ul className="flex flex-col border-t border-adm-fio">
+            {provisorios.map((t) => (
+              <li
+                key={t.chave}
+                className="flex flex-wrap items-baseline gap-x-3 border-b border-adm-fio py-2.5"
+              >
+                <Link href="/admin/textos" className="font-medium">
+                  {t.chave}
+                </Link>
+                {t.nota && (
+                  <span className="text-[14px] text-adm-suave">{t.nota}</span>
+                )}
+              </li>
+            ))}
+          </ul>
+        </section>
+      )}
 
       {mediaSemDescricao > 0 && (
         <p className="mt-5 text-[14px] text-adm-suave">

@@ -11,3 +11,8 @@ docker-compose.yml
 .DS_Store
 npm-debug.log*
 coverage
+# cache do importador: 217MB que não têm nada que fazer na imagem
+.cache
+var
+test-results
+playwright-report

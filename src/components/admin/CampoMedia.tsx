@@ -40,7 +40,16 @@ export function CampoMedia({
   const [erro, setErro] = useState<string | null>(null);
   const [aCarregar, iniciar] = useTransition();
   const [aBiblioteca, setABiblioteca] = useState(false);
+  // Com trezentas e cinquenta imagens, uma grelha sem filtro é uma
+  // parede. A procura é do lado do navegador porque a biblioteca já
+  // veio toda com a página.
+  const [procura, setProcura] = useState("");
   const entrada = useRef<HTMLInputElement>(null);
+
+  const termo = procura.trim().toLowerCase();
+  const visiveis = termo
+    ? biblioteca.filter((m) => m.nomeOriginal.toLowerCase().includes(termo))
+    : biblioteca;
 
   const enviar = (ficheiro: File) => {
     setErro(null);
@@ -145,8 +154,23 @@ export function CampoMedia({
         </div>
 
         {aBiblioteca && (
-          <ul className="flex max-h-[260px] w-full flex-wrap gap-2 overflow-y-auto border-t border-adm-fio pt-4">
-            {biblioteca.map((m) => {
+          <div className="w-full border-t border-adm-fio pt-4">
+            <div className="mb-3 flex flex-wrap items-center gap-3">
+              <input
+                type="search"
+                value={procura}
+                onChange={(e) => setProcura(e.target.value)}
+                placeholder="Procurar por nome"
+                aria-label="Procurar na biblioteca"
+                className="min-w-[14rem] flex-1"
+              />
+              <span className="text-[13px] text-adm-suave">
+                {visiveis.length} de {biblioteca.length}
+              </span>
+            </div>
+
+            <ul className="flex max-h-[260px] w-full flex-wrap gap-2 overflow-y-auto">
+            {visiveis.map((m) => {
               const src = urlMedia(m.chave);
               return (
                 <li key={m.id}>
@@ -180,7 +204,14 @@ export function CampoMedia({
                 </li>
               );
             })}
-          </ul>
+            </ul>
+
+            {visiveis.length === 0 && (
+              <p className="py-4 text-[13px] text-adm-suave">
+                Nada encontrado para “{procura}”.
+              </p>
+            )}
+          </div>
         )}
       </div>
     </div>

@@ -1,10 +1,11 @@
 "use server";
 
-import { desc, eq } from "drizzle-orm";
+import { count, desc, eq, sql as bruto } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 import { db } from "@/lib/db";
 import { media } from "@/lib/db/schema";
 import { exigirSessao, registar, sessaoActual } from "@/lib/auth";
+import { POR_PAGINA } from "@/lib/admin/paginacao";
 import {
   apagarFicheiro,
   guardarFicheiro,
@@ -164,14 +165,18 @@ export async function apagarMedia(id: string) {
   revalidatePath("/", "layout");
 }
 
-/** Últimos ficheiros carregados, para os selectores de imagem. */
+/**
+ * Tudo o que serve para escolher, sem corte.
+ *
+ * Alimenta os selectores de imagem das fichas, que filtram do lado do
+ * navegador. Havia aqui um `limit(300)`: enquanto eram noventa
+ * ficheiros não se notava, mas à primeira entrega de um fotógrafo
+ * passaram a ser trezentos e cinquenta e os mais antigos ficaram sem
+ * forma de serem escolhidos.
+ */
 export async function listarMedia(tipo?: "imagem" | "documento") {
   await exigirSessao();
-  const linhas = await db
-    .select()
-    .from(media)
-    .orderBy(desc(media.criadoEm))
-    .limit(300);
+  const linhas = await db.select().from(media).orderBy(desc(media.criadoEm));
 
   if (!tipo) return linhas;
   return linhas.filter((l) =>
@@ -179,4 +184,39 @@ export async function listarMedia(tipo?: "imagem" | "documento") {
       ? l.tipoMime === "application/pdf"
       : l.tipoMime.startsWith("image/"),
   );
+}
+
+/** A mediateca com pesquisa e páginas, para a página de media. */
+export async function procurarMedia(opcoes?: {
+  procura?: string;
+  pagina?: number;
+}) {
+  await exigirSessao();
+
+  const pagina = Math.max(1, opcoes?.pagina ?? 1);
+  const procura = (opcoes?.procura ?? "").trim();
+
+  const onde = procura
+    ? bruto`(lower(${media.nomeOriginal}) like ${"%" + procura.toLowerCase() + "%"} or lower(coalesce(${media.alt}, '')) like ${"%" + procura.toLowerCase() + "%"})`
+    : undefined;
+
+  const [{ total }] = await db
+    .select({ total: count() })
+    .from(media)
+    .where(onde);
+
+  const linhas = await db
+    .select()
+    .from(media)
+    .where(onde)
+    .orderBy(desc(media.criadoEm))
+    .limit(POR_PAGINA)
+    .offset((pagina - 1) * POR_PAGINA);
+
+  return {
+    linhas,
+    total,
+    pagina,
+    paginas: Math.max(1, Math.ceil(total / POR_PAGINA)),
+  };
 }

@@ -50,7 +50,14 @@ test.describe("Media", () => {
     await entrarNoBackoffice(page);
     await page.goto("/admin/media");
 
-    const antes = await page.locator("main li").count();
+    // O total que a página anuncia, que é o da base e não o da página
+    // visível: a mediateca mostra sessenta de cada vez.
+    const contagem = async () =>
+      Number(
+        /(\d+) ficheiro/.exec(await page.locator("main form").innerText())?.[1] ??
+          "0",
+      );
+    const antes = await contagem();
     const nome = `media-${marca()}.png`;
 
     await page
@@ -59,7 +66,7 @@ test.describe("Media", () => {
       .setInputFiles({ name: nome, mimeType: "image/png", buffer: PNG_TESTE });
 
     await expect(page.getByText(nome)).toBeVisible({ timeout: 20000 });
-    expect(await page.locator("main li").count()).toBe(antes + 1);
+    expect(await contagem()).toBe(antes + 1);
 
     // O cartão da imagem nova é o primeiro: a lista vem por data.
     const cartao = page.locator("main li").filter({ hasText: nome });

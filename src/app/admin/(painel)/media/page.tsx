@@ -1,12 +1,21 @@
 import { GaleriaMedia } from "@/components/admin/GaleriaMedia";
 import { Aviso, CabecalhoSeccao, Conteudo, Vazio } from "@/components/admin/Pecas";
-import { listarMedia } from "@/lib/admin/media";
+import { procurarMedia } from "@/lib/admin/media";
+import { POR_PAGINA } from "@/lib/admin/paginacao";
 import { env } from "@/lib/env";
 
 export const dynamic = "force-dynamic";
 
-export default async function PaginaMedia() {
-  const itens = await listarMedia();
+export default async function PaginaMedia({
+  searchParams,
+}: {
+  searchParams: Promise<{ q?: string; p?: string }>;
+}) {
+  const { q = "", p = "1" } = await searchParams;
+  const { linhas: itens, total, pagina, paginas } = await procurarMedia({
+    procura: q,
+    pagina: Number(p) || 1,
+  });
   const local = !env.r2.configurado;
 
   return (
@@ -37,9 +46,68 @@ export default async function PaginaMedia() {
           a fotografia certa, e o endereço dela não muda.
         </Aviso>
 
+        {/* Pesquisa por formulário simples: funciona sem JavaScript e
+            deixa o endereço guardar a procura. */}
+        <form className="mb-7 flex flex-wrap items-center gap-3" action="">
+          <input
+            type="search"
+            name="q"
+            defaultValue={q}
+            placeholder="Procurar por nome ou descrição"
+            className="min-w-[16rem] flex-1"
+            aria-label="Procurar na mediateca"
+          />
+          <button type="submit" className="adm-botao">
+            Procurar
+          </button>
+          <span className="text-[13px] text-adm-suave">
+            {total} ficheiro{total === 1 ? "" : "s"}
+            {q && " encontrados"}
+            {paginas > 1 && ` · página ${pagina} de ${paginas}`}
+          </span>
+        </form>
+
         <GaleriaMedia itens={itens} />
 
-        {itens.length === 0 && <Vazio>Ainda não há ficheiros carregados.</Vazio>}
+        {itens.length === 0 && (
+          <Vazio>
+            {q
+              ? `Nada encontrado para "${q}".`
+              : "Ainda não há ficheiros carregados."}
+          </Vazio>
+        )}
+
+        {paginas > 1 && (
+          <nav
+            aria-label="Páginas da mediateca"
+            className="mt-8 flex items-center justify-between gap-4"
+          >
+            {pagina > 1 ? (
+              <a
+                className="adm-botao"
+                href={`?q=${encodeURIComponent(q)}&p=${pagina - 1}`}
+              >
+                ← Anteriores
+              </a>
+            ) : (
+              <span />
+            )}
+            <span className="text-[13px] text-adm-suave">
+              {(pagina - 1) * POR_PAGINA + 1} a{" "}
+              {Math.min(pagina * POR_PAGINA, total)} de {total}
+            </span>
+            {pagina < paginas ? (
+              <a
+                className="adm-botao"
+                href={`?q=${encodeURIComponent(q)}&p=${pagina + 1}`}
+              >
+                Seguintes →
+              </a>
+            ) : (
+              <span />
+            )}
+          </nav>
+        )}
       </Conteudo>
     </>
   );

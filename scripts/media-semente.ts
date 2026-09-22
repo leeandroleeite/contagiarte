@@ -1,15 +1,24 @@
 /**
  * As imagens que o repositório traz, e a quem pertencem.
  *
- * Vieram do catálogo da galeria, extraídas de um PDF, e estão
- * versionadas em `public/media/local/imagens` para o site poder ser
- * visto e navegado sem depender de contas na nuvem. Faltava ligá-las:
- * uma base semeada de raiz ficava com treze obras e zero fotografias,
- * o que dava um site todo feito de marcadores, e fazia falhar no CI os
- * testes do simulador, que precisam de uma obra com fotografia e
- * medidas.
+ * Estão versionadas em `public/media/local/imagens` para o site poder
+ * ser visto e navegado sem depender de contas na nuvem. Sem isto, uma
+ * base semeada de raiz ficava com treze obras e zero fotografias.
  *
- * O destino de cada uma sai do nome do ficheiro, que é estável.
+ * Só entram aqui atribuições verificadas. As `design-*.png`, que
+ * vieram do protótipo, não entram nenhuma: comparadas por impressão
+ * digital com as 503 imagens do catálogo da galeria, provou-se que são
+ * fotografias tiradas de outras secções dele e atribuídas a esmo. Os
+ * quatro retratos eram de Armanda Passos, Júlio Pomar, Joan Miró e
+ * Sagrasse; a "Quanta Terra" era uma oficina de molduras; o "Off
+ * Padel" um atelier de pintura; e as cinco obras mostravam obras
+ * diferentes do que o título dizia. Ficam na mediateca, por atribuir,
+ * porque são fotografias verdadeiras de alguma coisa, mas ninguém lhes
+ * pode pôr um nome sem confirmar qual.
+ *
+ * As fotografias das obras saem do dossier da exposição, que mostra
+ * cada uma com o título impresso ao lado, e foram conferidas uma a
+ * uma contra as páginas.
  */
 
 export type Semente = {
@@ -23,83 +32,74 @@ export type Semente = {
     | { tipo: "exposicao"; slug: string };
 };
 
+/** Recortadas do dossier "A Pele da Terra", onde têm o nome ao lado. */
+const OBRAS: Array<[string, string]> = [
+  ["wonder-frida", "Wonder Frida"],
+  ["reminiscencia", "Reminiscência"],
+  ["honey-gold", "Honey Gold"],
+  ["censored-hero", "Censored Hero"],
+  ["they-put-a-man-on-the-moon", "They put a man on the moon"],
+  ["tonup", "TonUp"],
+  ["spider-li", "Spider-Li"],
+  ["its-a-mens-job", "It’s a men’s job"],
+  ["paraiso-perdido", "Paraíso Perdido"],
+  ["egg", "Egg"],
+  ["forever", "Forever"],
+  ["sonhos-molhados", "Sonhos Molhados"],
+];
+
 export const MEDIA_SEMENTE: Semente[] = [
+  ...OBRAS.map(([chave, titulo]): Semente => ({
+    ficheiro: `obra-${chave}.jpg`,
+    alt: `${titulo}, obra da exposição A Pele da Terra`,
+    liga: { tipo: "obra", titulo },
+  })),
+
+  // Do catálogo da galeria, onde cada um aparece ao lado do seu nome.
+  // Os dois que lá estavam, do protótipo, eram de Armanda Passos e de
+  // Júlio Pomar. Para a Vanessa Teodoro e o Pant. não há fotografia
+  // verificada, e um marcador com o nome é melhor do que a cara de
+  // outra pessoa.
   {
-    ficheiro: "design-obra-1.png",
-    alt: "Reminiscência, de Ana+Betânia, em grés e pigmentos",
-    liga: { tipo: "obra", titulo: "Reminiscência" },
-  },
-  {
-    ficheiro: "design-obra-2.png",
-    alt: "Wonder Frida, de Mário Ferreira, técnica mista sobre tela",
-    liga: { tipo: "obra", titulo: "Wonder Frida" },
-  },
-  {
-    ficheiro: "design-obra-3.png",
-    alt: "Honey Gold, de Ana+Betânia, em cerâmica e gesso",
-    liga: { tipo: "obra", titulo: "Honey Gold" },
-  },
-  {
-    ficheiro: "design-obra-4.png",
-    alt: "Censored Hero, de Mário Ferreira, técnica mista",
-    liga: { tipo: "obra", titulo: "Censored Hero" },
-  },
-  {
-    ficheiro: "design-obra-5.png",
-    alt: "Egg, de Ana+Betânia, em cerâmica e gesso",
-    liga: { tipo: "obra", titulo: "Egg" },
-  },
-  {
-    ficheiro: "design-artista-1.png",
+    ficheiro: "retrato-ana-betania.jpg",
     alt: "Retrato de Ana+Betânia",
     liga: { tipo: "artista", nome: "Ana+Betânia" },
   },
   {
-    ficheiro: "design-artista-2.png",
+    ficheiro: "retrato-mario-ferreira.jpg",
     alt: "Retrato de Mário Ferreira",
     liga: { tipo: "artista", nome: "Mário Ferreira" },
   },
-  {
-    ficheiro: "design-artista-3.png",
-    alt: "Retrato de Vanessa Teodoro",
-    liga: { tipo: "artista", nome: "Vanessa Teodoro" },
-  },
-  {
-    ficheiro: "design-artista-4.png",
-    alt: "Retrato de Pant.",
-    liga: { tipo: "artista", nome: "Pant." },
-  },
-  {
-    ficheiro: "design-lugar-1.png",
-    alt: "Quanta Terra, adega em Favaios, Alijó",
-    liga: { tipo: "lugar", slug: "quanta-terra" },
-  },
+
+  // O catálogo da galeria traz esta fotografia na página da parceria
+  // com o hotel, que é onde a exposição permanente do Mário Ferreira
+  // está montada.
   {
     ficheiro: "design-lugar-2.png",
     alt: "Hotel Forte de Gaia, Marriott Autograph Collection",
     liga: { tipo: "lugar", slug: "forte-de-gaia" },
   },
   {
-    ficheiro: "design-lugar-3.png",
-    alt: "Off Padel, em Leça da Palmeira",
+    ficheiro: "off-padel-01.jpg",
+    alt: "Obras da Contagiarte nas paredes do Off Padel, em Leça da Palmeira",
     liga: { tipo: "lugar", slug: "off-padel" },
   },
-  {
-    ficheiro: "design-lugar-4.png",
-    alt: "Café da Praça, em Matosinhos",
-    liga: { tipo: "lugar", slug: "cafe-da-praca" },
-  },
-  {
-    ficheiro: "design-expo-pele-da-terra.png",
-    alt: "Vista da exposição A Pele da Terra, na adega da Quanta Terra",
-    liga: { tipo: "exposicao", slug: "a-pele-da-terra" },
-  },
-  {
-    ficheiro: "design-molduras.png",
-    alt: "Moldura produzida em parceria com a MOLDARTPÓVOA",
-  },
-  {
-    ficheiro: "design-hero-obra.png",
-    alt: "Obra em destaque da Galeria Contagiarte",
-  },
+
+  // Entram na mediateca sem dono: são fotografias verdadeiras, mas o
+  // que o protótipo dizia sobre elas não se confirma.
+  { ficheiro: "design-obra-1.png", alt: "Escultura em cerâmica, obra por identificar" },
+  { ficheiro: "design-obra-2.png", alt: "Colagem sobre painel, obra por identificar" },
+  { ficheiro: "design-obra-3.png", alt: "Escultura em cerâmica, obra por identificar" },
+  { ficheiro: "design-obra-4.png", alt: "Desenho, obra por identificar" },
+  { ficheiro: "design-obra-5.png", alt: "Serigrafia, obra por identificar" },
+  { ficheiro: "design-artista-1.png", alt: "Retrato de artista, pessoa por identificar" },
+  { ficheiro: "design-artista-2.png", alt: "Retrato de artista, pessoa por identificar" },
+  { ficheiro: "design-artista-3.png", alt: "Retrato de artista, pessoa por identificar" },
+  { ficheiro: "design-artista-4.png", alt: "Retrato de artista, pessoa por identificar" },
+  { ficheiro: "design-lugar-1.png", alt: "Oficina de molduras, lugar por identificar" },
+  { ficheiro: "design-lugar-3.png", alt: "Atelier de pintura, lugar por identificar" },
+  { ficheiro: "design-lugar-4.png", alt: "Vista de exposição, lugar por identificar" },
+  { ficheiro: "design-expo-pele-da-terra.png", alt: "Obra com asas, por identificar" },
+  { ficheiro: "design-molduras.png", alt: "Moldura produzida em parceria com a MOLDARTPÓVOA" },
+  { ficheiro: "design-hero-obra.png", alt: "Pintura, obra por identificar" },
 ];

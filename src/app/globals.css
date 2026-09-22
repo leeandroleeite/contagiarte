@@ -324,6 +324,18 @@
   color: var(--color-papel);
   outline: none;
   border-radius: 0;
+
+  /* O `outline: none` acima serve para o anel não saltar ao clicar com
+     o rato. Faltava a segunda metade, e por isso quem chegava ao campo
+     com Tab não via onde estava: medido, os quatro campos do formulário
+     de contacto não mostravam nada. O backoffice já fazia assim.
+     O deslocamento é menor que os 3px da regra geral porque o campo já
+     tem borda própria: a três, o anel encostava ao campo seguinte. */
+  &:focus-visible {
+    border-color: var(--color-ouro);
+    outline: 2px solid var(--color-ouro);
+    outline-offset: 1px;
+  }
 }
 
 @utility campo-claro {
@@ -337,6 +349,12 @@
   color: var(--color-tinta);
   outline: none;
   border-radius: 0;
+
+  &:focus-visible {
+    border-color: var(--color-ouro);
+    outline: 2px solid var(--color-ouro);
+    outline-offset: 1px;
+  }
 }
 
 @layer base {

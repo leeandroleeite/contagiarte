@@ -58,7 +58,12 @@ export function FormularioNewsletter({
           placeholder={t("campo.email_exemplo", idioma)}
           value={valor}
           onChange={(e) => setEmail(e.target.value)}
-          className="min-w-0 flex-1 border-0 bg-transparent px-1 py-[18px] text-[18px] text-tinta outline-none placeholder:text-[rgba(14,12,11,0.62)]"
+          /* O anel fica por dentro, com deslocamento negativo: a caixa
+             tem uma borda em baixo e o botão colado à direita, e um anel
+             por fora saltava para cima dos dois. O `outline-solid` não é
+             supérfluo: com o `outline-none` acima, a espessura sozinha
+             não desenha nada, e o campo continuava sem foco visível. */
+          className="min-w-0 flex-1 border-0 bg-transparent px-1 py-[18px] text-[18px] text-tinta outline-none placeholder:text-[rgba(14,12,11,0.62)] focus-visible:outline-2 focus-visible:outline-solid focus-visible:-outline-offset-2 focus-visible:outline-ouro"
         />
         <button
           type="submit"

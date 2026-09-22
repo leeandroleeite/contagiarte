@@ -64,6 +64,48 @@ test.describe("Acessibilidade do site", () => {
   }
 });
 
+/**
+ * Onde é que se está, quando se anda de Tab.
+ *
+ * O axe verifica que um campo tem rótulo, não que se vê onde está o
+ * cursor. Os campos do site público punham `outline: none` e nunca
+ * devolviam o anel: medido, os quatro campos do formulário de contacto
+ * e o da newsletter não mostravam nada a quem não usa rato. É a norma
+ * 2.4.7, que o axe não cobre porque precisa de teclado a sério.
+ */
+test.describe("Foco visível", () => {
+  for (const caminho of ["/contactos", "/molduras", "/"]) {
+    test(`em ${caminho}, tudo o que recebe o Tab mostra onde está`, async ({
+      page,
+    }) => {
+      await page.goto(caminho);
+      const semAnel: string[] = [];
+
+      for (let i = 0; i < 45; i++) {
+        await page.keyboard.press("Tab");
+        const falha = await page.evaluate(() => {
+          const el = document.activeElement as HTMLElement | null;
+          if (!el || el === document.body) return null;
+          const e = getComputedStyle(el);
+          const temAnel =
+            (e.outlineStyle !== "none" && parseFloat(e.outlineWidth) > 0) ||
+            e.boxShadow !== "none";
+          if (temAnel) return null;
+          return `${el.tagName.toLowerCase()}${
+            el.getAttribute("name") ? `[${el.getAttribute("name")}]` : ""
+          }`;
+        });
+        if (falha && !semAnel.includes(falha)) semAnel.push(falha);
+      }
+
+      expect(
+        semAnel,
+        `sem anel de foco em ${caminho}: ${semAnel.join(", ")}`,
+      ).toEqual([]);
+    });
+  }
+});
+
 test.describe("Acessibilidade do backoffice", () => {
   test.skip(({ isMobile }) => Boolean(isMobile), "o backoffice é para ecrã grande");
 

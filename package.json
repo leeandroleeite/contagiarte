@@ -24,6 +24,7 @@
     "imagens": "tsx --env-file-if-exists=.env.local scripts/importar-imagens.ts",
     "galeria": "tsx --env-file-if-exists=.env.local scripts/importar-galeria.ts",
     "pasta": "tsx --env-file-if-exists=.env.local scripts/importar-pasta.ts",
+    "traduzir": "tsx --env-file-if-exists=.env.local scripts/traduzir-descricoes.ts",
     "legibilidade": "node scripts/legibilidade.mjs",
     "capas": "node scripts/capas.mjs",
     "varrer": "node scripts/varrer.mjs"

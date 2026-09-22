@@ -6,12 +6,19 @@
  * `importar-galeria`, que lê endereços de um manifesto, este lê do
  * disco e não precisa de rede nenhuma.
  *
- *   npm run pasta -- <pasta> [prefixo] [--alt "texto"]
+ *   npm run pasta -- <pasta> [prefixo] --alt "texto" [--alt-en "…"] [--alt-es "…"]
  *
  * Exemplo, a entrega da exposição na adega:
  *
  *   npm run pasta -- ~/Downloads/contagiarte-quantaterra quanta-terra \
- *     --alt "Exposição A Pele da Terra, na adega da Quanta Terra"
+ *     --alt "Exposição A Pele da Terra, na adega da Quanta Terra" \
+ *     --alt-en "A Pele da Terra, at the Quanta Terra winery"
+ *
+ * O inglês e o espanhol são opcionais, mas só porque o `texto()` cai
+ * para o português quando faltam. Deixá-los de fora tem preço: as 382
+ * fotografias que entraram por aqui ficaram sem eles, e quem visitava o
+ * site em inglês ouvia português do leitor de ecrã. Foram recuperadas
+ * depois pelo `npm run traduzir`, que é trabalho que não era preciso.
  *
  * Reduz para 2000px de lado maior, converte para JPEG, e é idempotente:
  * um ficheiro já importado não entra outra vez. Nada é atribuído a
@@ -46,7 +53,14 @@ async function percorrer(dir: string): Promise<string[]> {
   return saida.sort();
 }
 
-async function importar(ficheiro: string, prefixo: string, alt: string) {
+/** A descrição da entrega, nos idiomas que vierem na linha de comando. */
+type Descricao = { pt: string; en: string | null; es: string | null };
+
+async function importar(
+  ficheiro: string,
+  prefixo: string,
+  alt: Descricao,
+) {
   const pasta = process.env.APP_ENV === "producao" ? "producao" : "local";
   const nome = `${prefixo}-${path.basename(ficheiro, path.extname(ficheiro))}.jpg`;
   const chave = `${pasta}/imagens/${normalizarNome(nome)}`;
@@ -88,7 +102,7 @@ async function importar(ficheiro: string, prefixo: string, alt: string) {
       .map((c) => Math.round(c).toString(16).padStart(2, "0"))
       .join("")}`,
     blur: `data:image/webp;base64,${pequena.toString("base64")}`,
-    alt: { pt: alt, en: null, es: null },
+    alt,
   });
 
   return {
@@ -100,18 +114,37 @@ async function importar(ficheiro: string, prefixo: string, alt: string) {
 
 async function principal() {
   const args = process.argv.slice(2);
-  const iAlt = args.indexOf("--alt");
-  // Tudo o que vem depois de `--alt` é a descrição. O npm come as
-  // aspas a caminho do guião, por isso uma frase chega aqui partida em
-  // palavras soltas: ficar só com a primeira dava descrições de uma
-  // palavra sem ninguém reparar, que foi o que aconteceu às 258
-  // fotografias da adega.
-  const alt = iAlt >= 0 ? args.slice(iAlt + 1).join(" ").trim() : "";
-  const posicionais = (iAlt >= 0 ? args.slice(0, iAlt) : args).filter(Boolean);
+
+  // O npm come as aspas a caminho do guião, por isso uma frase chega
+  // aqui partida em palavras soltas: ficar só com a primeira dava
+  // descrições de uma palavra sem ninguém reparar, que foi o que
+  // aconteceu às 258 fotografias da adega. Junta-se tudo o que vem
+  // depois da bandeira até à bandeira seguinte.
+  const NOMES = ["--alt", "--alt-en", "--alt-es"];
+  const valores = new Map<string, string>();
+  const posicionais: string[] = [];
+  let actual: string | null = null;
+
+  for (const arg of args) {
+    if (NOMES.includes(arg)) {
+      actual = arg;
+      valores.set(arg, "");
+    } else if (actual) {
+      valores.set(actual, `${valores.get(actual)} ${arg}`.trim());
+    } else if (arg) {
+      posicionais.push(arg);
+    }
+  }
+
+  const alt = (valores.get("--alt") ?? "").trim();
+  const altEn = (valores.get("--alt-en") ?? "").trim();
+  const altEs = (valores.get("--alt-es") ?? "").trim();
   const [pasta, prefixo = "foto"] = posicionais;
 
   if (!pasta) {
-    console.error("Falta a pasta. npm run pasta -- <pasta> [prefixo] [--alt \"texto\"]");
+    console.error(
+      'Falta a pasta. npm run pasta -- <pasta> [prefixo] --alt "texto" [--alt-en "…"] [--alt-es "…"]',
+    );
     process.exit(1);
   }
   if (alt.length < 12) {
@@ -122,6 +155,17 @@ async function principal() {
     );
     process.exit(1);
   }
+  // Sem inglês nem espanhol não se pára, porque o português serve de
+  // rede, mas avisa-se: é agora que custa uma linha e depois custa um
+  // guião de tradução.
+  if (!altEn && !altEs) {
+    console.log(
+      "Sem --alt-en nem --alt-es: estas ficam a anunciar português em\n" +
+        "inglês e espanhol. Dá para corrigir depois com npm run traduzir.\n",
+    );
+  }
+
+  const descricao = { pt: alt, en: altEn || null, es: altEs || null };
 
   const ficheiros = await percorrer(path.resolve(pasta));
   console.log(`${ficheiros.length} ficheiros em ${pasta}\n`);
@@ -133,7 +177,7 @@ async function principal() {
 
   for (const [i, f] of ficheiros.entries()) {
     try {
-      const r = await importar(f, prefixo, alt);
+      const r = await importar(f, prefixo, descricao);
       if (r === "repetida") {
         repetidas++;
         continue;

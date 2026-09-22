@@ -37,8 +37,6 @@ export async function generateMetadata({
     tipo: "article",
     titulo: comMarca(texto(expo.titulo, lang)),
     descricao: resumir(texto(expo.texto, lang)),
-    imagemChave: expo.imagem?.chave ?? null,
-    cartaoSub: expo.lugar?.nome ?? "Exposição",
   });
 }
 

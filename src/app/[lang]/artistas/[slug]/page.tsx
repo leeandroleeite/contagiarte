@@ -38,8 +38,6 @@ export async function generateMetadata({
     descricao: resumir(
       texto(artista.biografia, lang) || texto(artista.nota, lang),
     ),
-    imagemChave: artista.retrato?.chave ?? null,
-    cartaoSub: "Artista",
   });
 }
 

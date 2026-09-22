@@ -352,6 +352,13 @@ export const DICIONARIO = {
     es: "Todos los derechos reservados",
   },
 
+  // Privacidade -----------------------------------------------------
+  "privacidade.titulo": {
+    pt: "Política de privacidade",
+    en: "Privacy policy",
+    es: "Política de privacidad",
+  },
+
   // 404 -------------------------------------------------------------
   "404.titulo": {
     pt: "Esta obra já não está aqui.",

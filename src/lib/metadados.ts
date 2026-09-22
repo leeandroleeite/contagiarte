@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { env } from "@/lib/env";
+import type { ChaveTexto } from "@/lib/i18n/dicionario";
 import { caminho, HREFLANG, IDIOMAS, type Idioma } from "@/lib/i18n/config";
 
 type Entrada = {
@@ -8,13 +9,68 @@ type Entrada = {
   path: string;
   titulo: string;
   descricao?: string;
-  imagemChave?: string | null;
-  /** Linha por cima do título no cartão de partilha, ex. o artista. */
-  cartaoSub?: string | null;
   tipo?: "website" | "article";
   /** Impede a indexação (rascunhos, staging, páginas de sistema). */
   semIndice?: boolean;
 };
+
+/**
+ * As páginas fixas que têm cartão de partilha próprio, e a chave do
+ * dicionário de onde sai o título.
+ *
+ * O `/og` não aceita texto livre: quem o pede dá um identificador, e é
+ * esta tabela, mais a base de dados, que decidem o que o cartão pode
+ * dizer. Sem isto, qualquer pessoa punha a palavra que quisesse debaixo
+ * da marca da galeria e partilhava o resultado como se fosse nosso.
+ *
+ * O início é o único sem chave: o título vem das definições da galeria.
+ */
+export const PAGINAS_COM_CARTAO = {
+  inicio: null,
+  obras: "nav.obras",
+  artistas: "nav.artistas",
+  exposicoes: "nav.exposicoes",
+  arquivo: "nav.arquivo",
+  lugares: "nav.lugares",
+  molduras: "faixa.molduras",
+  "a-galeria": "nav.galeria",
+  descarregar: "nav.descarregar",
+  contactos: "nav.contactos",
+  "ver-na-parede": "parede.titulo",
+  "a-obra-como-ativo": "nav.ativo",
+  privacidade: "privacidade.titulo",
+} as const satisfies Record<string, ChaveTexto | null>;
+
+export type PaginaComCartao = keyof typeof PAGINAS_COM_CARTAO;
+
+export function ePaginaComCartao(valor: string): valor is PaginaComCartao {
+  return Object.hasOwn(PAGINAS_COM_CARTAO, valor);
+}
+
+/**
+ * Traduz um caminho canónico no identificador que o `/og` entende,
+ * ex. "/obras/wonder-frida" em ["obra", "wonder-frida"]. Um caminho
+ * que não esteja previsto não tem cartão composto: devolve nulo, e a
+ * página fica com o cartão fixo da galeria.
+ */
+function identificador(path: string): [string, string] | null {
+  if (path === "/") return ["pagina", "inicio"];
+
+  const partes = path.replace(/^\//, "").split("/");
+  if (partes.length === 1) {
+    return ePaginaComCartao(partes[0]) ? ["pagina", partes[0]] : null;
+  }
+  if (partes.length > 3) return null;
+
+  const [seccao, slug, resto] = partes;
+  if (!slug) return null;
+  if (resto && !(seccao === "exposicoes" && resto === "percurso")) return null;
+
+  if (seccao === "obras") return ["obra", slug];
+  if (seccao === "artistas") return ["artista", slug];
+  if (seccao === "exposicoes") return [resto ? "percurso" : "exposicao", slug];
+  return null;
+}
 
 /**
  * Metadados de uma página: canónico, alternativos por idioma e cartão
@@ -26,8 +82,6 @@ export function metadados({
   path,
   titulo,
   descricao,
-  imagemChave,
-  cartaoSub,
   tipo = "website",
   semIndice = false,
 }: Entrada): Metadata {
@@ -36,12 +90,17 @@ export function metadados({
 
   // O cartão de partilha é composto, não é a fotografia em cru: as
   // imagens do catálogo têm 442px de largura e saíam num recorte
-  // desfocado onde devia estar 1200 por 630.
-  const cartao = new URL("/og", base);
-  cartao.searchParams.set("titulo", semMarca(titulo));
-  if (cartaoSub) cartao.searchParams.set("sub", cartaoSub);
-  if (imagemChave) cartao.searchParams.set("img", imagemChave);
-  const absoluta = cartao.toString();
+  // desfocado onde devia estar 1200 por 630. O endereço leva só o
+  // identificador da página; o texto e a fotografia vão à base de
+  // dados do lado de lá.
+  const identidade = identificador(path);
+  let absoluta = `${base}/og.png`;
+  if (identidade) {
+    const cartao = new URL("/og", base);
+    cartao.searchParams.set(identidade[0], identidade[1]);
+    cartao.searchParams.set("lang", idioma);
+    absoluta = cartao.toString();
+  }
 
   const alternativos: Record<string, string> = {};
   for (const id of IDIOMAS) {
@@ -74,11 +133,6 @@ export function metadados({
       images: [absoluta],
     },
   };
-}
-
-/** Tira o sufixo da marca, que o cartão já mostra por si. */
-function semMarca(titulo: string): string {
-  return titulo.replace(/\s*·\s*Galeria Contagiarte\s*$/, "");
 }
 
 /** Sufixo de título comum a todas as páginas interiores. */

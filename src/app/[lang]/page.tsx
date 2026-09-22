@@ -40,13 +40,11 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const { lang } = await params;
   const def = await obterDefinicoes();
-  const expo = await exposicaoEmDestaque();
   return metadados({
     idioma: lang,
     path: "/",
     titulo: texto(def.ogTitulo, lang),
     descricao: texto(def.ogDescricao, lang),
-    imagemChave: expo?.imagem?.chave ?? null,
   });
 }
 

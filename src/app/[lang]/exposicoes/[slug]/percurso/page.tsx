@@ -32,7 +32,6 @@ export async function generateMetadata({
       `${texto(txt["percurso.titulo"], lang)}: ${texto(expo.titulo, lang)}`,
     ),
     descricao: resumir(texto(txt["percurso.intro"], lang)),
-    imagemChave: expo.imagem?.chave ?? null,
   });
 }
 

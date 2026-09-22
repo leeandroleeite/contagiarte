@@ -17,6 +17,17 @@ export const HREFLANG: Record<Idioma, string> = {
   es: "es",
 };
 
+/**
+ * Cabeçalho por onde o idioma viaja do proxy até ao layout de raiz.
+ *
+ * O `<html lang>` vive acima da rota `[lang]`, num layout que não vê o
+ * parâmetro do caminho. Sem isto dizia `pt-PT` em todas as páginas,
+ * incluindo as inglesas e as espanholas: o conteúdo estava traduzido e
+ * o documento declarava-se português, que é o que os motores de busca
+ * lêem e o que decide a fonética de um leitor de ecrã.
+ */
+export const CABECALHO_IDIOMA = "x-idioma";
+
 export function eIdioma(valor: string): valor is Idioma {
   return (IDIOMAS as readonly string[]).includes(valor);
 }

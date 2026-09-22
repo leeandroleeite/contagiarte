@@ -1,6 +1,6 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { COOKIE_SESSAO, lerToken } from "@/lib/auth/sessao";
-import { eIdioma, IDIOMA_BASE } from "@/lib/i18n/config";
+import { CABECALHO_IDIOMA, eIdioma, IDIOMA_BASE } from "@/lib/i18n/config";
 import {
   CABECALHO_NONCE,
   novoNonce,
@@ -88,9 +88,10 @@ export default async function proxy(pedido: NextRequest) {
    * próprios scripts e de lá que os componentes o lêem com `headers()`.
    * Na resposta, porque é o cabeçalho que o browser obedece.
    */
-  const seguir = () => {
+  const seguir = (idioma: string = IDIOMA_BASE) => {
     const cabecalhos = new Headers(pedido.headers);
     cabecalhos.set(CABECALHO_NONCE, nonce);
+    cabecalhos.set(CABECALHO_IDIOMA, idioma);
     cabecalhos.set("Content-Security-Policy", politica);
     const resposta = NextResponse.next({ request: { headers: cabecalhos } });
     resposta.headers.set("Content-Security-Policy", politica);
@@ -170,7 +171,7 @@ export default async function proxy(pedido: NextRequest) {
         ),
       );
     }
-    return seguir();
+    return seguir(primeiro);
   }
 
   // O endereço é construído a partir de `pedido.url`, e não de
@@ -181,6 +182,7 @@ export default async function proxy(pedido: NextRequest) {
   const cabecalhos = new Headers(pedido.headers);
   cabecalhos.set(MARCA_REESCRITA, "1");
   cabecalhos.set(CABECALHO_NONCE, nonce);
+  cabecalhos.set(CABECALHO_IDIOMA, IDIOMA_BASE);
   cabecalhos.set("Content-Security-Policy", politica);
   const resposta = NextResponse.rewrite(new URL(destino, pedido.url), {
     request: { headers: cabecalhos },

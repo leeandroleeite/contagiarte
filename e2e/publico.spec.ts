@@ -147,6 +147,24 @@ test.describe("Idiomas", () => {
     await expect(page.getByRole("heading", { name: "OBRAS" })).toBeVisible();
   });
 
+  test("o documento declara o idioma que está a mostrar", async ({ page }) => {
+    // O `<html lang>` vive num layout acima da rota do idioma, que não
+    // vê o parâmetro do caminho. Dizia pt-PT em todas as páginas: o
+    // conteúdo em inglês existia e o documento dizia-se português, que
+    // é o que os motores de busca lêem e com que um leitor de ecrã
+    // escolhe a fonética.
+    for (const [caminho, esperado] of [
+      ["/", "pt-PT"],
+      ["/en", "en"],
+      ["/es", "es"],
+      ["/en/obras", "en"],
+      ["/es/contactos", "es"],
+    ] as const) {
+      await page.goto(caminho);
+      await expect(page.locator("html")).toHaveAttribute("lang", esperado);
+    }
+  });
+
   test("a página declara alternativos para os três idiomas", async ({
     page,
   }) => {

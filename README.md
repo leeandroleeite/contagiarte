@@ -61,6 +61,10 @@ gerada uma única vez. Site em <http://localhost:3000>, backoffice em
 | `npm run semear` | Povoa a base de dados (idempotente) |
 | `npm run copia` | Exporta o conteúdo todo para o R2 |
 | `npm run admin:criar -- email@dominio.pt "Nome" administrador` | Cria ou repõe um acesso ao backoffice |
+| `npm run pasta -- <pasta> <prefixo> --alt "descrição"` | Importa uma pasta de fotografias para a mediateca |
+| `npm run varrer` | Abre todas as páginas, nos três idiomas e dois tamanhos, e conta o que está partido |
+| `npm run legibilidade -- <endereço>` | Mede o contraste do texto sobre fotografia, na página a correr |
+| `npm run capas -- <pasta>` | Ordena uma pasta pela qualidade que cada fotografia dá como capa do herói |
 
 ## Testes
 
@@ -71,7 +75,7 @@ npm run e2e:relatorio
 ```
 
 Correm contra uma compilação de produção, não contra o servidor de
-desenvolvimento: é a versão que vai para o ar. São 63 testes em dois
+desenvolvimento: é a versão que vai para o ar. São 154 testes em dois
 aparelhos, e cobrem:
 
 - **rastreio recursivo**: parte da homepage, segue todos os links
@@ -92,7 +96,20 @@ aparelhos, e cobrem:
 - **backoffice**: entrar, recusar credenciais erradas, criar uma obra e
   vê-la publicada no site, alterá-la, apagá-la, confirmar que um
   rascunho não aparece, mudar o número de WhatsApp e ver os links do
-  site mudarem, e encontrar no painel o pedido enviado pelo site.
+  site mudarem, e encontrar no painel o pedido enviado pelo site;
+- **varredura**: abre todas as páginas, do site e do backoffice, e
+  falha se alguma deixar um erro na consola, pedir um ficheiro que não
+  existe, ficar sem título, mostrar mais do que um `h1`, trazer
+  imagens sem alternativa ou empurrar a página para o lado. Foi assim
+  que apareceu a fuga de pedidos em `/pt`;
+- **acessibilidade**: o axe em vinte e uma páginas, com as regras
+  WCAG 2.1 AA e as boas práticas. Apanha o que o teste de contraste
+  não vê: campos sem nome, links que só se distinguem pela cor,
+  conteúdo fora de regiões;
+- **contraste**: mede a cor declarada de cada texto contra o fundo em
+  que assenta, página a página. Para texto sobre fotografia há
+  `npm run legibilidade`, que fotografa a página com e sem texto e
+  compara os pixéis que o browser desenhou.
 
 O CI corre-os em cada pull request, depois dos tipos, do lint e da
 compilação.
@@ -398,43 +415,38 @@ cursor personalizado, paralaxe, entradas em scroll). Está toda em
 
 ## O que falta (conteúdo, não código)
 
-Herdado da secção "Por implementar" do handoff, e ainda por resolver:
+O backoffice diz isto sozinho, item a item e com o link para corrigir:
+**Painel → O que falta**. Esta lista é só o retrato de hoje, para quem
+lê o repositório e não tem a chave do backoffice.
 
-1. **Textos definitivos.** Os textos de "Porque se compra arte", as
-   descrições de artistas e as fichas de obra são provisórios, escritos
-   durante o design. Estão todos editáveis em Backoffice → Textos do
-   site.
-2. **Confirmar o inventário.** As treze obras, os quatro artistas, a
-   exposição e as salas do percurso vieram todos do design, com os
-   textos reais. As dimensões e anos só existem onde o design os
-   nomeava (Wonder Frida, 100 × 100 cm, 2024); o resto está por
-   preencher, e o handoff avisava que alguns valores do protótipo eram
-   fictícios. Vale a pena a galeria confirmar peça a peça.
-3. **Logótipo em vetor.** O ícone actual é provisório
+1. **Medidas em cm.** Vinte e quatro das vinte e cinco obras não as
+   têm, e são elas que o simulador "ver na parede" usa para mostrar o
+   tamanho real. Sem elas, a simulação usa a forma da fotografia. O
+   catálogo em PDF tem medidas e preços por obra, mas de peças
+   diferentes com nomes parecidos ("FOREVER", "FOREVER II", "POPPY
+   FIELDS (FOREVER)"): não se emparelham por título sem confirmar.
+2. **Capa de três exposições**: Arte do Confinamento, Ciclo Arte e
+   Vinho 4.ª edição, e a permanente do Mário Ferreira. Não há na
+   mediateca fotografia que lhes pertença, e pôr uma qualquer seria
+   mentir na ficha.
+3. **Morada de três lugares** (Café da Praça, Forte de Gaia, Off
+   Padel). Os links de mapa já lá estão, montados com o nome e a
+   localidade. A morada entra no JSON-LD da exposição, que é o que os
+   motores de busca lêem: errar aí é pior do que faltar.
+4. **Quatro textos da entrada** ainda são provisórios, escritos durante
+   o desenho. Aparecem marcados no painel.
+5. **Uma obra sem fotografia**: a "Sem título" de Pant., que é um
+   registo de reserva anterior às seis obras reais dele.
+6. **Logótipo em vetor.** O ícone actual é provisório
    (`public/icone.svg`).
-4. **Fotografia em alta resolução** das obras, dos espaços e dos
-   galeristas. As imagens que estão no site vieram do catálogo da
-   galeria, extraídas de um PDF: têm 440px de largura no máximo, e por
-   isso ficam suaves quando ocupam meio ecrã. Servem para ver o site
-   como ficará; substituem-se uma a uma em Backoffice → Media, e o
-   endereço de cada obra não muda.
-
-   Faltam fotografias de: as quatro salas do percurso da adega, o
-   retrato dos galeristas, a moldura da MOLDARTPÓVOA em contexto, e a
-   obra de Pant. (a que veio no design chegou danificada e foi
-   retirada, porque mostrar um terço de um quadro como sendo a obra
-   engana quem compra). Cada sítio sem fotografia mostra um marcador
-   com o título, em vez de um buraco no layout.
-5. **Datas e títulos das exposições anteriores** (edições 2021 a 2023 da
-   Quanta Terra, Off Padel, Café da Praça).
-6. **Traduções EN e ES.** A estrutura está pronta e o dicionário de
-   interface já está traduzido; falta traduzir o conteúdo editorial,
-   campo a campo, no backoffice.
-7. **PDFs para descarga.** Catálogo, dossier e flyer estão criados em
-   rascunho, à espera dos ficheiros.
+7. **Traduções EN e ES** do conteúdo editorial. A estrutura está
+   pronta e o dicionário de interface traduzido; o conteúdo cai para
+   português quando o campo do idioma está vazio, que é o desenho.
 8. **Revisão jurídica da política de privacidade.** O texto actual é um
    rascunho sério mas não revisto por advogado. Está em Backoffice →
    Textos do site, chave `privacidade.conteudo`.
+9. **Datas e títulos das exposições anteriores** (edições 2021 a 2023
+   da Quanta Terra, Off Padel, Café da Praça).
 
 ## Decisões que se afastam do protótipo
 

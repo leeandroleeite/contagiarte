@@ -430,10 +430,12 @@ O backoffice diz isto sozinho, item a item e com o link para corrigir:
 **Painel → O que falta**. Esta lista é só o retrato de hoje, para quem
 lê o repositório e não tem a chave do backoffice.
 
-1. **Medidas em cm.** Vinte e quatro das vinte e cinco obras não as
-   têm, e são elas que o simulador "ver na parede" usa para mostrar o
-   tamanho real. Sem elas, a simulação usa a forma da fotografia. O
-   catálogo em PDF tem medidas e preços por obra, mas de peças
+1. **Medidas em cm.** Vinte e duas das vinte e cinco obras não as têm,
+   e são elas que o simulador "ver na parede" usa para mostrar o
+   tamanho real. Sem elas, a simulação usa a forma da fotografia e
+   deixa o visitante escolher a largura, dizendo-lhe que o tamanho é
+   escolhido e não o da peça. O dossier da exposição não traz medidas;
+   o catálogo em PDF tem medidas e preços por obra, mas de peças
    diferentes com nomes parecidos ("FOREVER", "FOREVER II", "POPPY
    FIELDS (FOREVER)"): não se emparelham por título sem confirmar.
 2. **Capa de três exposições**: Arte do Confinamento, Ciclo Arte e
@@ -450,14 +452,39 @@ lê o repositório e não tem a chave do backoffice.
    registo de reserva anterior às seis obras reais dele.
 6. **Logótipo em vetor.** O ícone actual é provisório
    (`public/icone.svg`).
-7. **Traduções EN e ES** do conteúdo editorial. A estrutura está
-   pronta e o dicionário de interface traduzido; o conteúdo cai para
-   português quando o campo do idioma está vazio, que é o desenho.
+7. **Retrato de dois artistas**, Pant. e Vanessa Teodoro. Os que
+   estavam eram fotografias de outras pessoas, vindas do catálogo, e
+   foram retiradas.
 8. **Revisão jurídica da política de privacidade.** O texto actual é um
    rascunho sério mas não revisto por advogado. Está em Backoffice →
    Textos do site, chave `privacidade.conteudo`.
 9. **Datas e títulos das exposições anteriores** (edições 2021 a 2023
    da Quanta Terra, Off Padel, Café da Praça).
+
+## Segurança
+
+Os cabeçalhos que são iguais em todos os pedidos vivem no
+`next.config.ts`. A política de conteúdo não pode viver lá, porque leva
+um nonce diferente a cada pedido: nasce no `src/proxy.ts`, que é o
+único sítio por onde tudo passa, e vai no pedido, de onde o Next o lê
+para assinar os seus próprios scripts, e na resposta, que é o cabeçalho
+a que o browser obedece.
+
+Três coisas tiveram de mudar para isto não partir nada, e são as três
+que voltam a partir se alguém lhes mexer sem saber:
+
+- o **404 global** é desenhado a pedido (`force-dynamic`). Gerado na
+  compilação não podia levar o nonce do pedido, e o browser recusava
+  todos os scripts;
+- os blocos de **dados estruturados** levam o nonce. Para a política um
+  `<script>` é um `<script>` mesmo quando lá dentro só há dados;
+- o **cartão de partilha** saiu da lista de caminhos ignorados e ficou
+  deste lado do muro de entrada, porque lê a base de dados. Enquanto o
+  muro existir, quem partilha um link não vê o cartão composto.
+
+Os ficheiros de media respondem com `default-src 'none'; sandbox`. O
+carregamento recusa SVG, mas a rota serve o que estiver no
+armazenamento, e um SVG servido da origem do site pode correr script.
 
 ## Decisões que se afastam do protótipo
 

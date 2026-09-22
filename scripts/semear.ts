@@ -11,7 +11,10 @@
  *   npm run semear
  */
 import bcrypt from "bcryptjs";
-import { eq } from "drizzle-orm";
+import { promises as fs } from "node:fs";
+import path from "node:path";
+import sharp from "sharp";
+import { eq, sql as bruto } from "drizzle-orm";
 import { db } from "../src/lib/db";
 import {
   artistas,
@@ -20,6 +23,7 @@ import {
   exposicoes,
   exposicoesArtistas,
   lugares,
+  media,
   molduras,
   obras,
   salas,
@@ -27,6 +31,7 @@ import {
   utilizadores,
 } from "../src/lib/db/schema";
 import { DEFINICOES_OMISSAO } from "../src/lib/db/omissoes";
+import { MEDIA_SEMENTE } from "./media-semente";
 import {
   ARTISTAS,
   EXPOSICOES,
@@ -195,6 +200,119 @@ async function semearDescarregaveis() {
   );
 }
 
+/**
+ * Regista na mediateca as imagens que o repositório traz e liga-as a
+ * quem pertencem.
+ *
+ * Sem isto, uma base semeada de raiz ficava com treze obras e zero
+ * fotografias: o site inteiro feito de marcadores, e os testes do
+ * simulador a falhar por não haver nenhuma obra com fotografia e
+ * medidas ao mesmo tempo. Só se via no CI, porque uma base de trabalho
+ * já tem imagens de outras corridas.
+ *
+ * Idempotente: uma imagem já registada não entra outra vez, e uma
+ * ficha que já tenha fotografia não é pisada.
+ */
+async function semearMedia() {
+  const pasta = path.join(process.cwd(), "public", "media", "local", "imagens");
+  let novas = 0;
+  let ligadas = 0;
+  let semFicheiro = 0;
+
+  for (const semente of MEDIA_SEMENTE) {
+    const caminho = path.join(pasta, semente.ficheiro);
+    let bytes: Buffer;
+    try {
+      bytes = await fs.readFile(caminho);
+    } catch {
+      semFicheiro++;
+      continue;
+    }
+
+    const chave = `local/imagens/${semente.ficheiro}`;
+    const [jaLa] = await db
+      .select({ id: media.id })
+      .from(media)
+      .where(eq(media.chave, chave))
+      .limit(1);
+
+    let id = jaLa?.id;
+    if (!id) {
+      const imagem = sharp(bytes);
+      const meta = await imagem.metadata();
+      const { dominant } = await imagem.stats();
+      const pequena = await sharp(bytes)
+        .resize(16, 16, { fit: "inside" })
+        .webp({ quality: 40 })
+        .toBuffer();
+
+      const [criada] = await db
+        .insert(media)
+        .values({
+          chave,
+          nomeOriginal: semente.ficheiro,
+          tipoMime: "image/png",
+          tamanho: bytes.byteLength,
+          largura: meta.width ?? null,
+          altura: meta.height ?? null,
+          corDominante: `#${[dominant.r, dominant.g, dominant.b]
+            .map((c) => Math.round(c).toString(16).padStart(2, "0"))
+            .join("")}`,
+          blur: `data:image/webp;base64,${pequena.toString("base64")}`,
+          alt: { pt: semente.alt, en: null, es: null },
+        })
+        .returning({ id: media.id });
+      id = criada.id;
+      novas++;
+    }
+
+    const liga = semente.liga;
+    if (!liga || !id) continue;
+
+    // `where` com a coluna a nulo: quem já tem fotografia fica como
+    // está, porque a escolha da galeria vale mais do que a do seed.
+    const feito =
+      liga.tipo === "obra"
+        ? await db
+            .update(obras)
+            .set({ fotografiaId: id })
+            .where(
+              bruto`json_extract(${obras.titulo}, '$.pt') = ${liga.titulo} and ${obras.fotografiaId} is null`,
+            )
+            .returning({ id: obras.id })
+        : liga.tipo === "artista"
+          ? await db
+              .update(artistas)
+              .set({ retratoId: id })
+              .where(
+                bruto`${artistas.nome} = ${liga.nome} and ${artistas.retratoId} is null`,
+              )
+              .returning({ id: artistas.id })
+          : liga.tipo === "lugar"
+            ? await db
+                .update(lugares)
+                .set({ fotografiaId: id })
+                .where(
+                  bruto`${lugares.slug} = ${liga.slug} and ${lugares.fotografiaId} is null`,
+                )
+                .returning({ id: lugares.id })
+            : await db
+                .update(exposicoes)
+                .set({ imagemId: id })
+                .where(
+                  bruto`${exposicoes.slug} = ${liga.slug} and ${exposicoes.imagemId} is null`,
+                )
+                .returning({ id: exposicoes.id });
+
+    ligadas += feito.length;
+  }
+
+  console.log(
+    `· ${MEDIA_SEMENTE.length} imagens do repositório: ${novas} novas na mediateca, ${ligadas} ligadas a fichas` +
+      (semFicheiro > 0 ? `, ${semFicheiro} sem ficheiro no disco` : ""),
+  );
+}
+
 async function semearAdministrador() {
   const email = (process.env.ADMIN_EMAIL ?? "galeria@contagiarte.pt")
     .trim()
@@ -244,6 +362,7 @@ async function principal() {
   await semearSalas();
   await semearMolduras();
   await semearDescarregaveis();
+  await semearMedia();
   await semearAdministrador();
 
   // `count(*)` e não `count(*)::int`: o cast é do Postgres e o SQLite

@@ -19,7 +19,16 @@ export default defineConfig({
   fullyParallel: false,
   workers: 1,
   forbidOnly: !!process.env.CI,
-  retries: process.env.CI ? 1 : 0,
+  // Uma repetição também fora do CI. Numa corrida completa, ao fim de
+  // cento e tal contextos de browser, uma página que responde em 300ms
+  // ficava parada meio minuto. Mediu-se: durante esse tempo, uma sonda
+  // externa recebeu a mesma página em menos de um segundo, nas 251
+  // amostras. O servidor nunca esteve preso, engasga-se o browser dos
+  // testes. A repetição parte de um contexto novo e passa.
+  //
+  // Uma página realmente partida falha as duas vezes, e o relatório
+  // mostra sempre que houve repetição: o defeito não se esconde.
+  retries: 1,
   reporter: process.env.CI ? [["github"], ["list"]] : [["list"]],
   timeout: 45_000,
   expect: { timeout: 10_000 },

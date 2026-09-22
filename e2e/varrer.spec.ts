@@ -63,7 +63,10 @@ function vigiar(pagina: Page) {
 
 async function conferir(pagina: Page, caminho: string) {
   const { consola, rede } = vigiar(pagina);
-  const resposta = await pagina.goto(caminho, { waitUntil: "domcontentloaded" });
+
+  const resposta = await pagina.goto(caminho, {
+    waitUntil: "domcontentloaded",
+  });
 
   expect(resposta?.status(), `${caminho} respondeu ${resposta?.status()}`).toBeLessThan(400);
   await expect(pagina).toHaveTitle(/.+/);

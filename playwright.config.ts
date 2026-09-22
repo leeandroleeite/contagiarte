@@ -1,3 +1,4 @@
+import path from "node:path";
 import { defineConfig, devices } from "@playwright/test";
 
 const PORTA = Number(process.env.PORTA_TESTES ?? 3100);
@@ -79,6 +80,17 @@ export default defineConfig({
       PUBLIC_URL: BASE,
       PORT: String(PORTA),
       HOSTNAME: "127.0.0.1",
+      // Caminho absoluto, e não "var". A saída standalone traz um
+      // `server.js` que faz `process.chdir` para a pasta dela, por isso
+      // um caminho relativo apontava para `.next/standalone/var`, que é
+      // outro ficheiro: o `e2e:preparar` semeava um e os testes corriam
+      // contra outro. Funcionava por acaso, porque a compilação copia
+      // `var/` para dentro da saída e a cópia saía semeada. Mas era uma
+      // cópia: tudo o que os testes escreviam ficava lá para sempre, e
+      // uma corrida sem compilar pelo meio encontrava os restos da
+      // anterior. Apanhou-se com quinze fotografias de teste já
+      // apagadas a dar 404 no backoffice.
+      DADOS_DIR: path.resolve("var"),
     },
   },
 });

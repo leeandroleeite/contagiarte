@@ -11,6 +11,40 @@ import { lerFicheiroLocal, modoLocal } from "@/lib/media/armazenamento";
  * Assim que NEXT_PUBLIC_R2_PUBLIC_URL estiver definido, os endereços
  * deixam de passar por aqui e vão directos à CDN.
  */
+/**
+ * Um cliente só, e não um por pedido.
+ *
+ * Enquanto não houver `NEXT_PUBLIC_R2_PUBLIC_URL`, todas as imagens do
+ * site passam por aqui, e cada `new S3Client` desfazia a ligação ao R2
+ * e voltava a abri-la. Nasce à primeira vez que é preciso, para o site
+ * continuar a arrancar sem credenciais nenhumas.
+ */
+let cliente: S3Client | null = null;
+
+function clienteR2(): S3Client {
+  cliente ??= new S3Client({
+    region: "auto",
+    endpoint: `https://${env.r2.conta}.r2.cloudflarestorage.com`,
+    credentials: {
+      accessKeyId: env.r2.chave,
+      secretAccessKey: env.r2.segredo,
+    },
+  });
+  return cliente;
+}
+
+/**
+ * O que um ficheiro de media pode fazer no browser: nada.
+ *
+ * O carregamento do backoffice recusa SVG, por isso hoje não há aqui
+ * nenhum. Mas esta rota serve o que estiver no armazenamento, e um SVG
+ * que lá chegasse por outra via seria servido como `image/svg+xml` a
+ * partir da origem do site, onde pode correr script. Uma política que
+ * não permite nada torna isso inofensivo sem estragar imagem nenhuma:
+ * uma fotografia não precisa de permissão para ser fotografia.
+ */
+const SEM_PODERES = "default-src 'none'; sandbox";
+
 export async function GET(
   _pedido: Request,
   { params }: { params: Promise<{ chave: string[] }> },
@@ -35,21 +69,13 @@ export async function GET(
         "Content-Type": tipoPorExtensao(caminho),
         "Content-Length": String(bytes.byteLength),
         "Cache-Control": cache,
+        "Content-Security-Policy": SEM_PODERES,
       },
     });
   }
 
-  const cliente = new S3Client({
-    region: "auto",
-    endpoint: `https://${env.r2.conta}.r2.cloudflarestorage.com`,
-    credentials: {
-      accessKeyId: env.r2.chave,
-      secretAccessKey: env.r2.segredo,
-    },
-  });
-
   try {
-    const objecto = await cliente.send(
+    const objecto = await clienteR2().send(
       new GetObjectCommand({ Bucket: env.r2.bucket, Key: caminho }),
     );
     if (!objecto.Body) {
@@ -60,6 +86,7 @@ export async function GET(
       headers: {
         "Content-Type": objecto.ContentType ?? tipoPorExtensao(caminho),
         "Cache-Control": cache,
+        "Content-Security-Policy": SEM_PODERES,
         ...(objecto.ContentLength
           ? { "Content-Length": String(objecto.ContentLength) }
           : {}),

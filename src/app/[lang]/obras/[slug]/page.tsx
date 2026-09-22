@@ -44,8 +44,6 @@ export async function generateMetadata({
           .filter(Boolean)
           .join(", "),
     ),
-    imagemChave: obra.fotografia?.chave ?? null,
-    cartaoSub: obra.artista?.nome ?? null,
   });
 }
 

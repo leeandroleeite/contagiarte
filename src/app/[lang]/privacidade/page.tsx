@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { Seccao } from "@/components/Seccao";
 import { obterDefinicoes, obterTextos } from "@/lib/dados";
-import { texto, type Idioma } from "@/lib/i18n";
+import { t, texto, type Idioma } from "@/lib/i18n";
 import { comMarca, metadados } from "@/lib/metadados";
 
 export const dynamic = "force-dynamic";
@@ -15,13 +15,7 @@ export async function generateMetadata({
   return metadados({
     idioma: lang,
     path: "/privacidade",
-    titulo: comMarca(
-      lang === "pt"
-        ? "Política de privacidade"
-        : lang === "en"
-          ? "Privacy policy"
-          : "Política de privacidad",
-    ),
+    titulo: comMarca(t("privacidade.titulo", lang)),
     descricao:
       lang === "pt"
         ? "Que dados a galeria guarda quando alguém envia um pedido ou subscreve a newsletter, durante quanto tempo, e como se pedem apagados."

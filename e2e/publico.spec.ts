@@ -291,6 +291,24 @@ test.describe("Ver na parede", () => {
     expect(texto).toContain("alumínio");
   });
 
+  test("sem medidas na ficha, o tamanho diz-se escolhido", async ({ page }) => {
+    await page.goto("/ver-na-parede");
+
+    // A Egg não tem medidas na ficha, como 22 das 25 obras. Aí aparece
+    // um cursor, e o número que dele sai não é o tamanho da peça: é o
+    // que o visitante escolheu para a imaginar na parede. Sem o dizer,
+    // a galeria recebia um número com ar de medida verdadeira.
+    await page.getByRole("button", { name: "Egg", exact: true }).click();
+    await expect(page.locator("#largura-obra")).toBeVisible();
+    await expect(page.getByText(/ainda não estão na ficha/)).toBeVisible();
+
+    const { texto } = await mensagemWhatsApp(
+      page,
+      'a[href*="wa.me"][href*="experimentei"]',
+    );
+    expect(texto).toContain("tamanho que escolhi para simular");
+  });
+
   test("a fotografia da parede não é enviada para o servidor", async ({
     page,
   }) => {

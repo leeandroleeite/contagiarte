@@ -347,8 +347,13 @@ export function VerNaParede({
     ? `${obra.titulo} · ${medidas} · ${(moldura?.nome ?? "").toLowerCase()}`
     : "";
 
+  // Quando a ficha não traz medidas, o tamanho da mensagem é o que o
+  // visitante escolheu no cursor, e não o da obra. Sem esta ressalva a
+  // galeria recebia um número com ar de medida e respondia a um
+  // tamanho que ninguém pediu.
+  const tamanhoEscolhido = medidaFixa ? "" : ", tamanho que escolhi para simular";
   const mensagem = obra
-    ? `Olá, experimentei no site: “${obra.titulo}”${obra.autor ? ` de ${obra.autor}` : ""}, a ${larguraObra} × ${alturaCm} cm${perfil ? `, que com ${(moldura?.nome ?? "").toLowerCase()} fica ${Math.round(conjuntoLargura)} × ${Math.round(conjuntoAltura)} cm` : ", sem moldura"}. Podem dizer-me o preço?`
+    ? `Olá, experimentei no site: “${obra.titulo}”${obra.autor ? ` de ${obra.autor}` : ""}, a ${larguraObra} × ${alturaCm} cm${tamanhoEscolhido}${perfil ? `, que com ${(moldura?.nome ?? "").toLowerCase()} fica ${Math.round(conjuntoLargura)} × ${Math.round(conjuntoAltura)} cm` : ", sem moldura"}. Podem dizer-me o preço?`
     : "Olá, queria saber o preço de uma obra com moldura.";
 
   return (
@@ -616,6 +621,18 @@ export function VerNaParede({
                 onChange={(e) => setLarguraEscolhida(Number(e.target.value))}
                 className="h-8 w-full accent-[#B4884A]"
               />
+              {/* O outro ramo diz que aquelas são as medidas da peça.
+                  Este não dizia nada, e o número que sai do cursor ia
+                  na mensagem para a galeria com o mesmo aspecto de
+                  medida verdadeira. É uma simulação, e quem a faz tem
+                  de o saber. */}
+              <span className="text-[13px] leading-[1.5] text-[rgba(242,237,228,0.55)]">
+                {idioma === "en"
+                  ? "The measurements of this piece are not on file yet. Choose a size to picture it; the gallery will confirm the real one."
+                  : idioma === "es"
+                    ? "Las medidas de esta pieza aún no están en la ficha. Elija un tamaño para imaginarla; la galería confirmará el real."
+                    : "As medidas desta peça ainda não estão na ficha. Escolha um tamanho para a imaginar, que a galeria confirma o verdadeiro."}
+              </span>
             </>
           )}
         </Grupo>

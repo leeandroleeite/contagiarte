@@ -76,7 +76,7 @@ npm run e2e:relatorio
 ```
 
 Correm contra uma compilação de produção, não contra o servidor de
-desenvolvimento: é a versão que vai para o ar. São 154 testes em dois
+desenvolvimento: é a versão que vai para o ar. São 167 testes em dois
 aparelhos, e cobrem:
 
 - **rastreio recursivo**: parte da homepage, segue todos os links

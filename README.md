@@ -62,6 +62,7 @@ gerada uma única vez. Site em <http://localhost:3000>, backoffice em
 | `npm run copia` | Exporta o conteúdo todo para o R2 |
 | `npm run admin:criar -- email@dominio.pt "Nome" administrador` | Cria ou repõe um acesso ao backoffice |
 | `npm run pasta -- <pasta> <prefixo> --alt "descrição"` | Importa uma pasta de fotografias para a mediateca |
+| `npm run traduzir` | Mostra que descrições e técnicas estão só em português; com `-- --aplicar` traduz as que conhece |
 | `npm run varrer` | Abre todas as páginas, nos três idiomas e dois tamanhos, e conta o que está partido |
 | `npm run legibilidade -- <endereço>` | Mede o contraste do texto sobre fotografia, na página a correr |
 | `npm run capas -- <pasta>` | Ordena uma pasta pela qualidade que cada fotografia dá como capa do herói |
@@ -293,8 +294,18 @@ Drive, entra por aqui:
 
 ```bash
 npm run pasta -- ~/Downloads/contagiarte-quantaterra quanta-terra \
-  --alt "Exposição A Pele da Terra, na adega da Quanta Terra"
+  --alt "Exposição A Pele da Terra, na adega da Quanta Terra" \
+  --alt-en "A Pele da Terra, at the Quanta Terra winery" \
+  --alt-es "A Pele da Terra, en la bodega de Quanta Terra"
 ```
+
+O inglês e o espanhol não são obrigatórios, mas escrevê-los aqui poupa
+trabalho: sem eles a descrição fica só em português, e como o `texto()`
+cai para o português quando falta o resto, a página inglesa abre cheia e
+ninguém repara. Foi assim que 382 fotografias ficaram a anunciar
+português a um leitor de ecrã inglês durante meses. O painel do
+backoffice passou a contar isto, e o `npm run traduzir` recupera o que
+segue fórmula.
 
 Reduz para 2000px de lado maior, converte para JPEG e é idempotente:
 correr duas vezes não duplica nada. Não atribui nada a obras nem a

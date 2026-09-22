@@ -177,8 +177,15 @@ function OQueFalta({
   mediaSemDescricao,
   totalMedia,
   provisorios,
+  traducoes,
 }: Awaited<ReturnType<typeof levantarLacunas>>) {
-  if (lista.length === 0 && mediaSemDescricao === 0 && provisorios.length === 0) {
+  const semTraducao = Math.max(traducoes.en, traducoes.es);
+  if (
+    lista.length === 0 &&
+    mediaSemDescricao === 0 &&
+    provisorios.length === 0 &&
+    semTraducao === 0
+  ) {
     return (
       <div className="mb-10 border border-adm-fio bg-adm-cartao p-5">
         <h2 className="titulo-med mb-1 text-[20px]">O que falta</h2>
@@ -257,6 +264,39 @@ function OQueFalta({
                 {t.nota && (
                   <span className="text-[14px] text-adm-suave">{t.nota}</span>
                 )}
+              </li>
+            ))}
+          </ul>
+        </section>
+      )}
+
+      {semTraducao > 0 && (
+        <section className="mb-5">
+          <h3 className="mb-2 text-[11px] tracking-[0.2em] text-adm-suave uppercase">
+            Traduções · {semTraducao}
+          </h3>
+          {/* Sem esta conta, uma página inglesa abre cheia de frases
+              portuguesas e parece completa: o texto() cai para o
+              português quando falta o resto, por isso nada aparece
+              vazio. Os títulos das obras e os nomes não entram aqui,
+              porque não se traduzem. */}
+          <p className="mb-2 text-[13px] text-adm-suave">
+            {traducoes.total - traducoes.en} de {traducoes.total} campos em
+            inglês, {traducoes.total - traducoes.es} em espanhol. O que falta
+            aparece no site em português, sem avisar ninguém.
+          </p>
+          <ul className="flex flex-col border-t border-adm-fio">
+            {traducoes.onde.map((t) => (
+              <li
+                key={t.href + t.nome}
+                className="flex flex-wrap items-baseline gap-x-3 border-b border-adm-fio py-2.5"
+              >
+                <Link href={t.href} className="font-medium">
+                  {t.nome}
+                </Link>
+                <span className="text-[14px] text-adm-suave">
+                  {t.grupo} · {t.campos.join(", ")}
+                </span>
               </li>
             ))}
           </ul>

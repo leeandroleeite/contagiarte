@@ -1,16 +1,19 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { COOKIE_SESSAO, lerToken } from "@/lib/auth/sessao";
 import { eIdioma, IDIOMA_BASE } from "@/lib/i18n/config";
+import {
+  CABECALHO_NONCE,
+  novoNonce,
+  politicaSeguranca,
+} from "@/lib/politica-seguranca";
 
 /** Caminhos que o middleware nunca deve tocar. */
 // Caminhos que não são páginas: não levam prefixo de idioma nem passam
-// pelo muro. O /og é o cartão de partilha, pedido por quem mostra o
-// link e não por quem o abre.
+// pelo muro.
 const IGNORAR = [
   "/_next",
   "/api",
   "/media",
-  "/og",
   "/favicon",
   "/icon",
   "/apple-icon",
@@ -26,11 +29,12 @@ const IGNORAR = [
  */
 const MARCA_REESCRITA = "x-contagiarte-reescrito";
 
-function pedirPalavraPasse() {
+function pedirPalavraPasse(politica: string) {
   return new NextResponse("Acesso restrito.", {
     status: 401,
     headers: {
       "WWW-Authenticate": 'Basic realm="Contagiarte", charset="UTF-8"',
+      "Content-Security-Policy": politica,
     },
   });
 }
@@ -56,6 +60,49 @@ export default async function proxy(pedido: NextRequest) {
     return NextResponse.next();
   }
 
+  // --- Política de segurança -------------------------------------------
+  //
+  // O nonce é um por pedido, não um por passagem por aqui. A reescrita
+  // de idioma faz o servidor voltar a chamar esta função com o mesmo
+  // pedido, e se a segunda passagem inventasse um nonce novo o
+  // cabeçalho deixava de combinar com os scripts já assinados. A marca
+  // da reescrita é o que distingue a segunda passagem da primeira, e só
+  // nela se aproveita o nonce que já vem no pedido.
+  const nonce =
+    (pedido.headers.get(MARCA_REESCRITA) === "1"
+      ? pedido.headers.get(CABECALHO_NONCE)
+      : null) ?? novoNonce();
+
+  // Por onde o pedido entrou de facto. Na Fly há um proxy à frente, e
+  // o que chega cá dentro é http mesmo quando o visitante está em
+  // https; quem sabe a verdade é o `x-forwarded-proto`.
+  const seguro =
+    (pedido.headers.get("x-forwarded-proto") ??
+      pedido.nextUrl.protocol.replace(":", "")) === "https";
+  const politica = politicaSeguranca(nonce, seguro);
+
+  /**
+   * Deixa passar, com o nonce à vista dos dois lados.
+   *
+   * No pedido, porque é de lá que o Next o lê para assinar os seus
+   * próprios scripts e de lá que os componentes o lêem com `headers()`.
+   * Na resposta, porque é o cabeçalho que o browser obedece.
+   */
+  const seguir = () => {
+    const cabecalhos = new Headers(pedido.headers);
+    cabecalhos.set(CABECALHO_NONCE, nonce);
+    cabecalhos.set("Content-Security-Policy", politica);
+    const resposta = NextResponse.next({ request: { headers: cabecalhos } });
+    resposta.headers.set("Content-Security-Policy", politica);
+    return resposta;
+  };
+
+  /** O mesmo, para as respostas que não desenham página nenhuma. */
+  const comPolitica = (resposta: NextResponse) => {
+    resposta.headers.set("Content-Security-Policy", politica);
+    return resposta;
+  };
+
   // --- Muro de entrada -------------------------------------------------
   //
   // Não é uma coisa de staging: é um muro. Serve a um staging com uma
@@ -65,26 +112,35 @@ export default async function proxy(pedido: NextRequest) {
     process.env.PALAVRA_PASSE_ENTRADA ?? process.env.STAGING_PASSWORD;
   if (palavraPasse) {
     const cabecalho = pedido.headers.get("authorization");
-    if (!cabecalho?.startsWith("Basic ")) return pedirPalavraPasse();
+    if (!cabecalho?.startsWith("Basic ")) return pedirPalavraPasse(politica);
     let recebida = "";
     try {
       recebida = atob(cabecalho.slice(6)).split(":").slice(1).join(":");
     } catch {
-      return pedirPalavraPasse();
+      return pedirPalavraPasse(politica);
     }
-    if (!iguais(recebida, palavraPasse)) return pedirPalavraPasse();
+    if (!iguais(recebida, palavraPasse)) return pedirPalavraPasse(politica);
   }
+
+  // --- Cartão de partilha ----------------------------------------------
+  //
+  // O /og também não é uma página e não leva prefixo de idioma, mas
+  // fica deste lado do muro. Deixou de repetir o texto que lhe davam e
+  // passou a ler a base de dados: fora do muro, quem adivinhasse um
+  // slug tirava títulos e fotografias de um sítio que ainda não abriu.
+  // Quando não há muro, nada disto muda para quem mostra o link.
+  if (pathname === "/og") return comPolitica(NextResponse.next());
 
   // --- Backoffice ------------------------------------------------------
   if (pathname.startsWith("/admin")) {
-    if (pathname === "/admin/entrar") return NextResponse.next();
+    if (pathname === "/admin/entrar") return seguir();
     const token = pedido.cookies.get(COOKIE_SESSAO)?.value;
     const sessao = token ? await lerToken(token) : null;
     if (!sessao) {
       const destino = `/admin/entrar?destino=${encodeURIComponent(pathname)}`;
-      return NextResponse.redirect(new URL(destino, pedido.url));
+      return comPolitica(NextResponse.redirect(new URL(destino, pedido.url)));
     }
-    return NextResponse.next();
+    return seguir();
   }
 
   // --- Idioma ----------------------------------------------------------
@@ -107,12 +163,14 @@ export default async function proxy(pedido: NextRequest) {
     const reescrito = pedido.headers.get(MARCA_REESCRITA) === "1";
     if (primeiro === IDIOMA_BASE && !reescrito) {
       const semIdioma = pathname.slice(IDIOMA_BASE.length + 1) || "/";
-      return NextResponse.redirect(
-        new URL(`${semIdioma}${pedido.nextUrl.search}`, pedido.url),
-        308,
+      return comPolitica(
+        NextResponse.redirect(
+          new URL(`${semIdioma}${pedido.nextUrl.search}`, pedido.url),
+          308,
+        ),
       );
     }
-    return NextResponse.next();
+    return seguir();
   }
 
   // O endereço é construído a partir de `pedido.url`, e não de
@@ -122,9 +180,13 @@ export default async function proxy(pedido: NextRequest) {
   const destino = `/${IDIOMA_BASE}${pathname === "/" ? "" : pathname}${pedido.nextUrl.search}`;
   const cabecalhos = new Headers(pedido.headers);
   cabecalhos.set(MARCA_REESCRITA, "1");
-  return NextResponse.rewrite(new URL(destino, pedido.url), {
+  cabecalhos.set(CABECALHO_NONCE, nonce);
+  cabecalhos.set("Content-Security-Policy", politica);
+  const resposta = NextResponse.rewrite(new URL(destino, pedido.url), {
     request: { headers: cabecalhos },
   });
+  resposta.headers.set("Content-Security-Policy", politica);
+  return resposta;
 }
 
 export const config = {

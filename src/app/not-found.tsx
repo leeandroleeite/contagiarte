@@ -10,11 +10,18 @@ import { IDIOMA_BASE } from "@/lib/i18n/config";
  * traz o seu próprio cabeçalho e rodapé, para o visitante não aterrar
  * num ecrã sem saída.
  *
- * É a única página do site que não lê a base de dados. O Next gera o
- * 404 global na compilação, sempre, e não há forma de o adiar; usa por
- * isso os contactos de origem, que são os mesmos que a base traz até
- * alguém os mudar no backoffice.
+ * É a única página do site que não lê a base de dados: usa os
+ * contactos de origem, que são os mesmos que a base traz até alguém os
+ * mudar no backoffice.
+ *
+ * O `force-dynamic` é pela política de segurança. O Next gerava esta
+ * página na compilação, e uma página gerada uma vez não pode levar o
+ * nonce do pedido: os scripts vinham por assinar e o browser recusava
+ * todos, deixando um 404 que se lia mas onde nada funcionava. Desenhada
+ * a pedido, leva o nonce como as outras.
  */
+export const dynamic = "force-dynamic";
+
 export default function NaoEncontradoRaiz() {
   const def = DEFINICOES_OMISSAO;
 

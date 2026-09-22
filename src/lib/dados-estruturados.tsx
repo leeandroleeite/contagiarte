@@ -1,6 +1,8 @@
+import { headers } from "next/headers";
 import type { Definicoes } from "@/lib/db/schema";
 import { env } from "@/lib/env";
 import { caminho, type Idioma } from "@/lib/i18n/config";
+import { CABECALHO_NONCE } from "@/lib/politica-seguranca";
 
 /**
  * O que o site declara a quem o lê por máquina.
@@ -19,11 +21,19 @@ import { caminho, type Idioma } from "@/lib/i18n/config";
  * essa sequência lá dentro fechava a etiqueta e o que viesse a seguir
  * corria como código na página. O backoffice pede sessão, mas quem
  * escreve os títulos não tem de ser quem manda no servidor.
+ *
+ * O nonce vem do `proxy.ts`, que o gerou para este pedido. Sem ele o
+ * browser recusa o bloco: para a política de segurança um `<script>`
+ * é um `<script>`, mesmo quando lá dentro só há dados, e o que os
+ * motores de busca recebiam era uma página sem ficha nenhuma.
  */
-export function DadosEstruturados({ dados }: { dados: object }) {
+export async function DadosEstruturados({ dados }: { dados: object }) {
+  const nonce = (await headers()).get(CABECALHO_NONCE) ?? undefined;
+
   return (
     <script
       type="application/ld+json"
+      nonce={nonce}
       dangerouslySetInnerHTML={{ __html: comoJson(dados) }}
     />
   );

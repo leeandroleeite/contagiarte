@@ -1,7 +1,7 @@
 import type { MetadataRoute } from "next";
 import { eq } from "drizzle-orm";
 import { db } from "@/lib/db";
-import { artistas, exposicoes, obras } from "@/lib/db/schema";
+import { artistas, exposicoes, obras, salas } from "@/lib/db/schema";
 import { env } from "@/lib/env";
 import { caminho, HREFLANG, IDIOMAS } from "@/lib/i18n/config";
 
@@ -29,6 +29,7 @@ const ESTATICAS = [
   { path: "/a-obra-como-ativo", prioridade: 0.5, frequencia: "yearly" as const },
   { path: "/descarregar", prioridade: 0.6, frequencia: "monthly" as const },
   { path: "/contactos", prioridade: 0.7, frequencia: "yearly" as const },
+  { path: "/privacidade", prioridade: 0.2, frequencia: "yearly" as const },
 ];
 
 /** Uma entrada por caminho, com os três idiomas em `alternates`. */
@@ -52,7 +53,7 @@ function entrada(
 }
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const [listaObras, listaArtistas, listaExpo] = await Promise.all([
+  const [listaObras, listaArtistas, listaExpo, comPercurso] = await Promise.all([
     db
       .select({ slug: obras.slug, em: obras.actualizadoEm })
       .from(obras)
@@ -65,12 +66,23 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       .select({ slug: exposicoes.slug, em: exposicoes.actualizadoEm })
       .from(exposicoes)
       .where(eq(exposicoes.estado, "publicado")),
+    // O percurso é uma página por direito próprio, com o texto de cada
+    // sala, e faltava aqui. Só as exposições que têm salas: as outras
+    // devolvem 404 e um sitemap não deve apontar para 404.
+    db
+      .selectDistinct({ slug: exposicoes.slug })
+      .from(salas)
+      .innerJoin(exposicoes, eq(exposicoes.id, salas.exposicaoId))
+      .where(eq(exposicoes.estado, "publicado")),
   ]);
 
   return [
     ...ESTATICAS.map((e) => entrada(e.path, e.prioridade, e.frequencia)),
     ...listaExpo.map((e) =>
       entrada(`/exposicoes/${e.slug}`, 0.8, "monthly", e.em),
+    ),
+    ...comPercurso.map((e) =>
+      entrada(`/exposicoes/${e.slug}/percurso`, 0.6, "monthly"),
     ),
     ...listaObras.map((o) => entrada(`/obras/${o.slug}`, 0.7, "monthly", o.em)),
     ...listaArtistas.map((a) =>

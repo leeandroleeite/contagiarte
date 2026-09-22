@@ -15,12 +15,15 @@ const VARIANTES: Record<Variante, string> = {
 };
 
 type Props = {
-  href: string;
+  /** Para onde vai. Com `aoClicar`, desenha um botão e dispensa-se. */
+  href?: string;
   children: React.ReactNode;
   variante?: Variante;
   externo?: boolean;
   className?: string;
   download?: boolean;
+  /** Quando é uma acção e não um destino, como recarregar a página. */
+  aoClicar?: () => void;
 };
 
 export function Botao({
@@ -30,8 +33,22 @@ export function Botao({
   externo = false,
   className,
   download,
+  aoClicar,
 }: Props) {
   const classe = cx(BASE, VARIANTES[variante], className);
+
+  // Uma acção é um botão. Um link que não navega para lado nenhum não
+  // se anuncia como link a quem usa leitor de ecrã, e não funciona com
+  // o teclado da mesma maneira.
+  if (aoClicar) {
+    return (
+      <button type="button" onClick={aoClicar} className={classe}>
+        {children}
+      </button>
+    );
+  }
+
+  if (!href) return null;
 
   if (externo || href.startsWith("http") || href.startsWith("mailto:") || href.startsWith("tel:")) {
     return (

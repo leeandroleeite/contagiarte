@@ -81,10 +81,7 @@ export default async function PaginaArtista({
 
   return (
     <>
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
-      />
+      <DadosEstruturados dados={jsonLd} />
 
       <DadosEstruturados
         dados={migalhas(idioma, [

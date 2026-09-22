@@ -578,3 +578,37 @@ test.describe("Utilizadores e permissões", () => {
     await expect(page.getByText(email)).toHaveCount(0);
   });
 });
+
+test.describe("Segurança do conteúdo", () => {
+  test("um título com HTML lá dentro não corre como código no site", async ({
+    page,
+  }) => {
+    await entrarNoBackoffice(page);
+
+    const m = marca();
+    const slug = `obra-de-teste-${m}`;
+    // A sequência que fecha a etiqueta do bloco de dados estruturados.
+    const titulo = `Obra </script><script>window.__invadido=1</script> ${m}`;
+
+    await page.goto("/admin/obras/novo");
+    await page.locator('input[name="titulo.pt"]').fill(titulo);
+    await page.locator('input[name="slug"]').fill(slug);
+    await page.locator('select[name="estado"]').selectOption("publicado");
+    await guardar(page);
+    await expect(page.getByText("Obra guardada.")).toBeVisible();
+
+    try {
+      await page.goto(`/obras/${slug}`);
+      const invadido = await page.evaluate(
+        () => (window as unknown as { __invadido?: number }).__invadido,
+      );
+      expect(invadido, "o título correu como código na página").toBeUndefined();
+    } finally {
+      await page.goto("/admin/obras");
+      await page.getByRole("link", { name: new RegExp(m) }).click();
+      page.once("dialog", (d) => d.accept());
+      await page.getByRole("button", { name: /Apagar obra/i }).click();
+      await expect(page).toHaveURL(/\/admin\/obras$/);
+    }
+  });
+});

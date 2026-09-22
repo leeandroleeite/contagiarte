@@ -11,14 +11,27 @@ import { caminho, type Idioma } from "@/lib/i18n/config";
  * estava a ser guardada só para olhos humanos.
  */
 
-/** Desenha o bloco. Um só sítio a saber a etiqueta e o formato. */
+/**
+ * Desenha o bloco. Um só sítio a saber a etiqueta e o formato.
+ *
+ * O `<` vai escapado, e não é zelo a mais: o `JSON.stringify` não
+ * escapa `</script>`, por isso um título escrito no backoffice com
+ * essa sequência lá dentro fechava a etiqueta e o que viesse a seguir
+ * corria como código na página. O backoffice pede sessão, mas quem
+ * escreve os títulos não tem de ser quem manda no servidor.
+ */
 export function DadosEstruturados({ dados }: { dados: object }) {
   return (
     <script
       type="application/ld+json"
-      dangerouslySetInnerHTML={{ __html: JSON.stringify(dados) }}
+      dangerouslySetInnerHTML={{ __html: comoJson(dados) }}
     />
   );
+}
+
+/** JSON seguro para ir dentro de um `<script>`. */
+export function comoJson(dados: object): string {
+  return JSON.stringify(dados).replace(/</g, "\\u003c");
 }
 
 /** A galeria em si: quem é, onde está, como se fala com ela. */

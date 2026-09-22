@@ -69,6 +69,19 @@ export async function GET(pedido: NextRequest) {
     return new ImageResponse(compor(cartao), {
       width: LARGURA,
       height: ALTURA,
+      // Sem isto o cartão saía com `max-age=0, must-revalidate`, e cada
+      // partilha mandava a máquina compor de novo um PNG de 800KB, que
+      // leva mais de um segundo. Quem os vai buscar são os robôs das
+      // redes e das aplicações de mensagens, e vão buscá-los muitas
+      // vezes ao mesmo link.
+      //
+      // Uma hora no browser, uma semana a servir o antigo enquanto
+      // refaz: se a galeria trocar a fotografia de uma obra, o cartão
+      // acompanha dentro de uma hora, que chega.
+      headers: {
+        "Cache-Control":
+          "public, max-age=3600, stale-while-revalidate=604800",
+      },
     });
   } catch {
     // Um cartão que falha não pode derrubar a partilha da página.

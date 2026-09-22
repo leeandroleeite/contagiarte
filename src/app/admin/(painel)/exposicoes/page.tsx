@@ -49,7 +49,7 @@ export default async function ListaExposicoes({
           <div className="flex flex-col gap-3 overflow-x-auto">
             {lista.map((e) => (
               <Linha key={e.id} colunas={COLUNAS}>
-                <span className="text-[14px] text-[rgba(14,12,11,0.62)]">
+                <span className="text-[14px] text-adm-suave">
                   {anos(e.dataInicio, e.dataFim)}
                 </span>
 
@@ -60,12 +60,12 @@ export default async function ListaExposicoes({
                   >
                     {e.titulo.pt}
                   </Link>
-                  <span className="text-[13px] text-[rgba(14,12,11,0.62)]">
+                  <span className="text-[13px] text-adm-suave">
                     {e.artistas.length} artistas
                   </span>
                 </div>
 
-                <span className="text-[14px] text-[rgba(14,12,11,0.62)]">
+                <span className="text-[14px] text-adm-suave">
                   {e.lugar?.nome ?? ""}
                 </span>
 

@@ -248,11 +248,17 @@ export function CampoLocalizado({
         </div>
       </div>
 
+      {/* Cada idioma tem o seu campo, e o rótulo por cima é um só,
+          partilhado pelos três. Um `<label>` não pode apontar para
+          três campos, por isso o nome vai em `aria-label` e diz
+          também de que idioma se trata: quem ouve precisa de saber se
+          está a escrever o português ou o inglês. */}
       {IDIOMAS.map((id) => (
         <div key={id} hidden={id !== activo}>
           {linhas > 0 ? (
             <textarea
               name={`${nome}.${id}`}
+              aria-label={`${rotulo}, ${NOME_IDIOMA[id]}`}
               rows={linhas}
               defaultValue={valor?.[id] ?? ""}
               required={obrigatorio && id === "pt"}
@@ -264,6 +270,7 @@ export function CampoLocalizado({
             <input
               type="text"
               name={`${nome}.${id}`}
+              aria-label={`${rotulo}, ${NOME_IDIOMA[id]}`}
               defaultValue={valor?.[id] ?? ""}
               required={obrigatorio && id === "pt"}
               placeholder={

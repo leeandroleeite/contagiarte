@@ -133,10 +133,14 @@ export function CampoMedia({
             )}
           </div>
 
+          {/* Escondido à vista mas não a quem ouve: carrega-se no
+              botão ao lado, e sem nome este campo não dizia de que
+              ficha era. */}
           <input
             ref={entrada}
             type="file"
             accept={tipo === "documento" ? "application/pdf" : "image/*"}
+            aria-label={`Carregar ${tipo === "documento" ? "PDF" : "imagem"} para ${rotulo}`}
             className="so-leitor"
             onChange={(e) => {
               const f = e.target.files?.[0];

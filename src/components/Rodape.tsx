@@ -93,7 +93,10 @@ export function Rodape({
       <div className="flex flex-wrap justify-between gap-5 pt-7 text-[11px] tracking-[0.18em] text-[rgba(242,237,228,0.55)]">
         <span>
           © {ano} GALERIA CONTAGIARTE® ·{" "}
-          <Link href={caminho(idioma, "/privacidade")}>
+          {/* Sublinhado, e não só a cor: no meio de uma linha de texto
+              um link que só se distingue pela cor não se distingue de
+              todo para quem não separa bem as cores. */}
+          <Link href={caminho(idioma, "/privacidade")} className="underline">
             {t("rodape.privacidade", idioma).toUpperCase()}
           </Link>
         </span>

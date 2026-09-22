@@ -101,7 +101,7 @@ export default async function ListaObras({
                     >
                       {o.titulo.pt}
                     </Link>
-                    <span className="text-[13px] text-[rgba(14,12,11,0.62)]">
+                    <span className="text-[13px] text-adm-suave">
                       {o.tecnica?.pt ?? "Técnica por preencher"}
                     </span>
                   </div>
@@ -112,7 +112,7 @@ export default async function ListaObras({
                     )}
                   </span>
 
-                  <span className="text-[14px] whitespace-nowrap text-[rgba(14,12,11,0.62)]">
+                  <span className="text-[14px] whitespace-nowrap text-adm-suave">
                     {o.dimensoes ?? (
                       <span className="text-[#6B2B22]">por preencher</span>
                     )}
@@ -136,7 +136,7 @@ export default async function ListaObras({
               ))}
             </div>
 
-            <span className="text-[13px] text-[rgba(14,12,11,0.62)]">
+            <span className="text-[13px] text-adm-suave">
               {visiveis.length} de {todas.length} obras · {vendidas} vendidas ·{" "}
               {reservadas} reservadas
               {semFoto > 0 && ` · ${semFoto} sem fotografia`}

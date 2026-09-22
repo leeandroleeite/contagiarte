@@ -52,7 +52,7 @@ export default async function ListaLugares({
                   className="flex flex-col gap-3 border border-adm-fio bg-adm-cartao p-[18px]"
                 >
                   <div
-                    className="flex h-[110px] items-center justify-center border bg-[rgba(14,12,11,0.06)] text-[12px] text-[rgba(14,12,11,0.62)]"
+                    className="flex h-[110px] items-center justify-center border bg-[rgba(14,12,11,0.06)] text-[12px] text-adm-suave"
                     style={
                       foto
                         ? {
@@ -80,7 +80,7 @@ export default async function ListaLugares({
                     <Estado valor={l.estado} />
                   </div>
 
-                  <span className="text-[14px] leading-[1.5] text-[rgba(14,12,11,0.62)]">
+                  <span className="text-[14px] leading-[1.5] text-adm-suave">
                     {[l.localidade?.pt, l.tipo?.pt].filter(Boolean).join(" · ")}
                   </span>
 

@@ -63,19 +63,24 @@ export function BotaoWhatsApp({
   if (escondido) return null;
 
   return (
-    <a
-      href={linkWhatsApp(numero, mensagem)}
-      target="_blank"
-      rel="noopener noreferrer"
-      className="fixed right-4 bottom-4 z-[110] inline-flex min-h-12 items-center bg-ouro px-[22px] py-4 text-[12px] tracking-[0.16em] text-tinta uppercase transition-[background-color,transform,opacity] duration-300 hover:bg-papel"
-      style={{
-        boxShadow: "0 14px 44px rgba(0,0,0,0.5)",
-        transform: recolhido ? "translateY(calc(100% + 1rem))" : "none",
-        opacity: recolhido ? 0 : 1,
-        pointerEvents: recolhido ? "none" : "auto",
-      }}
-    >
-      {rotulo}
-    </a>
+    // Numa região com nome, e não solto no `body`: sem isto o botão
+    // era o único conteúdo do site fora de uma marca de página, e quem
+    // navega por regiões com leitor de ecrã nunca dava com ele.
+    <aside aria-label={rotulo}>
+      <a
+        href={linkWhatsApp(numero, mensagem)}
+        target="_blank"
+        rel="noopener noreferrer"
+        className="fixed right-4 bottom-4 z-[110] inline-flex min-h-12 items-center bg-ouro px-[22px] py-4 text-[12px] tracking-[0.16em] text-tinta uppercase transition-[background-color,transform,opacity] duration-300 hover:bg-papel"
+        style={{
+          boxShadow: "0 14px 44px rgba(0,0,0,0.5)",
+          transform: recolhido ? "translateY(calc(100% + 1rem))" : "none",
+          opacity: recolhido ? 0 : 1,
+          pointerEvents: recolhido ? "none" : "auto",
+        }}
+      >
+        {rotulo}
+      </a>
+    </aside>
   );
 }

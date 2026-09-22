@@ -422,7 +422,11 @@
   --color-adm-cartao: #f6f4f0;
   --color-adm-fio: rgba(14, 12, 11, 0.14);
   --color-adm-fio-forte: rgba(14, 12, 11, 0.28);
-  --color-adm-suave: rgba(14, 12, 11, 0.55);
+  /* 0,62 e não 0,55: a 0,55 o texto secundário do backoffice dava
+     4,13 sobre o fundo e 4,21 sobre o cartão, abaixo dos 4,5 que o
+     mínimo pede. A 0,62 dá 5,22 e 5,35, e continua a ler-se como
+     secundário. Vale para todo o backoffice, não só para um sítio. */
+  --color-adm-suave: rgba(14, 12, 11, 0.62);
 }
 
 @layer components {

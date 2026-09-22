@@ -54,11 +54,15 @@ export function GaleriaMedia({ itens }: { itens: ItemMedia[] }) {
         >
           {aCarregar ? "A carregar…" : "Carregar ficheiros"}
         </button>
+        {/* Escondido à vista mas não a quem ouve: o botão ao lado é
+            que se carrega, e sem nome este campo anunciava-se só como
+            "ficheiro". */}
         <input
           ref={entrada}
           type="file"
           multiple
           accept="image/*,application/pdf"
+          aria-label="Escolher imagens e PDFs para carregar"
           className="so-leitor"
           onChange={(e) => {
             if (e.target.files?.length) enviar(e.target.files);

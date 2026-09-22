@@ -1,0 +1,90 @@
+# A produção abre-se à mão, e é essa a ideia.
+#
+# O plano era um trinco de aprovação no ambiente `producao` do GitHub, e
+# o comentário a pedi-lo esteve aqui meses sem ninguém o ligar: fui ver
+# e o ambiente tinha zero protection rules. Não é esquecimento, é que
+# reviewers obrigatórios em repositórios privados são de plano pago. Em
+# vez de pagar por um botão, a produção é um workflow que só arranca
+# quando alguém o manda arrancar. Dá o mesmo: nada chega ao site sem uma
+# pessoa ter decidido que sim.
+#
+# E não reconstrói nada. Vai buscar o que a staging está mesmo a correr,
+# pergunta à staging qual é esse commit em vez de o assumir, e publica
+# essa mesma imagem. O que foi visto é o que vai.
+#
+# Antes daqui, um arranque à mão publicava a ponta da main à hora em que
+# fosse carregado, que podia já estar à frente do que a staging tinha
+# provado, e era uma compilação nova por cima.
+name: Publicar em produção
+
+on:
+  workflow_dispatch:
+    inputs:
+      commit:
+        description: 'Commit a publicar. Vazio = o que a staging está a correr agora.'
+        required: false
+        default: ''
+
+concurrency:
+  group: publicar
+  cancel-in-progress: false
+
+jobs:
+  producao:
+    runs-on: ubuntu-latest
+    environment: producao
+    steps:
+      - uses: actions/checkout@v4
+      - uses: superfly/flyctl-actions/setup-flyctl@master
+
+      - name: Qual é o commit que vai
+        id: qual
+        run: |
+          set -e
+          commit="${{ inputs.commit }}"
+          if [ -z "$commit" ]; then
+            commit=$(curl -fsS --max-time 15 https://contagiarte-staging.fly.dev/api/saude \
+              | node -e "let d='';process.stdin.on('data',c=>d+=c).on('end',()=>{try{console.log(JSON.parse(d).versao||'')}catch{console.log('')}})")
+            echo "a staging está a correr $commit, e é esse que vai"
+          else
+            echo "pedido à mão: $commit"
+          fi
+          if [ -z "$commit" ]; then
+            echo "a staging não diz que versão é. Foi publicada por fora da esteira?"
+            exit 1
+          fi
+          echo "commit=$commit" >> "$GITHUB_OUTPUT"
+
+      # A base de dados não leva cópia explícita antes do deploy, e é de
+      # propósito: o Litestream segue o WAL e replica para o R2 sem
+      # parar, portanto já existe restauro ao minuto. Uma cópia aqui
+      # dava uma falsa sensação de rede e atrasava o deploy. O que vale
+      # a pena é confirmar que essa replicação está mesmo viva, e isso
+      # vê-se na saúde da máquina que está de pé antes de mexer.
+      - name: Ver como está a produção antes de mexer
+        run: ./scripts/fumo.sh https://novo.contagiarte.pt
+
+      # A etiqueta é a da produção, mas os bits são os mesmos que a
+      # staging correu: o publicar.yml constrói uma vez, empurra a mesma
+      # imagem para os dois registos e compara os digests antes de
+      # seguir.
+      - name: Publicar a imagem que a staging provou
+        env:
+          FLY_API_TOKEN: ${{ secrets.FLY_TOKEN_PROD || secrets.FLY_API_TOKEN }}
+        run: |
+          flyctl deploy -c fly.toml -a contagiarte --now \
+            --image registry.fly.io/contagiarte:${{ steps.qual.outputs.commit }}
+
+      - name: Provar que ficou de pé, e que é esta versão
+        run: ./scripts/fumo.sh https://novo.contagiarte.pt "${{ steps.qual.outputs.commit }}"
+
+      - name: Deixar dito o que foi
+        run: |
+          {
+            echo "### Está em produção"
+            echo ""
+            echo "<https://novo.contagiarte.pt>, no commit \`${{ steps.qual.outputs.commit }}\`."
+            echo ""
+            echo "Para voltar atrás, correr este mesmo workflow com o commit anterior:"
+            echo "a imagem já está no registo e não é reconstruída."
+          } >> "$GITHUB_STEP_SUMMARY"

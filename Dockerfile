@@ -51,6 +51,12 @@ RUN apt-get update \
   && rm /tmp/ls.tar.gz \
   && apt-get purge -y wget && apt-get autoremove -y && rm -rf /var/lib/apt/lists/*
 
+# Que commit é que esta imagem é. Entra aqui e não na compilação
+# porque é lido em cada pedido, não fixado no bundle, e assim a mesma
+# camada de build serve para qualquer commit.
+ARG COMMIT_SHA=""
+ENV COMMIT_SHA=$COMMIT_SHA
+
 ENV NODE_ENV=production
 ENV NEXT_TELEMETRY_DISABLED=1
 ENV PORT=3000

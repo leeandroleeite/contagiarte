@@ -1,44 +1,135 @@
-name: Publicar
+# Merge em main põe o site na staging, e pára ali.
+#
+# Antes daqui, cada ambiente era uma compilação sua: um `flyctl deploy
+# --remote-only` com a config da staging, outro com a do fly.toml. Duas
+# construções, dois binários. A staging não provava nada sobre a
+# produção, porque o que tinha sido visto era outra coisa.
+#
+# Agora a imagem é construída UMA vez e vai para os dois registos com a
+# mesma etiqueta, o commit. O passo do digest confirma que são os mesmos
+# bits. A produção depois publica essa imagem, sem reconstruir nada: o
+# que foi visto é o que vai. Ver o producao.yml.
+#
+# E constrói-se a partir de um commit e de uma pasta vazia, nunca da
+# pasta de trabalho de quem está ao teclado. Um `flyctl deploy` numa
+# máquina de trabalho embala o que lá estiver; foi assim que o CSP foi
+# parar a produção a 22 de Setembro sem passar por aqui.
+name: Publicar na staging
 
+# Corre depois da Verificação, e só quando ela passa.
+#
+# Estavam os dois no mesmo push e corriam em paralelo: a Verificação
+# leva onze minutos com o Playwright todo, este leva um. A staging
+# ficava dez minutos com código cujos testes ainda não tinham acabado.
+# O `workflow_run` é o que os põe em fila.
 on:
-  push:
+  workflow_run:
+    workflows: ["Verificação"]
+    types: [completed]
     branches: [main]
   workflow_dispatch:
-    inputs:
-      ambiente:
-        description: Para onde publicar
-        required: true
-        default: staging
-        type: choice
-        options: [staging, producao]
 
 concurrency:
-  group: publicar-${{ github.event.inputs.ambiente || 'staging' }}
+  # Dois deploys ao mesmo tempo põem duas versões a discutir quem ficou
+  # por cima. Este espera pelo anterior em vez de o cancelar: um deploy
+  # a meio não se interrompe.
+  group: publicar
   cancel-in-progress: false
 
 jobs:
   staging:
-    # Cada merge em main vai para staging sem perguntar nada.
-    if: github.event_name == 'push' || github.event.inputs.ambiente == 'staging'
+    # Num `workflow_run` o que interessa é como correu a Verificação.
+    # Num arranque à mão não há Verificação nenhuma para consultar.
+    if: >-
+      github.event_name == 'workflow_dispatch' ||
+      github.event.workflow_run.conclusion == 'success'
     runs-on: ubuntu-latest
-    environment: staging
+    env:
+      # Num `workflow_run`, o `github.sha` é o do ramo onde a esteira
+      # está, não o do commit que a disparou. O que vale é o head_sha
+      # da corrida que passou.
+      COMMIT: ${{ github.event.workflow_run.head_sha || github.sha }}
     steps:
       - uses: actions/checkout@v4
-      - uses: superfly/flyctl-actions/setup-flyctl@master
-      - run: flyctl deploy --config fly.staging.toml --remote-only
-        env:
-          FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
+        with:
+          ref: ${{ github.event.workflow_run.head_sha || github.sha }}
 
-  producao:
-    # Produção nunca sai de um push: é sempre um acto deliberado.
-    if: github.event_name == 'workflow_dispatch' && github.event.inputs.ambiente == 'producao'
-    runs-on: ubuntu-latest
-    # Ligue uma regra de aprovação a este ambiente nas definições do
-    # repositório para exigir um segundo par de olhos.
-    environment: producao
-    steps:
-      - uses: actions/checkout@v4
       - uses: superfly/flyctl-actions/setup-flyctl@master
-      - run: flyctl deploy --config fly.toml --remote-only
+
+      - name: Etiquetas desta imagem
+        run: |
+          echo "TAG_PROD=registry.fly.io/contagiarte:$COMMIT" >> "$GITHUB_ENV"
+          echo "TAG_STAGING=registry.fly.io/contagiarte-staging:$COMMIT" >> "$GITHUB_ENV"
+
+      # Constrói-se aqui no runner e não no construtor remoto do Fly.
+      # O construtor remoto falha a partir de máquinas de fora com
+      # "tls: failed to verify certificate" ao ligar ao depot, e aqui
+      # passa-se pelo .dockerignore deste repositório, que é o que
+      # impede a base de dados de desenvolvimento de entrar na imagem.
+      #
+      # O NEXT_PUBLIC_R2_PUBLIC_URL fica de fora de propósito: é lido na
+      # compilação, portanto uma imagem só serve os dois ambientes
+      # enquanto os dois o tiverem igual. Hoje está vazio nos dois
+      # tomls. No dia em que divergirem, esta esteira deixa de poder
+      # promover e tem de passar a construir duas vezes outra vez.
+      - name: Construir a imagem, uma vez só
+        run: |
+          docker build \
+            --build-arg COMMIT_SHA="$COMMIT" \
+            -t "$TAG_PROD" -t "$TAG_STAGING" .
+
+      - name: Confirmar que a base local não entrou na imagem
+        run: |
+          set -e
+          if docker run --rm --entrypoint sh "$TAG_PROD" -c 'test -e /app/var'; then
+            echo "a pasta var/ foi para dentro da imagem. Ver o .dockerignore."
+            exit 1
+          fi
+          echo "a imagem está limpa"
+
+      # Dois tokens, um por app. O registo do Fly é por aplicação e um
+      # token de deploy só manda na sua: o que publica na staging não
+      # consegue tocar na produção. Enquanto não existirem, cai no
+      # token largo que já lá estava, para a esteira não parar.
+      - name: Empurrar para o registo da staging
+        run: |
+          echo "${{ secrets.FLY_TOKEN_STAGING || secrets.FLY_API_TOKEN }}" \
+            | docker login registry.fly.io -u x --password-stdin
+          docker push "$TAG_STAGING"
+
+      - name: Empurrar a MESMA imagem para o registo da produção
+        run: |
+          echo "${{ secrets.FLY_TOKEN_PROD || secrets.FLY_API_TOKEN }}" \
+            | docker login registry.fly.io -u x --password-stdin
+          docker push "$TAG_PROD"
+
+      - name: E provar que são mesmo a mesma imagem
+        run: |
+          set -e
+          a=$(docker image inspect "$TAG_PROD" --format '{{.Id}}')
+          b=$(docker image inspect "$TAG_STAGING" --format '{{.Id}}')
+          echo "produção:  $a"
+          echo "staging:   $b"
+          test "$a" = "$b"
+
+      - name: Pôr essa imagem na staging
         env:
-          FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
+          FLY_API_TOKEN: ${{ secrets.FLY_TOKEN_STAGING || secrets.FLY_API_TOKEN }}
+        run: |
+          flyctl deploy -c fly.staging.toml -a contagiarte-staging \
+            --image "$TAG_STAGING" --now
+
+      - name: Provar que ficou de pé
+        run: ./scripts/fumo.sh https://contagiarte-staging.fly.dev "$COMMIT"
+
+      - name: Dizer como se abre a produção
+        run: |
+          {
+            echo "### Está na staging"
+            echo ""
+            echo "<https://contagiarte-staging.fly.dev>, no commit \`$COMMIT\`."
+            echo ""
+            echo "A produção não se abre sozinha. Quando estiver vista, corre o"
+            echo "**Publicar em produção** aqui nas Actions: ele pega no que a"
+            echo "staging estiver mesmo a correr e é isso que publica."
+          } >> "$GITHUB_STEP_SUMMARY"

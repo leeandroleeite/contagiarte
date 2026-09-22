@@ -33,6 +33,17 @@ export const env = {
     return v.replace(/\/$/, "");
   },
 
+  /**
+   * O commit que construiu esta imagem, fixado na compilação.
+   *
+   * Existe para o deploy de produção poder perguntar à staging o que é
+   * que ela está mesmo a correr, em vez de o assumir. Vazio fora de uma
+   * imagem construída pela esteira.
+   */
+  get versao(): string {
+    return opcional("COMMIT_SHA");
+  },
+
   /** Pasta onde a base de dados vive. Em produção é o volume montado. */
   get dadosDir(): string {
     return opcional("DADOS_DIR", "var");

@@ -40,9 +40,9 @@ export default async function PaginaGaleria({
         >
           <Imagem
             media={null}
-            alt="Rui Pedro e Maria João, art dealers da Galeria Contagiarte"
+            alt={texto(txt["home.galeria.imagem.alt"], idioma)}
             proporcao="4/5"
-            legenda="Rui Pedro & Maria João, art dealers"
+            legenda={texto(txt["home.galeria.imagem.legenda"], idioma)}
             prioridade
             sizes="(max-width: 900px) 100vw, 45vw"
           />

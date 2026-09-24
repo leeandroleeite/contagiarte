@@ -29,6 +29,13 @@
       "when": 1790245280986,
       "tag": "0003_entrada_editavel",
       "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "6",
+      "when": 1790258113608,
+      "tag": "0004_paginas_restantes",
+      "breakpoints": true
     }
   ]
 }

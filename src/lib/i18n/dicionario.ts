@@ -118,7 +118,11 @@ export const DICIONARIO = {
     es: "Descargar ↓",
   },
   "acao.subscrever": { pt: "Subscrever", en: "Subscribe", es: "Suscribirse" },
-  "acao.enviar": { pt: "Enviar pedido", en: "Send request", es: "Enviar solicitud" },
+  "acao.enviar": {
+    pt: "Enviar pedido",
+    en: "Send request",
+    es: "Enviar solicitud",
+  },
   "acao.arrastar": {
     pt: "Arraste para o lado →",
     en: "Drag sideways →",
@@ -369,6 +373,11 @@ export const DICIONARIO = {
     pt: "A página que procurava mudou de sítio ou nunca existiu. Estas três saídas levam-no de volta.",
     en: "The page you were looking for has moved or never existed. These three ways out will take you back.",
     es: "La página que buscaba cambió de sitio o nunca existió. Estas tres salidas le llevan de vuelta.",
+  },
+  "404.whatsapp": {
+    pt: "Olá, andava à procura de algo no site.",
+    en: "Hello, I was looking for something on the website.",
+    es: "Hola, estaba buscando algo en el sitio.",
   },
 } as const satisfies Record<string, Record<Idioma, string>>;
 

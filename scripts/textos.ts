@@ -373,6 +373,126 @@ export const TEXTOS: Array<{
     valor: L("Rui Pedro & Maria João, art dealers"),
   },
   {
+    chave: "descarregar.descricao",
+    grupo: "descarregáveis",
+    nota: "Descrição da página nos motores de busca.",
+    valor: L(
+      "Catálogo, dossiers de exposição e flyers da Galeria Contagiarte, em PDF.",
+      "Catalogue, exhibition press kits and flyers from Galeria Contagiarte, in PDF.",
+      "Catálogo, dosieres de exposición y folletos de la Galería Contagiarte, en PDF.",
+    ),
+  },
+  {
+    chave: "privacidade.descricao",
+    grupo: "legal",
+    nota: "Descrição da página nos motores de busca.",
+    valor: L(
+      "Que dados a galeria guarda quando alguém envia um pedido ou subscreve a newsletter, durante quanto tempo, e como se pedem apagados.",
+      "What the gallery stores when someone sends an enquiry or subscribes, for how long, and how to ask for it to be deleted.",
+      "Qué datos guarda la galería cuando alguien envía una solicitud o se suscribe, durante cuánto tiempo, y cómo pedir que se borren.",
+    ),
+  },
+  {
+    chave: "arquivo.descricao",
+    grupo: "arquivo",
+    nota: "Descrição da página nos motores de busca.",
+    valor: L(
+      "Arquivo de exposições e curadorias da Galeria Contagiarte, ano a ano.",
+      "Archive of exhibitions and curatorial projects by Galeria Contagiarte, year by year.",
+      "Archivo de exposiciones y curadurías de la Galería Contagiarte, año a año.",
+    ),
+  },
+  {
+    chave: "artistas.descricao",
+    grupo: "artistas",
+    nota: "Descrição da página nos motores de busca.",
+    valor: L(
+      "Os artistas representados pela Galeria Contagiarte, entre pintura, escultura, cerâmica e colagem.",
+      "The artists represented by Galeria Contagiarte, across painting, sculpture, ceramics and collage.",
+      "Los artistas representados por la Galería Contagiarte, entre pintura, escultura, cerámica y collage.",
+    ),
+  },
+  {
+    chave: "exposicoes.descricao",
+    grupo: "exposições",
+    nota: "Descrição da página nos motores de busca.",
+    valor: L(
+      "Exposições e curadorias da Galeria Contagiarte, em adegas, hotéis, clubes e centros culturais.",
+      "Exhibitions and curatorial projects by Galeria Contagiarte, in wineries, hotels, clubs and cultural centres.",
+      "Exposiciones y curadurías de la Galería Contagiarte, en bodegas, hoteles, clubes y centros culturales.",
+    ),
+  },
+  {
+    chave: "obras.descricao",
+    grupo: "obras",
+    nota: "Descrição da página nos motores de busca.",
+    valor: L(
+      "Obras disponíveis na Galeria Contagiarte: pintura, escultura, cerâmica e técnica mista de artistas nacionais e internacionais.",
+      "Works available at Galeria Contagiarte: painting, sculpture, ceramics and mixed media by Portuguese and international artists.",
+      "Obras disponibles en la Galería Contagiarte: pintura, escultura, cerámica y técnica mixta de artistas nacionales e internacionales.",
+    ),
+  },
+  {
+    chave: "lugares.descricao",
+    grupo: "lugares",
+    nota: "Descrição da página nos motores de busca.",
+    valor: L(
+      "Adegas, hotéis, clubes e centros culturais onde a Galeria Contagiarte expõe.",
+      "Wineries, hotels, clubs and cultural centres where Galeria Contagiarte exhibits.",
+      "Bodegas, hoteles, clubes y centros culturales donde expone la Galería Contagiarte.",
+    ),
+  },
+  {
+    chave: "ativo.descricao",
+    grupo: "ativo",
+    nota: "Descrição da página nos motores de busca.",
+    valor: L(
+      "O que faz uma obra de arte valorizar, o que a galeria avalia antes de representar um artista, e o que ninguém honesto lhe pode prometer.",
+      "What makes a work of art appreciate, what the gallery assesses before representing an artist, and what nobody honest can promise you.",
+      "Qué hace que una obra de arte se revalorice, qué evalúa la galería antes de representar a un artista, y lo que nadie honesto puede prometerle.",
+    ),
+  },
+  {
+    chave: "descarregar.vazio",
+    grupo: "descarregáveis",
+    nota: "O que o visitante lê enquanto não houver documentos publicados.",
+    valor: L(
+      "Ainda não há documentos publicados. Assim que o catálogo estiver carregado, aparece aqui.",
+      "No documents published yet. As soon as the catalogue is uploaded, it appears here.",
+      "Todavía no hay documentos publicados. En cuanto el catálogo esté cargado, aparecerá aquí.",
+    ),
+  },
+  {
+    chave: "privacidade.nota",
+    grupo: "legal",
+    nota: "Aviso por cima do texto legal. Tirar quando um advogado o rever.",
+    valor: L(
+      "Rascunho por rever juridicamente. Última atualização: por definir.",
+      "Draft pending legal review. Last updated: to be defined.",
+      "Borrador pendiente de revisión jurídica. Última actualización: por definir.",
+    ),
+  },
+  {
+    chave: "ativo.whatsapp",
+    grupo: "ativo",
+    nota: "Mensagem já escrita no botão de WhatsApp desta página.",
+    valor: L(
+      "Olá, queria perceber melhor o percurso dos artistas que representam.",
+      "Hello, I would like to understand the careers of the artists you represent.",
+      "Hola, quería entender mejor la trayectoria de los artistas que representan.",
+    ),
+  },
+  {
+    chave: "404.whatsapp",
+    grupo: "404",
+    nota: "Mensagem já escrita no botão de WhatsApp da página de erro.",
+    valor: L(
+      "Olá, andava à procura de algo no site.",
+      "Hello, I was looking for something on the website.",
+      "Hola, estaba buscando algo en el sitio.",
+    ),
+  },
+  {
     chave: "newsletter.titulo",
     grupo: "newsletter",
     nota: "Título do bloco de subscrição.",

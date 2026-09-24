@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { CartaoObra } from "@/components/CartaoObra";
 import { Seccao, TituloSeccao } from "@/components/Seccao";
-import { listarArtistas, listarObras } from "@/lib/dados";
+import { listarArtistas, listarObras, obterTextos } from "@/lib/dados";
 import { t, texto, type Idioma } from "@/lib/i18n";
 import { caminho } from "@/lib/i18n/config";
 import { comMarca, metadados } from "@/lib/metadados";
@@ -19,16 +19,12 @@ export async function generateMetadata({
   params: Promise<{ lang: Idioma }>;
 }): Promise<Metadata> {
   const { lang } = await params;
+  const txt = await obterTextos();
   return metadados({
     idioma: lang,
     path: "/obras",
     titulo: comMarca(t("nav.obras", lang)),
-    descricao:
-      lang === "pt"
-        ? "Obras disponíveis na Galeria Contagiarte: pintura, escultura, cerâmica e técnica mista de artistas nacionais e internacionais."
-        : lang === "en"
-          ? "Works available at Galeria Contagiarte: painting, sculpture, ceramics and mixed media by Portuguese and international artists."
-          : "Obras disponibles en la Galería Contagiarte: pintura, escultura, cerámica y técnica mixta de artistas nacionales e internacionales.",
+    descricao: texto(txt["obras.descricao"], lang),
   });
 }
 

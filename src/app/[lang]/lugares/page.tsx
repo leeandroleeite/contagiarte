@@ -14,16 +14,12 @@ export async function generateMetadata({
   params: Promise<{ lang: Idioma }>;
 }): Promise<Metadata> {
   const { lang } = await params;
+  const txt = await obterTextos();
   return metadados({
     idioma: lang,
     path: "/lugares",
     titulo: comMarca(t("nav.lugares", lang)),
-    descricao:
-      lang === "pt"
-        ? "Adegas, hotéis, clubes e centros culturais onde a Galeria Contagiarte expõe."
-        : lang === "en"
-          ? "Wineries, hotels, clubs and cultural centres where Galeria Contagiarte exhibits."
-          : "Bodegas, hoteles, clubes y centros culturales donde expone la Galería Contagiarte.",
+    descricao: texto(txt["lugares.descricao"], lang),
   });
 }
 
@@ -47,10 +43,7 @@ export default async function PaginaLugares({
         {t("nav.lugares", idioma).toUpperCase()}
       </TituloSeccao>
 
-      <ul
-        className="grid gap-x-6 gap-y-14"
-        style={colunas(260, "auto-fill")}
-      >
+      <ul className="grid gap-x-6 gap-y-14" style={colunas(260, "auto-fill")}>
         {lugares.map((l) => (
           <li key={l.id} className="flex flex-col gap-4">
             <Imagem

@@ -6,6 +6,14 @@ import type { Definicoes } from "./schema";
  * usados no design; o backoffice sobrepõe-se a estes assim que a
  * galeria os editar.
  */
+/**
+ * A mensagem que os botões de WhatsApp abrem já escrita, antes de a
+ * galeria a editar. Vive aqui para o 404 global, que é a única página
+ * que não lê a base: todas as outras usam a chave `whatsapp.site`.
+ */
+export const MENSAGEM_WHATSAPP_OMISSAO =
+  "Olá, venho do site da Galeria Contagiarte.";
+
 export const DEFINICOES_OMISSAO: Definicoes = {
   email: CONTACTOS_OMISSAO.email,
   telefone: CONTACTOS_OMISSAO.telefoneFormatado,

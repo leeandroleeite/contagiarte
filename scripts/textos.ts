@@ -285,6 +285,52 @@ export const TEXTOS: Array<{
     ),
   },
   {
+    chave: "contactos.descricao",
+    grupo: "contactos",
+    nota: "Descrição da página nos motores de busca e nos cartões de partilha.",
+    valor: L(
+      "Fale com a Galeria Contagiarte por WhatsApp, email ou telefone.",
+      "Reach Galeria Contagiarte on WhatsApp, by email or by phone.",
+      "Contacte con la Galería Contagiarte por WhatsApp, email o teléfono.",
+    ),
+  },
+  {
+    chave: "contactos.intro",
+    grupo: "contactos",
+    nota: "Frase de abertura, ao lado dos contactos.",
+    valor: L(
+      "O WhatsApp é o caminho mais rápido. Respondemos todos os dias.",
+      "WhatsApp is the fastest route. We answer every day.",
+      "WhatsApp es la vía más rápida. Respondemos todos los días.",
+    ),
+  },
+  {
+    chave: "contactos.whatsapp.visita",
+    grupo: "contactos",
+    nota: "Mensagem já escrita no botão de marcar visita.",
+    valor: L(
+      "Olá, queria marcar uma visita à galeria.",
+      "Hello, I would like to book a visit to the gallery.",
+      "Hola, quería concertar una visita a la galería.",
+    ),
+  },
+  {
+    chave: "whatsapp.site",
+    grupo: "geral",
+    nota: "Mensagem já escrita nos botões de WhatsApp que não são de um assunto em particular: o botão flutuante, o rodapé e a página de contactos.",
+    valor: L(
+      "Olá, venho do site da Galeria Contagiarte.",
+      "Hello, I came from the Galeria Contagiarte website.",
+      "Hola, vengo del sitio de la Galería Contagiarte.",
+    ),
+  },
+  {
+    chave: "newsletter.etiqueta",
+    grupo: "newsletter",
+    nota: "Etiqueta por cima do bloco de subscrição, na entrada e nos contactos.",
+    valor: L("NEWSLETTER"),
+  },
+  {
     chave: "newsletter.titulo",
     grupo: "newsletter",
     nota: "Título do bloco de subscrição.",

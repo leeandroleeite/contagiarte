@@ -15,6 +15,13 @@
       "when": 1790241015723,
       "tag": "0001_molduras_editaveis",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "6",
+      "when": 1790244783918,
+      "tag": "0002_contactos_editaveis",
+      "breakpoints": true
     }
   ]
 }

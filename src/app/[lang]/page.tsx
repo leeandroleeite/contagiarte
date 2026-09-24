@@ -9,11 +9,7 @@ import { FormularioPedido } from "@/components/FormularioPedido";
 import { Imagem } from "@/components/Imagem";
 import { ListaArtistas } from "@/components/ListaArtistas";
 import { Seccao, TituloSeccao } from "@/components/Seccao";
-import {
-  DadosEstruturados,
-  galeria,
-  sitio,
-} from "@/lib/dados-estruturados";
+import { DadosEstruturados, galeria, sitio } from "@/lib/dados-estruturados";
 import {
   exposicaoEmDestaque,
   listarArtistas,
@@ -145,7 +141,6 @@ export default async function Homepage({
           }}
         />
 
-
         {/* Título e linha de rodapé numa coluna só: em ecrãs estreitos
             o título ocupa três linhas e não pode tapar o "Desça". */}
         <div className="absolute inset-x-7 bottom-9 flex flex-col gap-6">
@@ -184,10 +179,7 @@ export default async function Homepage({
       {/* 3. Exposição em curso ----------------------------------------- */}
       {expo && (
         <Seccao id="exposicao">
-          <div
-            className="grid items-center gap-16"
-            style={colunas(380)}
-          >
+          <div className="grid items-center gap-16" style={colunas(380)}>
             <div className="flex flex-col gap-[26px]" data-surge="">
               <span className="text-[11px] tracking-[0.3em] text-[rgba(242,237,228,0.55)] uppercase">
                 {[
@@ -204,7 +196,9 @@ export default async function Homepage({
                   .join(" · ")}
               </span>
 
-              <h2 className="titulo d-1 uppercase">{texto(expo.titulo, idioma)}</h2>
+              <h2 className="titulo d-1 uppercase">
+                {texto(expo.titulo, idioma)}
+              </h2>
 
               <p className="max-w-[46ch] text-[19px] leading-[1.55] text-[rgba(242,237,228,0.82)]">
                 {texto(expo.texto, idioma)}
@@ -336,7 +330,10 @@ export default async function Homepage({
       {/* 7. Artistas ----------------------------------------------------- */}
       {artistas.length > 0 && (
         <Seccao id="artistas">
-          <div className="mb-3 flex flex-wrap items-baseline gap-5" data-surge="">
+          <div
+            className="mb-3 flex flex-wrap items-baseline gap-5"
+            data-surge=""
+          >
             <h2 className="titulo d-2">{t("nav.artistas", idioma)}</h2>
             <span className="text-[13px] tracking-[0.2em] text-[rgba(242,237,228,0.55)]">
               {String(artistas.length).padStart(2, "0")}
@@ -358,10 +355,7 @@ export default async function Homepage({
 
       {/* 8. Molduras ----------------------------------------------------- */}
       <Seccao id="molduras">
-        <div
-          className="grid items-center gap-16"
-          style={colunas(360)}
-        >
+        <div className="grid items-center gap-16" style={colunas(360)}>
           <div className="flex flex-col gap-[26px]" data-surge="">
             <span className="text-[11px] tracking-[0.3em] text-[rgba(242,237,228,0.55)] uppercase">
               {T("molduras.etiqueta", "PARCERIA MOLDARTPÓVOA")}
@@ -425,11 +419,7 @@ export default async function Homepage({
             {t("nav.lugares", idioma).toUpperCase()}
           </TituloSeccao>
 
-          <ul
-            className="grid gap-6"
-            style={colunas(220)}
-            data-surge=""
-          >
+          <ul className="grid gap-6" style={colunas(220)} data-surge="">
             {lugares.map((l) => (
               <li key={l.id} className="flex flex-col gap-3.5">
                 <Imagem
@@ -439,7 +429,9 @@ export default async function Homepage({
                   legenda={l.nome}
                   sizes="(max-width: 900px) 50vw, 22vw"
                 />
-                <span className="titulo-med text-[16px] uppercase">{l.nome}</span>
+                <span className="titulo-med text-[16px] uppercase">
+                  {l.nome}
+                </span>
                 <span className="text-[14px] text-claro-55">
                   {[texto(l.localidade, idioma), texto(l.tipo, idioma)]
                     .filter(Boolean)
@@ -500,10 +492,7 @@ export default async function Homepage({
 
       {/* 11. A galeria --------------------------------------------------- */}
       <Seccao id="galeria">
-        <div
-          className="grid gap-16"
-          style={colunas(320)}
-        >
+        <div className="grid gap-16" style={colunas(320)}>
           <Imagem
             media={null}
             alt="Rui Pedro e Maria João, art dealers da Galeria Contagiarte"
@@ -511,7 +500,10 @@ export default async function Homepage({
             legenda="Rui Pedro & Maria João, art dealers"
             sizes="(max-width: 900px) 100vw, 45vw"
           />
-          <div className="flex flex-col justify-center gap-[26px]" data-surge="">
+          <div
+            className="flex flex-col justify-center gap-[26px]"
+            data-surge=""
+          >
             <span className="text-[11px] tracking-[0.3em] text-[rgba(242,237,228,0.55)] uppercase">
               {t("nav.galeria", idioma).toUpperCase()}
             </span>
@@ -532,11 +524,7 @@ export default async function Homepage({
           <h2 className="titulo d-apoio mb-12">
             {t("nav.descarregar", idioma).toUpperCase()}
           </h2>
-          <ul
-            className="grid gap-6"
-            style={colunas(260)}
-            data-surge=""
-          >
+          <ul className="grid gap-6" style={colunas(260)} data-surge="">
             {ficheiros.map((f) => (
               <li key={f.id} className="contents">
                 <a
@@ -564,13 +552,10 @@ export default async function Homepage({
 
       {/* 13. Newsletter ---------------------------------------------------- */}
       <Seccao id="newsletter" claro semFio>
-        <div
-          className="grid items-center gap-16"
-          style={colunas(340)}
-        >
+        <div className="grid items-center gap-16" style={colunas(340)}>
           <div className="flex flex-col gap-5">
             <span className="text-[11px] tracking-[0.3em] text-[rgba(14,12,11,0.62)] uppercase">
-              NEWSLETTER
+              {texto(txt["newsletter.etiqueta"], idioma)}
             </span>
             <h2 className="titulo d-apoio max-w-[14ch]">
               {T("newsletter.titulo")}

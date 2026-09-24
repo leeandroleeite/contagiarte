@@ -1,7 +1,10 @@
 import { Cabecalho } from "@/components/Cabecalho";
 import { Pagina404 } from "@/components/Pagina404";
 import { Rodape } from "@/components/Rodape";
-import { DEFINICOES_OMISSAO } from "@/lib/db/omissoes";
+import {
+  DEFINICOES_OMISSAO,
+  MENSAGEM_WHATSAPP_OMISSAO,
+} from "@/lib/db/omissoes";
 import { IDIOMA_BASE } from "@/lib/i18n/config";
 
 /**
@@ -31,7 +34,11 @@ export default function NaoEncontradoRaiz() {
       <main id="conteudo">
         <Pagina404 semBase />
       </main>
-      <Rodape idioma={IDIOMA_BASE} definicoes={def} />
+      <Rodape
+        idioma={IDIOMA_BASE}
+        definicoes={def}
+        mensagemWhatsApp={MENSAGEM_WHATSAPP_OMISSAO}
+      />
     </div>
   );
 }

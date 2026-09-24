@@ -331,6 +331,48 @@ export const TEXTOS: Array<{
     valor: L("NEWSLETTER"),
   },
   {
+    chave: "home.destaque.alt",
+    grupo: "homepage",
+    nota: "Alternativa da fotografia do herói quando há exposição em curso. Aceita {obra} como marcador, que é substituído pelo título da exposição.",
+    valor: L(
+      "{obra}, exposição em curso",
+      "{obra}, exhibition on show",
+      "{obra}, exposición en curso",
+    ),
+  },
+  {
+    chave: "home.destaque.alt.sem",
+    grupo: "homepage",
+    nota: "Alternativa da fotografia do herói quando não há exposição em curso.",
+    valor: L(
+      "Obra em destaque da Galeria Contagiarte",
+      "Featured work at Galeria Contagiarte",
+      "Obra destacada de la Galería Contagiarte",
+    ),
+  },
+  {
+    chave: "home.destaque.legenda",
+    grupo: "homepage",
+    nota: "Texto do marcador do herói enquanto não houver fotografia carregada.",
+    valor: L("Obra em destaque", "Featured work", "Obra destacada"),
+  },
+  {
+    chave: "home.galeria.imagem.alt",
+    grupo: "homepage",
+    nota: "Alternativa do retrato na secção A galeria.",
+    valor: L(
+      "Rui Pedro e Maria João, art dealers da Galeria Contagiarte",
+      "Rui Pedro and Maria João, art dealers at Galeria Contagiarte",
+      "Rui Pedro y Maria João, art dealers de la Galería Contagiarte",
+    ),
+  },
+  {
+    chave: "home.galeria.imagem.legenda",
+    grupo: "homepage",
+    nota: "Texto do marcador da secção A galeria enquanto não houver retrato.",
+    valor: L("Rui Pedro & Maria João, art dealers"),
+  },
+  {
     chave: "newsletter.titulo",
     grupo: "newsletter",
     nota: "Título do bloco de subscrição.",

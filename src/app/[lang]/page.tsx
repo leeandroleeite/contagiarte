@@ -93,10 +93,13 @@ export default async function Homepage({
             media={expo?.imagem ?? null}
             alt={
               expo
-                ? `${texto(expo.titulo, idioma)}, exposição em curso`
-                : "Obra em destaque da Galeria Contagiarte"
+                ? T("home.destaque.alt").replaceAll(
+                    "{obra}",
+                    texto(expo.titulo, idioma),
+                  )
+                : T("home.destaque.alt.sem")
             }
-            legenda="Obra em destaque"
+            legenda={T("home.destaque.legenda")}
             prioridade
             revelar={false}
             sizes="100vw"
@@ -369,10 +372,7 @@ export default async function Homepage({
               <Botao
                 variante="linha"
                 externo
-                href={linkWhatsApp(
-                  def.whatsapp,
-                  "Olá, queria um orçamento de moldura.",
-                )}
+                href={linkWhatsApp(def.whatsapp, T("molduras.whatsapp"))}
               >
                 {t("acao.whatsapp", idioma)}
               </Botao>
@@ -396,9 +396,9 @@ export default async function Homepage({
 
           <Imagem
             media={null}
-            alt="Moldura produzida em parceria com a MOLDARTPÓVOA"
+            alt={T("molduras.imagem.alt")}
             proporcao="1/1"
-            legenda="Molduras MOLDARTPÓVOA"
+            legenda={T("molduras.imagem.legenda")}
             sizes="(max-width: 900px) 100vw, 45vw"
           />
         </div>
@@ -495,9 +495,9 @@ export default async function Homepage({
         <div className="grid gap-16" style={colunas(320)}>
           <Imagem
             media={null}
-            alt="Rui Pedro e Maria João, art dealers da Galeria Contagiarte"
+            alt={T("home.galeria.imagem.alt")}
             proporcao="4/5"
-            legenda="Rui Pedro & Maria João, art dealers"
+            legenda={T("home.galeria.imagem.legenda")}
             sizes="(max-width: 900px) 100vw, 45vw"
           />
           <div

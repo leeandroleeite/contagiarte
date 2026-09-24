@@ -130,7 +130,11 @@ export const TEXTOS: Array<{
     chave: "home.galeria.titulo",
     grupo: "homepage",
     nota: "Bloco sobre a galeria.",
-    valor: L("MAIS DO QUE UM ESPAÇO", "MORE THAN A SPACE", "MÁS QUE UN ESPACIO"),
+    valor: L(
+      "MAIS DO QUE UM ESPAÇO",
+      "MORE THAN A SPACE",
+      "MÁS QUE UN ESPACIO",
+    ),
   },
   {
     chave: "home.galeria.texto",
@@ -178,6 +182,106 @@ export const TEXTOS: Array<{
       "A moldura certa transforma a presença de uma obra. Vidro museu Tru-Vue®, madeiras naturais selecionadas e alumínio de precisão, com orçamento imediato, recolha, entrega e instalação.",
       "The right frame transforms how a work occupies a room. Tru-Vue® museum glass, selected natural woods and precision aluminium, with an immediate quote, collection, delivery and installation.",
       "El marco adecuado transforma la presencia de una obra. Vidrio museo Tru-Vue®, maderas naturales seleccionadas y aluminio de precisión, con presupuesto inmediato, recogida, entrega e instalación.",
+    ),
+  },
+  {
+    chave: "molduras.descricao",
+    grupo: "molduras",
+    nota: "Descrição da página nos motores de busca e nos cartões de partilha.",
+    valor: L(
+      "Molduras à medida com a MOLDARTPÓVOA: vidro museu Tru-Vue®, madeiras naturais e alumínio de precisão, com recolha, entrega e instalação.",
+      "Bespoke framing with MOLDARTPÓVOA: Tru-Vue® museum glass, natural woods and precision aluminium, with collection, delivery and installation.",
+      "Marcos a medida con MOLDARTPÓVOA: vidrio museo Tru-Vue®, maderas naturales y aluminio de precisión, con recogida, entrega e instalación.",
+    ),
+  },
+  {
+    chave: "molduras.imagem.alt",
+    grupo: "molduras",
+    nota: "Alternativa da fotografia, para quem não a vê. Descrever o que lá está.",
+    valor: L(
+      "Moldura produzida em parceria com a MOLDARTPÓVOA",
+      "Frame made in partnership with MOLDARTPÓVOA",
+      "Marco producido en alianza con MOLDARTPÓVOA",
+    ),
+  },
+  {
+    chave: "molduras.imagem.legenda",
+    grupo: "molduras",
+    nota: "Texto do marcador enquanto não houver fotografia carregada.",
+    valor: L("Molduras MOLDARTPÓVOA"),
+  },
+  {
+    chave: "molduras.whatsapp",
+    grupo: "molduras",
+    nota: "Mensagem já escrita quando o visitante abre o WhatsApp daqui.",
+    valor: L(
+      "Olá, queria um orçamento de moldura.",
+      "Hello, I would like a quote for framing.",
+      "Hola, quería un presupuesto de marco.",
+    ),
+  },
+  {
+    chave: "molduras.passo1.titulo",
+    grupo: "molduras",
+    nota: "Passo 1 do processo. O número vem à frente no desenho.",
+    valor: L("01 · MEDIR", "01 · MEASURE", "01 · MEDIR"),
+  },
+  {
+    chave: "molduras.passo1.texto",
+    grupo: "molduras",
+    nota: "O que acontece no passo 1.",
+    valor: L(
+      "Diz-nos as medidas da obra, ou levantamo-la em sua casa.",
+      "Tell us the dimensions, or we collect the work from you.",
+      "Díganos las medidas, o recogemos la obra en su casa.",
+    ),
+  },
+  {
+    chave: "molduras.passo2.titulo",
+    grupo: "molduras",
+    nota: "Passo 2 do processo. O número vem à frente no desenho.",
+    valor: L("02 · ESCOLHER", "02 · CHOOSE", "02 · ELEGIR"),
+  },
+  {
+    chave: "molduras.passo2.texto",
+    grupo: "molduras",
+    nota: "O que acontece no passo 2.",
+    valor: L(
+      "Vê madeiras, alumínios e vidros, com orçamento na hora.",
+      "See woods, aluminium and glass, with a quote on the spot.",
+      "Vea maderas, aluminios y vidrios, con presupuesto al momento.",
+    ),
+  },
+  {
+    chave: "molduras.passo3.titulo",
+    grupo: "molduras",
+    nota: "Passo 3 do processo. O número vem à frente no desenho.",
+    valor: L("03 · PRODUZIR", "03 · MAKE", "03 · PRODUCIR"),
+  },
+  {
+    chave: "molduras.passo3.texto",
+    grupo: "molduras",
+    nota: "O que acontece no passo 3.",
+    valor: L(
+      "A MOLDARTPÓVOA produz a moldura à medida na fábrica.",
+      "MOLDARTPÓVOA makes the frame to measure at the factory.",
+      "MOLDARTPÓVOA produce el marco a medida en fábrica.",
+    ),
+  },
+  {
+    chave: "molduras.passo4.titulo",
+    grupo: "molduras",
+    nota: "Passo 4 do processo. O número vem à frente no desenho.",
+    valor: L("04 · INSTALAR", "04 · INSTALL", "04 · INSTALAR"),
+  },
+  {
+    chave: "molduras.passo4.texto",
+    grupo: "molduras",
+    nota: "O que acontece no passo 4.",
+    valor: L(
+      "Entregamos e deixamos a obra pendurada no sítio certo.",
+      "We deliver and hang the work in the right place.",
+      "Entregamos y dejamos la obra colgada en el sitio adecuado.",
     ),
   },
   {

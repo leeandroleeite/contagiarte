@@ -379,6 +379,136 @@ export const DICIONARIO = {
     en: "Hello, I was looking for something on the website.",
     es: "Hola, estaba buscando algo en el sitio.",
   },
+  "parede.erro.ficheiro": {
+    pt: "Não conseguimos ler esse ficheiro. Tente um JPG ou um PNG.",
+    en: "We could not read that file. Try a JPG or a PNG.",
+    es: "No pudimos leer ese archivo. Pruebe un JPG o un PNG.",
+  },
+  "parede.naocabe": {
+    pt: "Com moldura fica com {conjunto} cm e não cabe numa parede de {parede} cm.",
+    en: "At {conjunto} cm framed, this does not fit a {parede} cm wall.",
+    es: "Con marco mide {conjunto} cm y no cabe en una pared de {parede} cm.",
+  },
+  "parede.forma.aviso": {
+    pt: "A forma vem da fotografia da peça; o tamanho é o que escolher. Pergunte-nos as medidas exactas.",
+    en: "The shape comes from the photograph of the piece; the size is the one you choose. Ask us for the exact measurements.",
+    es: "La forma viene de la fotografía de la pieza; el tamaño es el que usted elija. Pregúntenos las medidas exactas.",
+  },
+  "parede.grupo.tamanho": {
+    pt: "O tamanho",
+    en: "Size",
+    es: "Tamaño",
+  },
+  "parede.medidas.propria": {
+    pt: "As medidas da própria peça.",
+    en: "The measurements of the piece itself.",
+    es: "Las medidas de la propia pieza.",
+  },
+  "parede.grupo.enquadramento": {
+    pt: "O enquadramento",
+    en: "Framing",
+    es: "Enmarcado",
+  },
+  "parede.margem": {
+    pt: "Margem",
+    en: "Mount",
+    es: "Pasepartú",
+  },
+  "parede.grupo.parede": {
+    pt: "A parede",
+    en: "The wall",
+    es: "La pared",
+  },
+  "parede.centrar": {
+    pt: "Centrar",
+    en: "Centre",
+    es: "Centrar",
+  },
+  "parede.altura.olhar": {
+    pt: "Altura do olhar",
+    en: "Eye level",
+    es: "Altura de los ojos",
+  },
+  "parede.exemplo": {
+    pt: "Esta é uma parede da galeria. Use uma fotografia sua para ver a peça em casa.",
+    en: "This is a wall at the gallery. Use a photograph of yours to see the piece at home.",
+    es: "Esta es una pared de la galería. Use una fotografía suya para ver la pieza en su casa.",
+  },
+  "parede.whatsapp.semobra": {
+    pt: "Olá, queria saber o preço de uma obra com moldura.",
+    en: "Hello, I would like the price of a framed work.",
+    es: "Hola, quería saber el precio de una obra con marco.",
+  },
+  "parede.medidas.semficha": {
+    pt: "As medidas desta peça ainda não estão na ficha. Escolha um tamanho para a imaginar, que a galeria confirma o verdadeiro.",
+    en: "The measurements of this piece are not on file yet. Choose a size to picture it; the gallery will confirm the real one.",
+    es: "Las medidas de esta pieza aún no están en la ficha. Elija un tamaño para imaginarla; la galería confirmará el real.",
+  },
+  "parede.molduras.nota": {
+    pt: "Produzidas com a MOLDARTPÓVOA: vidro museu Tru-Vue®, madeiras naturais e alumínio de precisão.",
+    en: "Made with MOLDARTPÓVOA: Tru-Vue® museum glass, natural woods and precision aluminium.",
+    es: "Producidos con MOLDARTPÓVOA: vidrio museo Tru-Vue®, maderas naturales y aluminio de precisión.",
+  },
+  "parede.passe.sem-passe": {
+    pt: "Sem margem",
+    en: "No mount",
+    es: "Sin pasepartú",
+  },
+  "parede.passe.estreita": {
+    pt: "Margem estreita, 4 cm",
+    en: "Narrow mount, 4 cm",
+    es: "Margen estrecho, 4 cm",
+  },
+  "parede.passe.larga": {
+    pt: "Margem larga, 10 cm",
+    en: "Wide mount, 10 cm",
+    es: "Margen ancho, 10 cm",
+  },
+  "parede.passe.dupla": {
+    pt: "Dupla margem",
+    en: "Double mount",
+    es: "Doble margen",
+  },
+  "parede.passe.filete": {
+    pt: "Filete azul",
+    en: "Navy fillet",
+    es: "Filete azul",
+  },
+  "parede.medidas.emoldurada": {
+    pt: "{obra} · emoldurada {conjunto}",
+    en: "{obra} · framed {conjunto}",
+    es: "{obra} · enmarcada {conjunto}",
+  },
+  "parede.peca.alt": {
+    pt: "{obra}, na sua parede",
+    en: "{obra}, on your wall",
+    es: "{obra}, en su pared",
+  },
+  "parede.whatsapp.comobra": {
+    pt: "Olá, experimentei no site: “{obra}”{autor}, a {medidas}{escolhido}{moldura}. Podem dizer-me o preço?",
+    en: "Hello, I tried it on the website: “{obra}”{autor}, at {medidas}{escolhido}{moldura}. Could you tell me the price?",
+    es: "Hola, lo probé en el sitio: “{obra}”{autor}, a {medidas}{escolhido}{moldura}. ¿Me pueden decir el precio?",
+  },
+  "parede.whatsapp.autor": {
+    pt: " de {autor}",
+    en: " by {autor}",
+    es: " de {autor}",
+  },
+  "parede.whatsapp.escolhido": {
+    pt: ", tamanho que escolhi para simular",
+    en: ", a size I chose to picture it",
+    es: ", tamaño que elegí para simular",
+  },
+  "parede.whatsapp.commoldura": {
+    pt: ", que com {moldura} fica {conjunto}",
+    en: ", which with {moldura} becomes {conjunto}",
+    es: ", que con {moldura} queda {conjunto}",
+  },
+  "parede.whatsapp.semmoldura": {
+    pt: ", sem moldura",
+    en: ", no frame",
+    es: ", sin marco",
+  },
 } as const satisfies Record<string, Record<Idioma, string>>;
 
 export type ChaveTexto = keyof typeof DICIONARIO;

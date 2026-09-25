@@ -31,15 +31,28 @@ export function temTraducao(
 }
 
 /** Traduz uma chave do dicionário de interface. */
-export function t(chave: ChaveTexto, idioma: Idioma): string {
+export function t(
+  chave: ChaveTexto,
+  idioma: Idioma,
+  valores?: Record<string, string | number>,
+): string {
   const entrada = DICIONARIO[chave] as Record<Idioma, string> | undefined;
   if (!entrada) return chave;
-  return entrada[idioma] ?? entrada[IDIOMA_BASE];
+  const frase = entrada[idioma] ?? entrada[IDIOMA_BASE];
+  if (!valores) return frase;
+  // A mesma convenção que a política de privacidade já usava com
+  // {email} e {telefone}: o marcador fica na frase, para o tradutor o
+  // poder pôr onde a língua dele o pede.
+  return Object.entries(valores).reduce(
+    (texto, [nome, valor]) => texto.replaceAll(`{${nome}}`, String(valor)),
+    frase,
+  );
 }
 
 /** Devolve um tradutor já preso a um idioma, para não repetir o argumento. */
 export function tradutor(idioma: Idioma) {
-  const fn = (chave: ChaveTexto) => t(chave, idioma);
+  const fn = (chave: ChaveTexto, valores?: Record<string, string | number>) =>
+    t(chave, idioma, valores);
   fn.idioma = idioma;
   fn.campo = (valor: Localizado | null | undefined) => texto(valor, idioma);
   return fn;

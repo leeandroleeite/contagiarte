@@ -33,6 +33,8 @@ export const DEFINICOES_OMISSAO: Definicoes = {
     es: "Arte contemporáneo de artistas nacionales e internacionales, marcos a medida y exposiciones en lugares que rompen con el modelo tradicional.",
   },
   ogImagemId: null,
+  molduraImagemId: null,
+  galeriaImagemId: null,
   avisoTopo: null,
   // Zero é o desenho original: as letras fundem-se com a fotografia.
   inversaoHeroi: 0,

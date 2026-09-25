@@ -18,6 +18,7 @@ import {
   listarLugares,
   listarObras,
   obterDefinicoes,
+  obterImagensDoSite,
   obterTextos,
   situacao,
 } from "@/lib/dados";
@@ -62,6 +63,7 @@ export default async function Homepage({
       listarExposicoes(),
       listarDescarregaveis(),
     ]);
+  const imagens = await obterImagensDoSite(def);
 
   const T = (chave: string, omissao = "") =>
     texto(txt[chave], idioma) || omissao;
@@ -395,7 +397,7 @@ export default async function Homepage({
           </div>
 
           <Imagem
-            media={null}
+            media={imagens.moldura}
             alt={T("molduras.imagem.alt")}
             proporcao="1/1"
             legenda={T("molduras.imagem.legenda")}
@@ -494,7 +496,7 @@ export default async function Homepage({
       <Seccao id="galeria">
         <div className="grid gap-16" style={colunas(320)}>
           <Imagem
-            media={null}
+            media={imagens.galeria}
             alt={T("home.galeria.imagem.alt")}
             proporcao="4/5"
             legenda={T("home.galeria.imagem.legenda")}

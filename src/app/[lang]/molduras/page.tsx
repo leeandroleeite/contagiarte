@@ -3,7 +3,11 @@ import { Botao } from "@/components/Botao";
 import { FormularioPedido } from "@/components/FormularioPedido";
 import { Imagem } from "@/components/Imagem";
 import { Seccao } from "@/components/Seccao";
-import { obterDefinicoes, obterTextos } from "@/lib/dados";
+import {
+  obterDefinicoes,
+  obterImagensDoSite,
+  obterTextos,
+} from "@/lib/dados";
 import { t, texto, type Idioma } from "@/lib/i18n";
 import { caminho } from "@/lib/i18n/config";
 import { comMarca, metadados } from "@/lib/metadados";
@@ -33,6 +37,7 @@ export default async function PaginaMolduras({
 }) {
   const { lang: idioma } = await params;
   const [def, txt] = await Promise.all([obterDefinicoes(), obterTextos()]);
+  const imagens = await obterImagensDoSite(def);
 
   // Os passos vêm da base, não daqui: a galeria muda-os no backoffice
   // sem esperar por um deploy. São sempre quatro, tantos quantos o
@@ -70,7 +75,7 @@ export default async function PaginaMolduras({
           </div>
 
           <Imagem
-            media={null}
+            media={imagens.moldura}
             alt={T("molduras.imagem.alt")}
             proporcao="1/1"
             legenda={T("molduras.imagem.legenda")}

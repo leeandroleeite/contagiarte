@@ -9,6 +9,7 @@ import {
   exposicoes,
   exposicoesArtistas,
   lugares,
+  media,
   molduras,
   obras,
   salas,
@@ -40,6 +41,28 @@ export async function obterDefinicoes(): Promise<Definicoes> {
     .limit(1);
   if (!linha) return DEFINICOES_OMISSAO;
   return { ...DEFINICOES_OMISSAO, ...linha.valor };
+}
+
+/**
+ * As fotografias das páginas fixas, já resolvidas em media.
+ *
+ * As definições guardam só o identificador; quem desenha a página
+ * precisa da chave, das medidas e do desfoque. Uma consulta para as
+ * duas, e `null` onde a galeria ainda não escolheu nenhuma.
+ */
+export async function obterImagensDoSite(def: Definicoes) {
+  const ids = [def.molduraImagemId, def.galeriaImagemId].filter(
+    (id): id is string => Boolean(id),
+  );
+  if (ids.length === 0) return { moldura: null, galeria: null };
+
+  const linhas = await db.select().from(media).where(inArray(media.id, ids));
+  const achar = (id?: string | null) =>
+    (id && linhas.find((m) => m.id === id)) || null;
+  return {
+    moldura: achar(def.molduraImagemId),
+    galeria: achar(def.galeriaImagemId),
+  };
 }
 
 export type MapaTextos = Record<string, Localizado>;

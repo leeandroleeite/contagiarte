@@ -7,6 +7,49 @@ import {
   politicaSeguranca,
 } from "@/lib/politica-seguranca";
 
+/**
+ * O que passa sem palavra-passe, mesmo com o muro de pé.
+ *
+ * A lista é curta de propósito, e cada linha tem uma razão. O `/_next`
+ * é o que o browser e o optimizador de imagens buscam para desenhar a
+ * página. O `/api/saude` é a sonda que a Fly usa para saber se a
+ * máquina está viva, e sem ela a máquina é dada por morta. O
+ * `/api/newsletter` são os links de confirmação que já foram por email,
+ * e quem os recebeu não tem a palavra-passe. O `robots.txt` tem de ser
+ * legível para poder dizer aos motores de busca que não indexem nada.
+ *
+ * O `/api/media` fica de fora, e não por escolha: é de lá que o
+ * optimizador de imagens do Next vai buscar cada fotografia, com um
+ * pedido que ele faz ao próprio servidor e que não leva palavra-passe
+ * nenhuma. Tapá-lo devolve 401 ao optimizador, que responde "The
+ * requested resource isn't a valid image", e o site fica sem uma única
+ * imagem. Medido. Dava para o distinguir, porque o pedido interno não
+ * traz `host` nem `user-agent`, mas assentar um muro na ausência de um
+ * cabeçalho quebra na próxima versão do Next sem avisar.
+ *
+ * Fica por isso de pé uma exposição, e é melhor dizê-la do que fingir
+ * que não existe: quem souber ou adivinhar uma chave de media
+ * descarrega essa fotografia sem palavra-passe. As chaves só aparecem
+ * no HTML das páginas, que está atrás do muro, mas há nomes previsíveis.
+ * Fecha-se no dia em que o site abrir, porque aí as fotografias são
+ * públicas de propósito.
+ *
+ * Tudo o mais passou para trás do muro, e antes não estava por o
+ * `matcher` nem chamar esta função: o `sitemap.xml` dava os 47
+ * endereços do site a quem os pedisse, e o `/api/descarregar` servia os
+ * PDFs do catálogo.
+ */
+const SEM_MURO = [
+  "/_next",
+  "/api/saude",
+  "/api/newsletter",
+  "/api/media",
+  "/favicon",
+  "/icon",
+  "/apple-icon",
+  "/robots.txt",
+];
+
 /** Caminhos que o middleware nunca deve tocar. */
 // Caminhos que não são páginas: não levam prefixo de idioma nem passam
 // pelo muro.
@@ -51,14 +94,6 @@ function iguais(a: string, b: string): boolean {
 
 export default async function proxy(pedido: NextRequest) {
   const { pathname } = pedido.nextUrl;
-
-  // Ficheiros estáticos de `public` também não são páginas: sem isto
-  // levavam prefixo de idioma e davam 404.
-  const EXTENSAO = /\.[a-z0-9]{2,5}$/i;
-
-  if (IGNORAR.some((p) => pathname.startsWith(p)) || EXTENSAO.test(pathname)) {
-    return NextResponse.next();
-  }
 
   // --- Política de segurança -------------------------------------------
   //
@@ -109,9 +144,13 @@ export default async function proxy(pedido: NextRequest) {
   // Não é uma coisa de staging: é um muro. Serve a um staging com uma
   // cópia do conteúdo real, e serve a uma produção que ainda não abriu
   // portas. Havendo password definida, nada passa sem ela.
+  //
+  // Vem antes da lista de caminhos que não são páginas, e é essa a
+  // ordem que interessa: ao contrário, as fotografias e o sitemap
+  // saíam por baixo dele.
   const palavraPasse =
     process.env.PALAVRA_PASSE_ENTRADA ?? process.env.STAGING_PASSWORD;
-  if (palavraPasse) {
+  if (palavraPasse && !SEM_MURO.some((p) => pathname.startsWith(p))) {
     const cabecalho = pedido.headers.get("authorization");
     if (!cabecalho?.startsWith("Basic ")) return pedirPalavraPasse(politica);
     let recebida = "";
@@ -121,6 +160,15 @@ export default async function proxy(pedido: NextRequest) {
       return pedirPalavraPasse(politica);
     }
     if (!iguais(recebida, palavraPasse)) return pedirPalavraPasse(politica);
+  }
+
+  // Ficheiros estáticos de `public` também não são páginas: sem isto
+  // levavam prefixo de idioma e davam 404. Fica aqui, e não no topo,
+  // porque o muro tem de correr primeiro.
+  const EXTENSAO = /\.[a-z0-9]{2,5}$/i;
+
+  if (IGNORAR.some((p) => pathname.startsWith(p)) || EXTENSAO.test(pathname)) {
+    return NextResponse.next();
   }
 
   // --- Cartão de partilha ----------------------------------------------
@@ -194,6 +242,13 @@ export default async function proxy(pedido: NextRequest) {
 export const config = {
   matcher: [
     // Tudo excepto ficheiros estáticos e rotas internas do Next.
-    "/((?!_next/static|_next/image|api|media|favicon.ico|robots.txt|sitemap.xml|.*\\.(?:png|jpg|jpeg|gif|svg|webp|avif|ico|pdf|txt|xml|webmanifest)$).*)",
+    // Só ficam de fora as rotas internas do Next, que o muro nunca pode
+    // tapar. O resto passa por aqui, e é a função que decide: primeiro
+    // se precisa de palavra-passe, depois se é página.
+    //
+    // Antes esta linha excluía `api`, `media`, `sitemap.xml` e tudo o que
+    // acabasse em extensão de imagem ou pdf. Era um buraco no muro, não
+    // uma optimização: o proxy nem era chamado para esses caminhos.
+    "/((?!_next/static|_next/image).*)",
   ],
 };

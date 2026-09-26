@@ -18,16 +18,12 @@ export async function generateMetadata({
   params: Promise<{ lang: Idioma }>;
 }): Promise<Metadata> {
   const { lang } = await params;
+  const txt = await obterTextos();
   return metadados({
     idioma: lang,
     path: "/artistas",
     titulo: comMarca(t("nav.artistas", lang)),
-    descricao:
-      lang === "pt"
-        ? "Os artistas representados pela Galeria Contagiarte, entre pintura, escultura, cerâmica e colagem."
-        : lang === "en"
-          ? "The artists represented by Galeria Contagiarte, across painting, sculpture, ceramics and collage."
-          : "Los artistas representados por la Galería Contagiarte, entre pintura, escultura, cerámica y collage.",
+    descricao: texto(txt["artistas.descricao"], lang),
   });
 }
 
@@ -68,10 +64,7 @@ export default async function PaginaArtistas({
       </Seccao>
 
       <Seccao semFio>
-        <ul
-          className="grid gap-x-6 gap-y-12"
-          style={colunas(240, "auto-fill")}
-        >
+        <ul className="grid gap-x-6 gap-y-12" style={colunas(240, "auto-fill")}>
           {artistas.map((a) => (
             <li key={a.id}>
               <Link

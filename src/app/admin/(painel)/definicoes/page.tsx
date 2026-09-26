@@ -5,7 +5,9 @@ import {
   CampoTexto,
 } from "@/components/admin/Campos";
 import { Aviso, Grelha, CabecalhoSeccao, Conteudo } from "@/components/admin/Pecas";
+import { CampoMedia } from "@/components/admin/CampoMedia";
 import { guardarDefinicoes } from "@/lib/admin/accoes";
+import { listarMedia } from "@/lib/admin/media";
 import { obterDefinicoes } from "@/lib/dados";
 import { env } from "@/lib/env";
 
@@ -17,11 +19,16 @@ export default async function PaginaDefinicoes({
   searchParams: Promise<{ guardado?: string }>;
 }) {
   const { guardado } = await searchParams;
-  const d = await obterDefinicoes();
+  const [d, biblioteca] = await Promise.all([
+    obterDefinicoes(),
+    listarMedia("imagem"),
+  ]);
+  const imagem = (id?: string | null) =>
+    biblioteca.find((m) => m.id === id) ?? null;
 
   return (
     <>
-      <CabecalhoSeccao descricao="Contactos, redes e cartão de partilha. Aparecem no rodapé de todas as páginas.">
+      <CabecalhoSeccao descricao="Contactos, redes, cartão de partilha e as fotografias das páginas fixas.">
         Definições
       </CabecalhoSeccao>
 
@@ -95,6 +102,33 @@ export default async function PaginaDefinicoes({
             valor={d.ogDescricao}
             linhas={3}
             nota="Até 155 caracteres, para não ficar cortada."
+            largo
+          />
+
+          <CampoMedia
+            nome="ogImagemId"
+            rotulo="Imagem de partilha"
+            valor={imagem(d.ogImagemId)}
+            biblioteca={biblioteca}
+            nota="O que aparece na miniatura quando alguém manda o link do site. Sem esta, cada página usa a fotografia que tiver."
+            largo
+          />
+
+          <CampoMedia
+            nome="molduraImagemId"
+            rotulo="Fotografia das molduras"
+            valor={imagem(d.molduraImagemId)}
+            biblioteca={biblioteca}
+            nota="Aparece na entrada e na página das molduras. Sem ela, fica um marcador vazio nos dois sítios."
+            largo
+          />
+
+          <CampoMedia
+            nome="galeriaImagemId"
+            rotulo="Retrato dos art dealers"
+            valor={imagem(d.galeriaImagemId)}
+            biblioteca={biblioteca}
+            nota="Aparece na entrada e na página A galeria. Sem ele, fica um marcador vazio nos dois sítios."
             largo
           />
 

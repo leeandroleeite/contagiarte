@@ -38,16 +38,12 @@ export async function generateMetadata({
   params: Promise<{ lang: Idioma }>;
 }): Promise<Metadata> {
   const { lang } = await params;
+  const txt = await obterTextos();
   return metadados({
     idioma: lang,
     path: "/a-obra-como-ativo",
     titulo: comMarca(t("nav.ativo", lang)),
-    descricao:
-      lang === "pt"
-        ? "O que faz uma obra de arte valorizar, o que a galeria avalia antes de representar um artista, e o que ninguém honesto lhe pode prometer."
-        : lang === "en"
-          ? "What makes a work of art appreciate, what the gallery assesses before representing an artist, and what nobody honest can promise you."
-          : "Qué hace que una obra de arte se revalorice, qué evalúa la galería antes de representar a un artista, y lo que nadie honesto puede prometerle.",
+    descricao: texto(txt["ativo.descricao"], lang),
   });
 }
 
@@ -111,7 +107,10 @@ export default async function PaginaAtivo({
               <span className="text-[11px] tracking-[0.2em] text-[rgba(242,237,228,0.55)]">
                 {String(n).padStart(2, "0")}
               </span>
-              <span className="titulo-med text-[19px]" style={{ fontWeight: 800 }}>
+              <span
+                className="titulo-med text-[19px]"
+                style={{ fontWeight: 800 }}
+              >
                 {T(`ativo.criterio.${n}.titulo`)}
               </span>
               <p className="text-[16px] leading-[1.6] text-[rgba(242,237,228,0.7)]">
@@ -229,7 +228,7 @@ export default async function PaginaAtivo({
                 externo
                 href={linkWhatsApp(
                   def.whatsapp,
-                  "Olá, queria perceber melhor o percurso dos artistas que representam.",
+                  texto(txt["ativo.whatsapp"], idioma),
                 )}
               >
                 {idioma === "pt"

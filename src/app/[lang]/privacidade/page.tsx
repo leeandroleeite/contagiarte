@@ -12,16 +12,12 @@ export async function generateMetadata({
   params: Promise<{ lang: Idioma }>;
 }): Promise<Metadata> {
   const { lang } = await params;
+  const txt = await obterTextos();
   return metadados({
     idioma: lang,
     path: "/privacidade",
     titulo: comMarca(t("privacidade.titulo", lang)),
-    descricao:
-      lang === "pt"
-        ? "Que dados a galeria guarda quando alguém envia um pedido ou subscreve a newsletter, durante quanto tempo, e como se pedem apagados."
-        : lang === "en"
-          ? "What the gallery stores when someone sends an enquiry or subscribes, for how long, and how to ask for it to be deleted."
-          : "Qué datos guarda la galería cuando alguien envía una solicitud o se suscribe, durante cuánto tiempo, y cómo pedir que se borren.",
+    descricao: texto(txt["privacidade.descricao"], lang),
     semIndice: true,
   });
 }
@@ -57,11 +53,7 @@ export default async function PaginaPrivacidade({
         </h1>
         {/* Aviso do design. Sai quando um advogado rever o texto. */}
         <p className="text-[14px] text-[rgba(242,237,228,0.55)]">
-          {idioma === "pt"
-            ? "Rascunho por rever juridicamente. Última atualização: por definir."
-            : idioma === "en"
-              ? "Draft pending legal review. Last updated: to be defined."
-              : "Borrador pendiente de revisión jurídica. Última actualización: por definir."}
+          {texto(txt["privacidade.nota"], idioma)}
         </p>
       </div>
 

@@ -14,16 +14,12 @@ export async function generateMetadata({
   params: Promise<{ lang: Idioma }>;
 }): Promise<Metadata> {
   const { lang } = await params;
+  const txt = await obterTextos();
   return metadados({
     idioma: lang,
     path: "/arquivo",
     titulo: comMarca(t("nav.arquivo", lang)),
-    descricao:
-      lang === "pt"
-        ? "Arquivo de exposições e curadorias da Galeria Contagiarte, ano a ano."
-        : lang === "en"
-          ? "Archive of exhibitions and curatorial projects by Galeria Contagiarte, year by year."
-          : "Archivo de exposiciones y curadurías de la Galería Contagiarte, año a año.",
+    descricao: texto(txt["arquivo.descricao"], lang),
   });
 }
 

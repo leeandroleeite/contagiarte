@@ -408,6 +408,8 @@ export async function guardarDefinicoes(dados: FormData) {
     ogDescricao:
       lerLocalizado(dados, "ogDescricao") ?? DEFINICOES_OMISSAO.ogDescricao,
     ogImagemId: lerRelacao(dados, "ogImagemId"),
+    molduraImagemId: lerRelacao(dados, "molduraImagemId"),
+    galeriaImagemId: lerRelacao(dados, "galeriaImagemId"),
     avisoTopo: lerLocalizado(dados, "avisoTopo"),
     inversaoHeroi: Math.min(
       100,

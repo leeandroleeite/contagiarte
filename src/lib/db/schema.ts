@@ -435,6 +435,14 @@ export type Definicoes = {
   ogDescricao: Localizado;
   /** Chave de media da imagem de partilha. */
   ogImagemId?: string | null;
+  /**
+   * Fotografias que aparecem em páginas fixas e não pertencem a uma
+   * obra nem a um lugar: a moldura, na entrada e em /molduras, e o
+   * retrato dos art dealers, na entrada e em /a-galeria. Sem elas, o
+   * visitante vê um marcador com o tamanho certo e mais nada.
+   */
+  molduraImagemId?: string | null;
+  galeriaImagemId?: string | null;
   avisoTopo?: Localizado | null;
   /**
    * Quanto destacar o título da entrada da fotografia que tem por

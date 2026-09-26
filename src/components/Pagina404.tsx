@@ -28,6 +28,8 @@ export async function Pagina404({
 
   const titulo = texto(txt["404.titulo"], idioma) || t("404.titulo", idioma);
   const corpo = texto(txt["404.texto"], idioma) || t("404.texto", idioma);
+  const mensagem =
+    texto(txt["404.whatsapp"], idioma) || t("404.whatsapp", idioma);
 
   const rotulos =
     idioma === "en"
@@ -58,10 +60,7 @@ export async function Pagina404({
         <Botao
           variante="linha"
           externo
-          href={linkWhatsApp(
-            def.whatsapp,
-            "Olá, andava à procura de algo no site.",
-          )}
+          href={linkWhatsApp(def.whatsapp, mensagem)}
         >
           {rotulos[2]}
         </Botao>

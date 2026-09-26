@@ -130,7 +130,11 @@ export const TEXTOS: Array<{
     chave: "home.galeria.titulo",
     grupo: "homepage",
     nota: "Bloco sobre a galeria.",
-    valor: L("MAIS DO QUE UM ESPAÇO", "MORE THAN A SPACE", "MÁS QUE UN ESPACIO"),
+    valor: L(
+      "MAIS DO QUE UM ESPAÇO",
+      "MORE THAN A SPACE",
+      "MÁS QUE UN ESPACIO",
+    ),
   },
   {
     chave: "home.galeria.texto",
@@ -178,6 +182,314 @@ export const TEXTOS: Array<{
       "A moldura certa transforma a presença de uma obra. Vidro museu Tru-Vue®, madeiras naturais selecionadas e alumínio de precisão, com orçamento imediato, recolha, entrega e instalação.",
       "The right frame transforms how a work occupies a room. Tru-Vue® museum glass, selected natural woods and precision aluminium, with an immediate quote, collection, delivery and installation.",
       "El marco adecuado transforma la presencia de una obra. Vidrio museo Tru-Vue®, maderas naturales seleccionadas y aluminio de precisión, con presupuesto inmediato, recogida, entrega e instalación.",
+    ),
+  },
+  {
+    chave: "molduras.descricao",
+    grupo: "molduras",
+    nota: "Descrição da página nos motores de busca e nos cartões de partilha.",
+    valor: L(
+      "Molduras à medida com a MOLDARTPÓVOA: vidro museu Tru-Vue®, madeiras naturais e alumínio de precisão, com recolha, entrega e instalação.",
+      "Bespoke framing with MOLDARTPÓVOA: Tru-Vue® museum glass, natural woods and precision aluminium, with collection, delivery and installation.",
+      "Marcos a medida con MOLDARTPÓVOA: vidrio museo Tru-Vue®, maderas naturales y aluminio de precisión, con recogida, entrega e instalación.",
+    ),
+  },
+  {
+    chave: "molduras.imagem.alt",
+    grupo: "molduras",
+    nota: "Alternativa da fotografia, para quem não a vê. Descrever o que lá está.",
+    valor: L(
+      "Moldura produzida em parceria com a MOLDARTPÓVOA",
+      "Frame made in partnership with MOLDARTPÓVOA",
+      "Marco producido en alianza con MOLDARTPÓVOA",
+    ),
+  },
+  {
+    chave: "molduras.imagem.legenda",
+    grupo: "molduras",
+    nota: "Texto do marcador enquanto não houver fotografia carregada.",
+    valor: L("Molduras MOLDARTPÓVOA"),
+  },
+  {
+    chave: "molduras.whatsapp",
+    grupo: "molduras",
+    nota: "Mensagem já escrita quando o visitante abre o WhatsApp daqui.",
+    valor: L(
+      "Olá, queria um orçamento de moldura.",
+      "Hello, I would like a quote for framing.",
+      "Hola, quería un presupuesto de marco.",
+    ),
+  },
+  {
+    chave: "molduras.passo1.titulo",
+    grupo: "molduras",
+    nota: "Passo 1 do processo. O número vem à frente no desenho.",
+    valor: L("01 · MEDIR", "01 · MEASURE", "01 · MEDIR"),
+  },
+  {
+    chave: "molduras.passo1.texto",
+    grupo: "molduras",
+    nota: "O que acontece no passo 1.",
+    valor: L(
+      "Diz-nos as medidas da obra, ou levantamo-la em sua casa.",
+      "Tell us the dimensions, or we collect the work from you.",
+      "Díganos las medidas, o recogemos la obra en su casa.",
+    ),
+  },
+  {
+    chave: "molduras.passo2.titulo",
+    grupo: "molduras",
+    nota: "Passo 2 do processo. O número vem à frente no desenho.",
+    valor: L("02 · ESCOLHER", "02 · CHOOSE", "02 · ELEGIR"),
+  },
+  {
+    chave: "molduras.passo2.texto",
+    grupo: "molduras",
+    nota: "O que acontece no passo 2.",
+    valor: L(
+      "Vê madeiras, alumínios e vidros, com orçamento na hora.",
+      "See woods, aluminium and glass, with a quote on the spot.",
+      "Vea maderas, aluminios y vidrios, con presupuesto al momento.",
+    ),
+  },
+  {
+    chave: "molduras.passo3.titulo",
+    grupo: "molduras",
+    nota: "Passo 3 do processo. O número vem à frente no desenho.",
+    valor: L("03 · PRODUZIR", "03 · MAKE", "03 · PRODUCIR"),
+  },
+  {
+    chave: "molduras.passo3.texto",
+    grupo: "molduras",
+    nota: "O que acontece no passo 3.",
+    valor: L(
+      "A MOLDARTPÓVOA produz a moldura à medida na fábrica.",
+      "MOLDARTPÓVOA makes the frame to measure at the factory.",
+      "MOLDARTPÓVOA produce el marco a medida en fábrica.",
+    ),
+  },
+  {
+    chave: "molduras.passo4.titulo",
+    grupo: "molduras",
+    nota: "Passo 4 do processo. O número vem à frente no desenho.",
+    valor: L("04 · INSTALAR", "04 · INSTALL", "04 · INSTALAR"),
+  },
+  {
+    chave: "molduras.passo4.texto",
+    grupo: "molduras",
+    nota: "O que acontece no passo 4.",
+    valor: L(
+      "Entregamos e deixamos a obra pendurada no sítio certo.",
+      "We deliver and hang the work in the right place.",
+      "Entregamos y dejamos la obra colgada en el sitio adecuado.",
+    ),
+  },
+  {
+    chave: "contactos.descricao",
+    grupo: "contactos",
+    nota: "Descrição da página nos motores de busca e nos cartões de partilha.",
+    valor: L(
+      "Fale com a Galeria Contagiarte por WhatsApp, email ou telefone.",
+      "Reach Galeria Contagiarte on WhatsApp, by email or by phone.",
+      "Contacte con la Galería Contagiarte por WhatsApp, email o teléfono.",
+    ),
+  },
+  {
+    chave: "contactos.intro",
+    grupo: "contactos",
+    nota: "Frase de abertura, ao lado dos contactos.",
+    valor: L(
+      "O WhatsApp é o caminho mais rápido. Respondemos todos os dias.",
+      "WhatsApp is the fastest route. We answer every day.",
+      "WhatsApp es la vía más rápida. Respondemos todos los días.",
+    ),
+  },
+  {
+    chave: "contactos.whatsapp.visita",
+    grupo: "contactos",
+    nota: "Mensagem já escrita no botão de marcar visita.",
+    valor: L(
+      "Olá, queria marcar uma visita à galeria.",
+      "Hello, I would like to book a visit to the gallery.",
+      "Hola, quería concertar una visita a la galería.",
+    ),
+  },
+  {
+    chave: "whatsapp.site",
+    grupo: "geral",
+    nota: "Mensagem já escrita nos botões de WhatsApp que não são de um assunto em particular: o botão flutuante, o rodapé e a página de contactos.",
+    valor: L(
+      "Olá, venho do site da Galeria Contagiarte.",
+      "Hello, I came from the Galeria Contagiarte website.",
+      "Hola, vengo del sitio de la Galería Contagiarte.",
+    ),
+  },
+  {
+    chave: "newsletter.etiqueta",
+    grupo: "newsletter",
+    nota: "Etiqueta por cima do bloco de subscrição, na entrada e nos contactos.",
+    valor: L("NEWSLETTER"),
+  },
+  {
+    chave: "home.destaque.alt",
+    grupo: "homepage",
+    nota: "Alternativa da fotografia do herói quando há exposição em curso. Aceita {obra} como marcador, que é substituído pelo título da exposição.",
+    valor: L(
+      "{obra}, exposição em curso",
+      "{obra}, exhibition on show",
+      "{obra}, exposición en curso",
+    ),
+  },
+  {
+    chave: "home.destaque.alt.sem",
+    grupo: "homepage",
+    nota: "Alternativa da fotografia do herói quando não há exposição em curso.",
+    valor: L(
+      "Obra em destaque da Galeria Contagiarte",
+      "Featured work at Galeria Contagiarte",
+      "Obra destacada de la Galería Contagiarte",
+    ),
+  },
+  {
+    chave: "home.destaque.legenda",
+    grupo: "homepage",
+    nota: "Texto do marcador do herói enquanto não houver fotografia carregada.",
+    valor: L("Obra em destaque", "Featured work", "Obra destacada"),
+  },
+  {
+    chave: "home.galeria.imagem.alt",
+    grupo: "homepage",
+    nota: "Alternativa do retrato na secção A galeria.",
+    valor: L(
+      "Rui Pedro e Maria João, art dealers da Galeria Contagiarte",
+      "Rui Pedro and Maria João, art dealers at Galeria Contagiarte",
+      "Rui Pedro y Maria João, art dealers de la Galería Contagiarte",
+    ),
+  },
+  {
+    chave: "home.galeria.imagem.legenda",
+    grupo: "homepage",
+    nota: "Texto do marcador da secção A galeria enquanto não houver retrato.",
+    valor: L("Rui Pedro & Maria João, art dealers"),
+  },
+  {
+    chave: "descarregar.descricao",
+    grupo: "descarregáveis",
+    nota: "Descrição da página nos motores de busca.",
+    valor: L(
+      "Catálogo, dossiers de exposição e flyers da Galeria Contagiarte, em PDF.",
+      "Catalogue, exhibition press kits and flyers from Galeria Contagiarte, in PDF.",
+      "Catálogo, dosieres de exposición y folletos de la Galería Contagiarte, en PDF.",
+    ),
+  },
+  {
+    chave: "privacidade.descricao",
+    grupo: "legal",
+    nota: "Descrição da página nos motores de busca.",
+    valor: L(
+      "Que dados a galeria guarda quando alguém envia um pedido ou subscreve a newsletter, durante quanto tempo, e como se pedem apagados.",
+      "What the gallery stores when someone sends an enquiry or subscribes, for how long, and how to ask for it to be deleted.",
+      "Qué datos guarda la galería cuando alguien envía una solicitud o se suscribe, durante cuánto tiempo, y cómo pedir que se borren.",
+    ),
+  },
+  {
+    chave: "arquivo.descricao",
+    grupo: "arquivo",
+    nota: "Descrição da página nos motores de busca.",
+    valor: L(
+      "Arquivo de exposições e curadorias da Galeria Contagiarte, ano a ano.",
+      "Archive of exhibitions and curatorial projects by Galeria Contagiarte, year by year.",
+      "Archivo de exposiciones y curadurías de la Galería Contagiarte, año a año.",
+    ),
+  },
+  {
+    chave: "artistas.descricao",
+    grupo: "artistas",
+    nota: "Descrição da página nos motores de busca.",
+    valor: L(
+      "Os artistas representados pela Galeria Contagiarte, entre pintura, escultura, cerâmica e colagem.",
+      "The artists represented by Galeria Contagiarte, across painting, sculpture, ceramics and collage.",
+      "Los artistas representados por la Galería Contagiarte, entre pintura, escultura, cerámica y collage.",
+    ),
+  },
+  {
+    chave: "exposicoes.descricao",
+    grupo: "exposições",
+    nota: "Descrição da página nos motores de busca.",
+    valor: L(
+      "Exposições e curadorias da Galeria Contagiarte, em adegas, hotéis, clubes e centros culturais.",
+      "Exhibitions and curatorial projects by Galeria Contagiarte, in wineries, hotels, clubs and cultural centres.",
+      "Exposiciones y curadurías de la Galería Contagiarte, en bodegas, hoteles, clubes y centros culturales.",
+    ),
+  },
+  {
+    chave: "obras.descricao",
+    grupo: "obras",
+    nota: "Descrição da página nos motores de busca.",
+    valor: L(
+      "Obras disponíveis na Galeria Contagiarte: pintura, escultura, cerâmica e técnica mista de artistas nacionais e internacionais.",
+      "Works available at Galeria Contagiarte: painting, sculpture, ceramics and mixed media by Portuguese and international artists.",
+      "Obras disponibles en la Galería Contagiarte: pintura, escultura, cerámica y técnica mixta de artistas nacionales e internacionales.",
+    ),
+  },
+  {
+    chave: "lugares.descricao",
+    grupo: "lugares",
+    nota: "Descrição da página nos motores de busca.",
+    valor: L(
+      "Adegas, hotéis, clubes e centros culturais onde a Galeria Contagiarte expõe.",
+      "Wineries, hotels, clubs and cultural centres where Galeria Contagiarte exhibits.",
+      "Bodegas, hoteles, clubes y centros culturales donde expone la Galería Contagiarte.",
+    ),
+  },
+  {
+    chave: "ativo.descricao",
+    grupo: "ativo",
+    nota: "Descrição da página nos motores de busca.",
+    valor: L(
+      "O que faz uma obra de arte valorizar, o que a galeria avalia antes de representar um artista, e o que ninguém honesto lhe pode prometer.",
+      "What makes a work of art appreciate, what the gallery assesses before representing an artist, and what nobody honest can promise you.",
+      "Qué hace que una obra de arte se revalorice, qué evalúa la galería antes de representar a un artista, y lo que nadie honesto puede prometerle.",
+    ),
+  },
+  {
+    chave: "descarregar.vazio",
+    grupo: "descarregáveis",
+    nota: "O que o visitante lê enquanto não houver documentos publicados.",
+    valor: L(
+      "Ainda não há documentos publicados. Assim que o catálogo estiver carregado, aparece aqui.",
+      "No documents published yet. As soon as the catalogue is uploaded, it appears here.",
+      "Todavía no hay documentos publicados. En cuanto el catálogo esté cargado, aparecerá aquí.",
+    ),
+  },
+  {
+    chave: "privacidade.nota",
+    grupo: "legal",
+    nota: "Aviso por cima do texto legal. Tirar quando um advogado o rever.",
+    valor: L(
+      "Rascunho por rever juridicamente. Última atualização: por definir.",
+      "Draft pending legal review. Last updated: to be defined.",
+      "Borrador pendiente de revisión jurídica. Última actualización: por definir.",
+    ),
+  },
+  {
+    chave: "ativo.whatsapp",
+    grupo: "ativo",
+    nota: "Mensagem já escrita no botão de WhatsApp desta página.",
+    valor: L(
+      "Olá, queria perceber melhor o percurso dos artistas que representam.",
+      "Hello, I would like to understand the careers of the artists you represent.",
+      "Hola, quería entender mejor la trayectoria de los artistas que representan.",
+    ),
+  },
+  {
+    chave: "404.whatsapp",
+    grupo: "404",
+    nota: "Mensagem já escrita no botão de WhatsApp da página de erro.",
+    valor: L(
+      "Olá, andava à procura de algo no site.",
+      "Hello, I was looking for something on the website.",
+      "Hola, estaba buscando algo en el sitio.",
     ),
   },
   {

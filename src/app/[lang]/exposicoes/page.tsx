@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { Imagem } from "@/components/Imagem";
 import { Seccao, TituloSeccao } from "@/components/Seccao";
-import { listarExposicoes, situacao } from "@/lib/dados";
+import { listarExposicoes, situacao, obterTextos } from "@/lib/dados";
 import { periodo, t, texto, type Idioma } from "@/lib/i18n";
 import { caminho } from "@/lib/i18n/config";
 import { comMarca, metadados } from "@/lib/metadados";
@@ -16,16 +16,12 @@ export async function generateMetadata({
   params: Promise<{ lang: Idioma }>;
 }): Promise<Metadata> {
   const { lang } = await params;
+  const txt = await obterTextos();
   return metadados({
     idioma: lang,
     path: "/exposicoes",
     titulo: comMarca(t("nav.exposicoes", lang)),
-    descricao:
-      lang === "pt"
-        ? "Exposições e curadorias da Galeria Contagiarte, em adegas, hotéis, clubes e centros culturais."
-        : lang === "en"
-          ? "Exhibitions and curatorial projects by Galeria Contagiarte, in wineries, hotels, clubs and cultural centres."
-          : "Exposiciones y curadurías de la Galería Contagiarte, en bodegas, hoteles, clubes y centros culturales.",
+    descricao: texto(txt["exposicoes.descricao"], lang),
   });
 }
 

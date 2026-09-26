@@ -1,7 +1,12 @@
 import type { Metadata } from "next";
 import { Imagem } from "@/components/Imagem";
 import { Seccao } from "@/components/Seccao";
-import { listarLugares, obterTextos } from "@/lib/dados";
+import {
+  listarLugares,
+  obterDefinicoes,
+  obterImagensDoSite,
+  obterTextos,
+} from "@/lib/dados";
 import { t, texto, type Idioma } from "@/lib/i18n";
 import { comMarca, metadados } from "@/lib/metadados";
 import { colunas } from "@/lib/utils";
@@ -29,7 +34,12 @@ export default async function PaginaGaleria({
   params: Promise<{ lang: Idioma }>;
 }) {
   const { lang: idioma } = await params;
-  const [txt, lugares] = await Promise.all([obterTextos(), listarLugares()]);
+  const [txt, lugares, def] = await Promise.all([
+    obterTextos(),
+    listarLugares(),
+    obterDefinicoes(),
+  ]);
+  const imagens = await obterImagensDoSite(def);
 
   return (
     <>
@@ -39,10 +49,10 @@ export default async function PaginaGaleria({
           style={colunas(320)}
         >
           <Imagem
-            media={null}
-            alt="Rui Pedro e Maria João, art dealers da Galeria Contagiarte"
+            media={imagens.galeria}
+            alt={texto(txt["home.galeria.imagem.alt"], idioma)}
             proporcao="4/5"
-            legenda="Rui Pedro & Maria João, art dealers"
+            legenda={texto(txt["home.galeria.imagem.legenda"], idioma)}
             prioridade
             sizes="(max-width: 900px) 100vw, 45vw"
           />

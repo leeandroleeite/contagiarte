@@ -17,9 +17,12 @@ import { colunas, linkWhatsApp } from "@/lib/utils";
 export function Rodape({
   idioma,
   definicoes: d,
+  mensagemWhatsApp,
 }: {
   idioma: Idioma;
   definicoes: Definicoes;
+  /** Vem do layout, que é quem lê a base. Editável no backoffice. */
+  mensagemWhatsApp: string;
 }) {
   const ano = new Date().getFullYear();
 
@@ -35,10 +38,7 @@ export function Rodape({
       >
         <Coluna titulo={t("rodape.direto", idioma)}>
           <a
-            href={linkWhatsApp(
-              d.whatsapp,
-              "Olá, venho do site da Galeria Contagiarte.",
-            )}
+            href={linkWhatsApp(d.whatsapp, mensagemWhatsApp)}
             target="_blank"
             rel="noopener noreferrer"
           >

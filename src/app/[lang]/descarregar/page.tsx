@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { Seccao, TituloSeccao } from "@/components/Seccao";
-import { listarDescarregaveis } from "@/lib/dados";
+import { listarDescarregaveis, obterTextos } from "@/lib/dados";
 import { t, texto, type Idioma } from "@/lib/i18n";
 import { comMarca, metadados } from "@/lib/metadados";
 import { colunas } from "@/lib/utils";
@@ -13,16 +13,12 @@ export async function generateMetadata({
   params: Promise<{ lang: Idioma }>;
 }): Promise<Metadata> {
   const { lang } = await params;
+  const txt = await obterTextos();
   return metadados({
     idioma: lang,
     path: "/descarregar",
     titulo: comMarca(t("nav.descarregar", lang)),
-    descricao:
-      lang === "pt"
-        ? "Catálogo, dossiers de exposição e flyers da Galeria Contagiarte, em PDF."
-        : lang === "en"
-          ? "Catalogue, exhibition press kits and flyers from Galeria Contagiarte, in PDF."
-          : "Catálogo, dosieres de exposición y folletos de la Galería Contagiarte, en PDF.",
+    descricao: texto(txt["descarregar.descricao"], lang),
   });
 }
 
@@ -32,7 +28,10 @@ export default async function PaginaDescarregar({
   params: Promise<{ lang: Idioma }>;
 }) {
   const { lang: idioma } = await params;
-  const ficheiros = await listarDescarregaveis();
+  const [ficheiros, txt] = await Promise.all([
+    listarDescarregaveis(),
+    obterTextos(),
+  ]);
 
   return (
     <Seccao className="pt-[160px]" semFio>
@@ -40,17 +39,10 @@ export default async function PaginaDescarregar({
 
       {ficheiros.length === 0 ? (
         <p className="max-w-[52ch] text-[16px] text-claro-55">
-          {idioma === "pt"
-            ? "Ainda não há documentos publicados. Assim que o catálogo estiver carregado, aparece aqui."
-            : idioma === "en"
-              ? "No documents published yet. As soon as the catalogue is uploaded, it appears here."
-              : "Todavía no hay documentos publicados. En cuanto el catálogo esté cargado, aparecerá aquí."}
+          {texto(txt["descarregar.vazio"], idioma)}
         </p>
       ) : (
-        <ul
-          className="grid gap-6"
-          style={colunas(280)}
-        >
+        <ul className="grid gap-6" style={colunas(280)}>
           {ficheiros.map((f) => (
             <li key={f.id} className="contents">
               <a

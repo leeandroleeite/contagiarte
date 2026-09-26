@@ -17,16 +17,12 @@ export async function generateMetadata({
   params: Promise<{ lang: Idioma }>;
 }): Promise<Metadata> {
   const { lang } = await params;
+  const txt = await obterTextos();
   return metadados({
     idioma: lang,
     path: "/contactos",
     titulo: comMarca(t("nav.contactos", lang)),
-    descricao:
-      lang === "pt"
-        ? "Fale com a Galeria Contagiarte por WhatsApp, email ou telefone."
-        : lang === "en"
-          ? "Reach Galeria Contagiarte on WhatsApp, by email or by phone."
-          : "Contacte con la Galería Contagiarte por WhatsApp, email o teléfono.",
+    descricao: texto(txt["contactos.descricao"], lang),
   });
 }
 
@@ -37,6 +33,7 @@ export default async function PaginaContactos({
 }) {
   const { lang: idioma } = await params;
   const [def, txt] = await Promise.all([obterDefinicoes(), obterTextos()]);
+  const T = (chave: string) => texto(txt[chave], idioma);
 
   return (
     <>
@@ -47,25 +44,15 @@ export default async function PaginaContactos({
           {t("rodape.fale", idioma).toUpperCase()}
         </h1>
 
-        <div
-          className="grid gap-16"
-          style={colunas(300)}
-        >
+        <div className="grid gap-16" style={colunas(300)}>
           <div className="flex flex-col gap-6">
             <p className="max-w-[44ch] text-[18px] leading-[1.6] text-[rgba(242,237,228,0.8)]">
-              {idioma === "pt"
-                ? "O WhatsApp é o caminho mais rápido. Respondemos todos os dias."
-                : idioma === "en"
-                  ? "WhatsApp is the fastest route. We answer every day."
-                  : "WhatsApp es la vía más rápida. Respondemos todos los días."}
+              {T("contactos.intro")}
             </p>
 
             <div className="flex flex-col gap-3 text-[18px]">
               <a
-                href={linkWhatsApp(
-                  def.whatsapp,
-                  "Olá, venho do site da Galeria Contagiarte.",
-                )}
+                href={linkWhatsApp(def.whatsapp, T("whatsapp.site"))}
                 target="_blank"
                 rel="noopener noreferrer"
               >
@@ -91,10 +78,7 @@ export default async function PaginaContactos({
             <Botao
               externo
               className="self-start"
-              href={linkWhatsApp(
-                def.whatsapp,
-                "Olá, queria marcar uma visita à galeria.",
-              )}
+              href={linkWhatsApp(def.whatsapp, T("contactos.whatsapp.visita"))}
             >
               {t("acao.visita", idioma)}
             </Botao>
@@ -114,19 +98,16 @@ export default async function PaginaContactos({
       </Seccao>
 
       <Seccao claro semFio>
-        <div
-          className="grid items-center gap-16"
-          style={colunas(340)}
-        >
+        <div className="grid items-center gap-16" style={colunas(340)}>
           <div className="flex flex-col gap-5">
             <span className="text-[11px] tracking-[0.3em] text-[rgba(14,12,11,0.62)] uppercase">
-              NEWSLETTER
+              {T("newsletter.etiqueta")}
             </span>
             <h2 className="titulo max-w-[14ch] text-[clamp(34px,5.5vw,88px)] leading-[0.9]">
-              {texto(txt["newsletter.titulo"], idioma)}
+              {T("newsletter.titulo")}
             </h2>
             <p className="max-w-[44ch] text-[17px] leading-[1.6] text-[rgba(14,12,11,0.7)]">
-              {texto(txt["newsletter.texto"], idioma)}
+              {T("newsletter.texto")}
             </p>
           </div>
           <FormularioNewsletter idioma={idioma} origem="pagina-contactos" />

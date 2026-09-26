@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { t, type Idioma } from "@/lib/i18n";
+import { t, type Idioma, type ChaveTexto } from "@/lib/i18n";
 import { urlMedia } from "@/lib/media/url";
 import { colunas, cx, linkWhatsApp } from "@/lib/utils";
 
@@ -70,29 +70,16 @@ const PASSES: Passe[] = [
   },
 ];
 
+/**
+ * O nome de uma margem, no idioma de quem lê.
+ *
+ * As frases vivem no dicionário como as outras; aqui fica só a ponte
+ * entre o slug guardado na ficha e a chave que lhe corresponde.
+ */
 function nomePasse(slug: string, idioma: Idioma): string {
-  const pt: Record<string, string> = {
-    "sem-passe": "Sem margem",
-    estreita: "Margem estreita, 4 cm",
-    larga: "Margem larga, 10 cm",
-    dupla: "Dupla margem",
-    filete: "Filete azul",
-  };
-  const en: Record<string, string> = {
-    "sem-passe": "No mount",
-    estreita: "Narrow mount, 4 cm",
-    larga: "Wide mount, 10 cm",
-    dupla: "Double mount",
-    filete: "Navy fillet",
-  };
-  const es: Record<string, string> = {
-    "sem-passe": "Sin pasepartú",
-    estreita: "Margen estrecho, 4 cm",
-    larga: "Margen ancho, 10 cm",
-    dupla: "Doble margen",
-    filete: "Filete azul",
-  };
-  return (idioma === "en" ? en : idioma === "es" ? es : pt)[slug] ?? slug;
+  const chave = `parede.passe.${slug}` as ChaveTexto;
+  const nome = t(chave, idioma);
+  return nome === chave ? slug : nome;
 }
 
 /**
@@ -259,11 +246,7 @@ export function VerNaParede({
 
     const recusar = () =>
       setErroFicheiro(
-        idioma === "en"
-          ? "We could not read that file. Try a JPG or a PNG."
-          : idioma === "es"
-            ? "No pudimos leer ese archivo. Pruebe un JPG o un PNG."
-            : "Não conseguimos ler esse ficheiro. Tente um JPG ou um PNG.",
+        t("parede.erro.ficheiro", idioma),
       );
 
     if (!ficheiro.type.startsWith("image/")) return recusar();
@@ -339,9 +322,14 @@ export function VerNaParede({
   }, [fraccao, conjuntoAltura, conjuntoLargura, formaParede]);
 
   const comMolduraOuPasse = perfil > 0 || passeTotal > 0;
+  const medidasObra = `${larguraObra} × ${alturaCm} cm`;
+  const medidasConjunto = `${Math.round(conjuntoLargura)} × ${Math.round(conjuntoAltura)} cm`;
   const medidas = comMolduraOuPasse
-    ? `${larguraObra} × ${alturaCm} cm · emoldurada ${Math.round(conjuntoLargura)} × ${Math.round(conjuntoAltura)} cm`
-    : `${larguraObra} × ${alturaCm} cm`;
+    ? t("parede.medidas.emoldurada", idioma, {
+        obra: medidasObra,
+        conjunto: medidasConjunto,
+      })
+    : medidasObra;
 
   const legenda = obra
     ? `${obra.titulo} · ${medidas} · ${(moldura?.nome ?? "").toLowerCase()}`
@@ -351,10 +339,25 @@ export function VerNaParede({
   // visitante escolheu no cursor, e não o da obra. Sem esta ressalva a
   // galeria recebia um número com ar de medida e respondia a um
   // tamanho que ninguém pediu.
-  const tamanhoEscolhido = medidaFixa ? "" : ", tamanho que escolhi para simular";
+  const tamanhoEscolhido = medidaFixa
+    ? ""
+    : t("parede.whatsapp.escolhido", idioma);
   const mensagem = obra
-    ? `Olá, experimentei no site: “${obra.titulo}”${obra.autor ? ` de ${obra.autor}` : ""}, a ${larguraObra} × ${alturaCm} cm${tamanhoEscolhido}${perfil ? `, que com ${(moldura?.nome ?? "").toLowerCase()} fica ${Math.round(conjuntoLargura)} × ${Math.round(conjuntoAltura)} cm` : ", sem moldura"}. Podem dizer-me o preço?`
-    : "Olá, queria saber o preço de uma obra com moldura.";
+    ? t("parede.whatsapp.comobra", idioma, {
+        obra: obra.titulo,
+        autor: obra.autor
+          ? t("parede.whatsapp.autor", idioma, { autor: obra.autor })
+          : "",
+        medidas: medidasObra,
+        escolhido: tamanhoEscolhido,
+        moldura: perfil
+          ? t("parede.whatsapp.commoldura", idioma, {
+              moldura: (moldura?.nome ?? "").toLowerCase(),
+              conjunto: medidasConjunto,
+            })
+          : t("parede.whatsapp.semmoldura", idioma),
+      })
+    : t("parede.whatsapp.semobra", idioma);
 
   return (
     <div className="grid items-start gap-10" style={colunas(320)}>
@@ -415,7 +418,7 @@ export function VerNaParede({
                 arrasto.current = true;
               }}
               role="img"
-              aria-label={`${obra.titulo}, na sua parede`}
+              aria-label={t("parede.peca.alt", idioma, { obra: obra.titulo })}
               className="absolute -translate-x-1/2 -translate-y-1/2 cursor-grab touch-none active:cursor-grabbing"
               style={{
                 left: `${pos.x * 100}%`,
@@ -507,11 +510,10 @@ export function VerNaParede({
             peça era encolhida em silêncio até 92% da parede. */}
         {naoCabe && (
           <p role="status" className="pt-2 text-[13px] text-[#E0765C]">
-            {idioma === "en"
-              ? `At ${Math.round(conjuntoLargura)} cm framed, this does not fit a ${larguraParede} cm wall.`
-              : idioma === "es"
-                ? `Con marco mide ${Math.round(conjuntoLargura)} cm y no cabe en una pared de ${larguraParede} cm.`
-                : `Com moldura fica com ${Math.round(conjuntoLargura)} cm e não cabe numa parede de ${larguraParede} cm.`}
+            {t("parede.naocabe", idioma, {
+              conjunto: Math.round(conjuntoLargura),
+              parede: larguraParede,
+            })}
           </p>
         )}
       </div>
@@ -560,11 +562,7 @@ export function VerNaParede({
 
           {obra?.origemProporcao === "fotografia" && (
             <span className="text-[13px] leading-[1.5] text-[rgba(242,237,228,0.55)]">
-              {idioma === "en"
-                ? "The shape comes from the photograph of the piece; the size is the one you choose. Ask us for the exact measurements."
-                : idioma === "es"
-                  ? "La forma viene de la fotografía de la pieza; el tamaño es el que usted elija. Pregúntenos las medidas exactas."
-                  : "A forma vem da fotografia da peça; o tamanho é o que escolher. Pergunte-nos as medidas exactas."}
+              {t("parede.forma.aviso", idioma)}
             </span>
           )}
 
@@ -581,7 +579,7 @@ export function VerNaParede({
 
         <Grupo
           titulo={
-            idioma === "en" ? "Size" : idioma === "es" ? "Tamaño" : "O tamanho"
+            t("parede.grupo.tamanho", idioma)
           }
         >
           {medidaFixa ? (
@@ -595,11 +593,7 @@ export function VerNaParede({
                 {obra?.larguraCm} × {obra?.alturaCm} cm
               </span>
               <span className="text-[13px] leading-[1.5] text-[rgba(242,237,228,0.55)]">
-                {idioma === "en"
-                  ? "The measurements of the piece itself."
-                  : idioma === "es"
-                    ? "Las medidas de la propia pieza."
-                    : "As medidas da própria peça."}
+                {t("parede.medidas.propria", idioma)}
               </span>
             </div>
           ) : (
@@ -627,11 +621,7 @@ export function VerNaParede({
                   medida verdadeira. É uma simulação, e quem a faz tem
                   de o saber. */}
               <span className="text-[13px] leading-[1.5] text-[rgba(242,237,228,0.55)]">
-                {idioma === "en"
-                  ? "The measurements of this piece are not on file yet. Choose a size to picture it; the gallery will confirm the real one."
-                  : idioma === "es"
-                    ? "Las medidas de esta pieza aún no están en la ficha. Elija un tamaño para imaginarla; la galería confirmará el real."
-                    : "As medidas desta peça ainda não estão na ficha. Escolha um tamanho para a imaginar, que a galeria confirma o verdadeiro."}
+                {t("parede.medidas.semficha", idioma)}
               </span>
             </>
           )}
@@ -639,19 +629,11 @@ export function VerNaParede({
 
         <Grupo
           titulo={
-            idioma === "en"
-              ? "Framing"
-              : idioma === "es"
-                ? "Enmarcado"
-                : "O enquadramento"
+            t("parede.grupo.enquadramento", idioma)
           }
         >
           <Rotulo>
-            {idioma === "en"
-              ? "Mount"
-              : idioma === "es"
-                ? "Pasepartú"
-                : "Margem"}
+            {t("parede.margem", idioma)}
           </Rotulo>
           <div className="flex flex-wrap gap-2.5">
             {PASSES.map((p) => (
@@ -704,21 +686,13 @@ export function VerNaParede({
             ))}
           </div>
           <span className="text-[13px] leading-[1.55] text-[rgba(242,237,228,0.55)]">
-            {idioma === "pt"
-              ? "Produzidas com a MOLDARTPÓVOA: vidro museu Tru-Vue®, madeiras naturais e alumínio de precisão."
-              : idioma === "en"
-                ? "Made with MOLDARTPÓVOA: Tru-Vue® museum glass, natural woods and precision aluminium."
-                : "Producidos con MOLDARTPÓVOA: vidrio museo Tru-Vue®, maderas naturales y aluminio de precisión."}
+            {t("parede.molduras.nota", idioma)}
           </span>
         </Grupo>
 
         <Grupo
           titulo={
-            idioma === "en"
-              ? "The wall"
-              : idioma === "es"
-                ? "La pared"
-                : "A parede"
+            t("parede.grupo.parede", idioma)
           }
         >
           <label
@@ -748,11 +722,7 @@ export function VerNaParede({
               onClick={() => setPos({ x: 0.5, y: 0.45 })}
               className="min-h-11 cursor-pointer border border-[rgba(242,237,228,0.25)] px-4 text-[11px] tracking-[0.14em] text-[rgba(242,237,228,0.7)] uppercase transition-colors hover:border-papel"
             >
-              {idioma === "en"
-                ? "Centre"
-                : idioma === "es"
-                  ? "Centrar"
-                  : "Centrar"}
+              {t("parede.centrar", idioma)}
             </button>
             {/* Regra de quem pendura: o centro da obra a cerca de 150 cm
                   do chão. É a dúvida que toda a gente tem a seguir. */}
@@ -761,11 +731,7 @@ export function VerNaParede({
               onClick={() => setPos((p) => ({ x: p.x, y: 0.55 }))}
               className="min-h-11 cursor-pointer border border-[rgba(242,237,228,0.25)] px-4 text-[11px] tracking-[0.14em] text-[rgba(242,237,228,0.7)] uppercase transition-colors hover:border-papel"
             >
-              {idioma === "en"
-                ? "Eye level"
-                : idioma === "es"
-                  ? "Altura de los ojos"
-                  : "Altura do olhar"}
+              {t("parede.altura.olhar", idioma)}
             </button>
           </div>
 
@@ -789,11 +755,7 @@ export function VerNaParede({
             ) : (
               <span className="max-w-[46ch] text-[13px] leading-[1.5] text-[rgba(242,237,228,0.55)]">
                 {daGaleria
-                  ? idioma === "en"
-                    ? "This is a wall at the gallery. Use a photograph of yours to see the piece at home."
-                    : idioma === "es"
-                      ? "Esta es una pared de la galería. Use una fotografía suya para ver la pieza en su casa."
-                      : "Esta é uma parede da galeria. Use uma fotografia sua para ver a peça em casa."
+                  ? t("parede.exemplo", idioma)
                   : t("parede.privado", idioma)}
               </span>
             )}

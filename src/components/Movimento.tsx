@@ -4,7 +4,7 @@ import { useEffect } from "react";
 
 declare global {
   interface Window {
-    /** Posto pelo Movimento; o ScriptInicial espera por ele. */
+    /** Posto pelo Movimento; o script inicial espera por ele. */
     __movimento?: boolean;
   }
 }

@@ -45,7 +45,7 @@ function deveMostrar(): boolean {
  * levanta-a logo. Antes, o Tab andava por baixo dela sem se ver.
  *
  * A cortina vem no HTML servido, para estar lá no primeiro pixel. Quem
- * já a viu nesta sessão não a chega a ver pintada: o ScriptInicial põe
+ * já a viu nesta sessão não a chega a ver pintada: o script inicial põe
  * a marca no `<html>` antes da primeira pintura.
  *
  * IMPORTANTE: nunca tirar este elemento do DOM com `remove()`. É um nó

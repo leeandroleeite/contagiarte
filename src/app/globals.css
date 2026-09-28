@@ -185,7 +185,7 @@
   }
 }
 
-/* Entrada em scroll. Só se esconde com html.js, que o ScriptInicial
+/* Entrada em scroll. Só se esconde com html.js, que o script inicial
    põe antes da primeira pintura: sem JavaScript, ou se o código do
    site falhar, fica tudo visível. O Movimento põe --i nos elementos
    que entram juntos, para uma grelha se pendurar peça a peça e não de

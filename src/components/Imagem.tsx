@@ -23,6 +23,9 @@ type Props = {
   prioridade?: boolean;
   /** Revela por clip-path quando entra no ecrã. */
   revelar?: boolean;
+  /** Sem a cor dominante por trás: para obras sobre passe-partout, onde
+   *  a cor pintava um rectângulo à volta da obra. */
+  semFundo?: boolean;
   className?: string;
 };
 
@@ -40,6 +43,7 @@ export function Imagem({
   sizes = "(max-width: 900px) 100vw, 50vw",
   prioridade = false,
   revelar = true,
+  semFundo = false,
   className,
 }: Props) {
   const src = urlMedia(media?.chave);
@@ -50,13 +54,13 @@ export function Imagem({
       <div
         style={estilo}
         className={cx(
-          "relative flex w-full items-center justify-center overflow-hidden border border-dashed border-[rgba(242,237,228,0.18)] bg-[#151211]",
+          "relative flex w-full items-center justify-center overflow-hidden border border-dashed border-fio bg-tinta-elevada",
           className,
         )}
         role="img"
         aria-label={alt}
       >
-        <span className="max-w-[24ch] px-4 text-center text-[11px] tracking-[0.2em] text-[rgba(242,237,228,0.55)] uppercase">
+        <span className="etiqueta max-w-[24ch] px-4 text-center text-claro-55">
           {legenda ?? alt}
         </span>
       </div>
@@ -65,7 +69,12 @@ export function Imagem({
 
   return (
     <div
-      style={{ ...estilo, background: media?.corDominante ?? "#151211" }}
+      style={{
+        ...estilo,
+        background: semFundo
+          ? undefined
+          : (media?.corDominante ?? "var(--color-tinta-elevada)"),
+      }}
       className={cx("relative w-full overflow-hidden", className)}
       data-revelar={revelar ? "" : undefined}
     >

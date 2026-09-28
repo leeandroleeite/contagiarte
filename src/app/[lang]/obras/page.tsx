@@ -38,14 +38,31 @@ export default async function PaginaObras({
   const { lang: idioma } = await params;
   const busca = await searchParams;
 
-  const artistas = await listarArtistas();
-  const artistaEscolhido = artistas.find((a) => a.slug === busca.artista);
+  const [todosArtistas, todas] = await Promise.all([
+    listarArtistas(),
+    listarObras({}),
+  ]);
+  const artistaEscolhido = todosArtistas.find((a) => a.slug === busca.artista);
   const soDisponiveis = busca.estado === "disponivel";
 
-  const obras = await listarObras({
-    artistaId: artistaEscolhido?.id,
-    soDisponiveis,
-  });
+  const obras = todas.filter(
+    (o) =>
+      (!artistaEscolhido || o.artistaId === artistaEscolhido.id) &&
+      (!soDisponiveis || o.disponibilidade === "disponivel"),
+  );
+
+  // Um filtro que leva a uma parede vazia, ou que não muda nada, ensina
+  // a não confiar nos filtros. Só aparecem artistas com obras, e o
+  // "Disponíveis" só quando tira alguma coisa da lista.
+  const artistas = todosArtistas.filter(
+    (a) => a.id === artistaEscolhido?.id || todas.some((o) => o.artistaId === a.id),
+  );
+  const doArtista = todas.filter(
+    (o) => !artistaEscolhido || o.artistaId === artistaEscolhido.id,
+  );
+  const disponiveisFiltram =
+    soDisponiveis ||
+    doArtista.some((o) => o.disponibilidade !== "disponivel");
 
   // Os filtros são links: funcionam sem JavaScript e ficam indexáveis.
   const url = (mudanca: Partial<Busca>) => {
@@ -77,7 +94,7 @@ export default async function PaginaObras({
 
       <Seccao className="pt-[160px]" semFio>
       <TituloSeccao nota={`${String(obras.length).padStart(2, "0")}`}>
-        {t("nav.obras", idioma).toUpperCase()}
+        {t("nav.obras", idioma)}
       </TituloSeccao>
 
       <div className="mb-12 flex flex-wrap gap-2.5">
@@ -93,19 +110,29 @@ export default async function PaginaObras({
             {a.nome}
           </Filtro>
         ))}
-        <span className="w-px self-stretch bg-[rgba(242,237,228,0.16)]" />
-        <Filtro
-          href={url({ estado: soDisponiveis ? "" : "disponivel" })}
-          activo={soDisponiveis}
-        >
-          {t("filtro.disponivel", idioma)}
-        </Filtro>
+        {disponiveisFiltram && (
+          <>
+            <span className="w-px self-stretch bg-fio" />
+            <Filtro
+              href={url({ estado: soDisponiveis ? "" : "disponivel" })}
+              activo={soDisponiveis}
+            >
+              {t("filtro.disponivel", idioma)}
+            </Filtro>
+          </>
+        )}
       </div>
 
       {obras.length === 0 ? (
-        <p className="text-[16px] text-claro-55">
-          {t("msg.sem_resultados", idioma)}
-        </p>
+        <div className="flex flex-col items-start gap-5">
+          <p className="corpo text-claro-65">{t("msg.sem_resultados", idioma)}</p>
+          <Link
+            href={caminho(idioma, "/obras")}
+            className="etiqueta inline-flex min-h-11 items-center"
+          >
+            {t("acao.limpar_filtros", idioma)}
+          </Link>
+        </div>
       ) : (
         <ul
           className="grid gap-x-8 gap-y-14"
@@ -125,7 +152,7 @@ export default async function PaginaObras({
       )}
 
       {artistaEscolhido && (
-        <p className="mt-14 text-[15px]">
+        <p className="corpo mt-14">
           <Link href={caminho(idioma, `/artistas/${artistaEscolhido.slug}`)}>
             {texto(artistaEscolhido.nota, idioma) || artistaEscolhido.nome}{" "}
             {t("acao.ver_artista", idioma)}
@@ -151,10 +178,10 @@ function Filtro({
       href={href}
       aria-current={activo ? "true" : undefined}
       className={cx(
-        "inline-flex min-h-11 items-center border px-5 py-3 text-[11px] tracking-[0.18em] uppercase transition-colors",
+        "etiqueta inline-flex min-h-11 items-center border px-5 py-3 transition-colors",
         activo
           ? "border-papel bg-papel text-tinta hover:bg-papel hover:text-tinta"
-          : "border-[rgba(242,237,228,0.25)] text-[rgba(242,237,228,0.7)] hover:border-papel hover:text-papel",
+          : "border-fio-forte text-claro-65 hover:border-papel hover:text-papel",
       )}
     >
       {children}

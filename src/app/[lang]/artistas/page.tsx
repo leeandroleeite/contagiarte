@@ -47,7 +47,7 @@ export default async function PaginaArtistas({
 
       <Seccao className="pt-[160px]">
         <TituloSeccao nota={String(artistas.length).padStart(2, "0")}>
-          {t("nav.artistas", idioma).toUpperCase()}
+          {t("nav.artistas", idioma)}
         </TituloSeccao>
 
         <ListaArtistas
@@ -81,7 +81,7 @@ export default async function PaginaArtistas({
                 <span className="titulo-med text-[18px] uppercase transition-colors group-hover:text-ouro">
                   {a.nome}
                 </span>
-                <span className="text-[14px] text-claro-55">
+                <span className="meta text-claro-55">
                   {texto(a.nota, idioma)}
                 </span>
               </Link>

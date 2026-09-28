@@ -63,12 +63,12 @@ export function FormularioNewsletter({
              por fora saltava para cima dos dois. O `outline-solid` não é
              supérfluo: com o `outline-none` acima, a espessura sozinha
              não desenha nada, e o campo continuava sem foco visível. */
-          className="min-w-0 flex-1 border-0 bg-transparent px-1 py-[18px] text-[18px] text-tinta outline-none placeholder:text-[rgba(14,12,11,0.62)] focus-visible:outline-2 focus-visible:outline-solid focus-visible:-outline-offset-2 focus-visible:outline-ouro"
+          className="min-w-0 flex-1 border-0 bg-transparent px-1 py-[18px] text-[18px] text-tinta outline-none placeholder:text-escuro-62 focus-visible:outline-2 focus-visible:outline-solid focus-visible:-outline-offset-2 focus-visible:outline-ouro"
         />
         <button
           type="submit"
           disabled={aEnviar}
-          className="cursor-pointer border-0 bg-tinta px-[26px] py-[18px] text-[12px] tracking-[0.18em] text-papel uppercase transition-colors hover:bg-ouro hover:text-tinta disabled:opacity-60"
+          className="etiqueta cursor-pointer border-0 bg-tinta px-[26px] py-[18px] text-papel transition-colors hover:bg-ouro hover:text-tinta disabled:opacity-60"
         >
           {aEnviar ? t("msg.a_enviar", idioma) : t("acao.subscrever", idioma)}
         </button>
@@ -77,7 +77,11 @@ export function FormularioNewsletter({
       <span
         role="status"
         aria-live="polite"
-        className="text-[14px] text-[rgba(14,12,11,0.62)]"
+        className={
+          estado && !estado.ok
+            ? "meta border-l-2 border-erro pl-3 text-erro"
+            : "meta text-escuro-62"
+        }
       >
         {estado
           ? t(estado.mensagem, idioma)

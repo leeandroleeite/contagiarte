@@ -54,11 +54,11 @@ export default async function PaginaMolduras({
       <Seccao className="pt-[160px]">
         <div className="grid items-center gap-16" style={colunas(360)}>
           <div className="flex flex-col gap-[26px]">
-            <span className="text-[11px] tracking-[0.3em] text-[rgba(242,237,228,0.55)] uppercase">
+            <span className="etiqueta text-claro-55">
               {T("molduras.etiqueta")}
             </span>
-            <h1 className="titulo d-1">{t("faixa.molduras", idioma)}</h1>
-            <p className="max-w-[48ch] text-[18px] leading-[1.6] text-[rgba(242,237,228,0.8)]">
+            <h1 className="titulo d-pagina">{t("faixa.molduras", idioma)}</h1>
+            <p className="lead max-w-[48ch] text-claro-80">
               {T("molduras.texto")}
             </p>
             <div className="flex flex-wrap gap-3.5">
@@ -84,7 +84,7 @@ export default async function PaginaMolduras({
         </div>
       </Seccao>
 
-      <Seccao claro className="px-7 py-[120px]">
+      <Seccao claro className="px-margem py-[120px]">
         <div className="grid gap-12" style={colunas(220)}>
           {passos.map(({ numero, titulo, descricao }) => (
             <div
@@ -94,7 +94,7 @@ export default async function PaginaMolduras({
               <span className="titulo text-[14px] tracking-[0.1em]">
                 {titulo}
               </span>
-              <p className="text-[17px] leading-[1.6] text-escuro-78">
+              <p className="corpo text-escuro-78">
                 {descricao}
               </p>
             </div>
@@ -104,7 +104,7 @@ export default async function PaginaMolduras({
 
       <Seccao semFio>
         <div className="max-w-[720px]">
-          <h2 className="titulo d-2 mb-8">{t("acao.orcamento", idioma)}</h2>
+          <h2 className="titulo d-seccao mb-8">{t("acao.orcamento", idioma)}</h2>
           <FormularioPedido
             idioma={idioma}
             tipo="moldura"

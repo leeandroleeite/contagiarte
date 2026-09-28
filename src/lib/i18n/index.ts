@@ -1,4 +1,6 @@
 import type { Localizado } from "@/lib/db/schema";
+
+export type { Localizado } from "@/lib/db/schema";
 import { IDIOMA_BASE, type Idioma } from "./config";
 import { DICIONARIO, type ChaveTexto } from "./dicionario";
 
@@ -94,7 +96,7 @@ export function periodo(
   if (inicio && fim) {
     const a = fmt(inicio);
     const b = fmt(fim);
-    return a === b ? a : `${a} a ${b}`;
+    return a === b ? a : `${a} ${t("periodo.ate", idioma)} ${b}`;
   }
   return inicio ? fmt(inicio) : "";
 }

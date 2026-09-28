@@ -8,6 +8,9 @@ import {
   IDIOMA_BASE,
 } from "@/lib/i18n/config";
 import "./globals.css";
+import { FICHAS } from "@/lib/fichas";
+import Script from "next/script";
+import { CODIGO_INICIAL, nonceDoPedido } from "@/lib/script-inicial";
 
 const titulo = Bricolage_Grotesque({
   subsets: ["latin"],
@@ -25,7 +28,7 @@ const texto = Spline_Sans({
 });
 
 export const viewport: Viewport = {
-  themeColor: "#0E0C0B",
+  themeColor: FICHAS.tinta,
   width: "device-width",
   initialScale: 1,
   // A escala não é travada: quem precisa de ampliar tem de conseguir.
@@ -63,13 +66,29 @@ export default async function RootLayout({
 }: Readonly<{ children: React.ReactNode }>) {
   const pedido = (await headers()).get(CABECALHO_IDIOMA) ?? "";
   const idioma = eIdioma(pedido) ? pedido : IDIOMA_BASE;
+  const nonce = await nonceDoPedido();
 
   return (
     <html
       lang={HREFLANG[idioma]}
       className={`${titulo.variable} ${texto.variable}`}
+      // O Next desliga o scroll suave durante a mudança de página. Sem
+      // isto, abrir uma obra mostrava o rodapé a passar até ao topo.
+      data-scroll-behavior="smooth"
+      // O script inicial acrescenta "js" e a marca da cortina antes de o
+      // React chegar; são diferenças esperadas, não um erro.
+      suppressHydrationWarning
     >
-      <body>{children}</body>
+      <body>
+        {/* Ver src/lib/script-inicial.ts. */}
+        <Script
+          id="script-inicial"
+          nonce={nonce}
+          strategy="beforeInteractive"
+          dangerouslySetInnerHTML={{ __html: CODIGO_INICIAL }}
+        />
+        {children}
+      </body>
     </html>
   );
 }

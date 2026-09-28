@@ -37,14 +37,14 @@ export default async function PaginaPrivacidade({
   return (
     <Seccao className="pt-[160px]" semFio>
       <div className="mb-12 flex flex-col gap-4">
-        <span className="text-[11px] tracking-[0.28em] text-[rgba(242,237,228,0.55)] uppercase">
+        <span className="etiqueta text-claro-55">
           {idioma === "pt"
             ? "Documento legal"
             : idioma === "en"
               ? "Legal document"
               : "Documento legal"}
         </span>
-        <h1 className="titulo text-[clamp(34px,5vw,68px)] leading-[0.92]">
+        <h1 className="titulo d-pagina">
           {idioma === "pt"
             ? "POLÍTICA DE PRIVACIDADE"
             : idioma === "en"
@@ -52,7 +52,7 @@ export default async function PaginaPrivacidade({
               : "POLÍTICA DE PRIVACIDAD"}
         </h1>
         {/* Aviso do design. Sai quando um advogado rever o texto. */}
-        <p className="text-[14px] text-[rgba(242,237,228,0.55)]">
+        <p className="meta text-claro-55">
           {texto(txt["privacidade.nota"], idioma)}
         </p>
       </div>
@@ -73,7 +73,7 @@ export default async function PaginaPrivacidade({
           return (
             <p
               key={i}
-              className="mb-5 text-[17px] leading-[1.7] text-[rgba(242,237,228,0.78)]"
+              className="corpo mb-5 text-claro-80"
             >
               {linha}
             </p>

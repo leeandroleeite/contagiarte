@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Botao } from "@/components/Botao";
+import { CartaoObra } from "@/components/CartaoObra";
 import { Imagem } from "@/components/Imagem";
 import { Seccao } from "@/components/Seccao";
 import {
@@ -60,8 +61,8 @@ export default async function PaginaArtista({
   const etiqueta =
     texto(artista.etiqueta, idioma) ||
     [
-      rotuloDisciplina(artista.disciplina, idioma).toUpperCase(),
-      artista.naturalidade?.toUpperCase(),
+      rotuloDisciplina(artista.disciplina, idioma),
+      artista.naturalidade,
     ]
       .filter(Boolean)
       .join(" · ");
@@ -89,37 +90,42 @@ export default async function PaginaArtista({
       />
 
       {/* Herói: nome gigante à esquerda, retrato à direita. */}
-      <Seccao className="px-7 pt-[130px] pb-[72px] sm:px-10">
+      <Seccao className="px-margem pt-[130px] pb-[72px]">
         <div className="grid items-end gap-14" style={colunas(320)}>
           <div className="flex flex-col gap-[22px]">
-            <span className="text-[11px] tracking-[0.28em] text-[rgba(242,237,228,0.55)] uppercase">
+            <span className="etiqueta text-claro-55">
               {etiqueta}
             </span>
 
-            <h1 className="titulo text-[clamp(40px,6vw,104px)] leading-[0.88] tracking-[-0.02em] uppercase">
+            <h1 className="titulo d-ficha tracking-[-0.02em] uppercase">
               {artista.nome}
             </h1>
 
             {texto(artista.biografia, idioma) && (
-              <p className="max-w-[46ch] text-[18px] leading-[1.6] text-[rgba(242,237,228,0.8)]">
+              <p className="lead max-w-[46ch] text-claro-80">
                 {texto(artista.biografia, idioma)}
               </p>
             )}
 
             <div className="flex flex-wrap gap-3">
+              {/* O botão principal diz "obras" e leva às obras, que estão
+                  mais abaixo nesta página. Antes abria o WhatsApp, e quem
+                  esperava ver obras saía para outra aplicação. */}
+              {obras.length > 0 && (
+                <Botao className="px-6 py-[15px]" href="#obras">
+                  {t("acao.obras_artista", idioma)}
+                </Botao>
+              )}
               <Botao
                 externo
+                variante={obras.length > 0 ? "linha" : "ouro"}
                 className="px-6 py-[15px]"
                 href={linkWhatsApp(
                   def.whatsapp,
-                  `Olá, queria saber mais sobre as obras de ${artista.nome}.`,
+                  t("whatsapp.artista", idioma, { artista: artista.nome }),
                 )}
               >
-                {idioma === "pt"
-                  ? "Obras disponíveis"
-                  : idioma === "en"
-                    ? "Available works"
-                    : "Obras disponibles"}
+                {t("acao.perguntar_whatsapp", idioma)}
               </Botao>
 
               {catalogo?.ficheiro && (
@@ -142,7 +148,7 @@ export default async function PaginaArtista({
                 href={`https://instagram.com/${artista.instagram}`}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex min-h-11 items-center text-[12px] tracking-[0.18em] uppercase"
+                className="etiqueta inline-flex min-h-11 items-center"
               >
                 @{artista.instagram} →
               </a>
@@ -162,12 +168,12 @@ export default async function PaginaArtista({
 
       {/* Citação em bloco claro, alinhada à esquerda como no design. */}
       {texto(artista.citacao, idioma) && (
-        <Seccao claro semFio className="px-7 py-20 sm:px-10">
-          <blockquote className="titulo-med max-w-[34ch] text-[clamp(22px,2.6vw,40px)] leading-[1.12]">
+        <Seccao claro semFio className="px-margem py-20">
+          <blockquote className="titulo-med max-w-[34ch] d-citacao-med">
             {texto(artista.citacao, idioma)}
           </blockquote>
           {artista.citacaoFonte && (
-            <p className="mt-6 text-[12px] tracking-[0.2em] text-[rgba(14,12,11,0.62)]">
+            <p className="mt-6 text-[12px] tracking-[0.2em] text-escuro-62">
               {artista.citacaoFonte}
             </p>
           )}
@@ -176,12 +182,12 @@ export default async function PaginaArtista({
 
       {/* Obras do artista. */}
       {obras.length > 0 && (
-        <Seccao className="px-7 py-20 sm:px-10">
+        <Seccao id="obras" className="px-margem py-20">
           <div className="mb-10 flex flex-wrap items-baseline justify-between gap-6">
-            <h2 className="titulo text-[clamp(30px,3.6vw,56px)] leading-[0.92] tracking-[-0.02em]">
-              {t("nav.obras", idioma).toUpperCase()}
+            <h2 className="titulo d-apoio tracking-[-0.02em]">
+              {t("nav.obras", idioma)}
             </h2>
-            <span className="text-[12px] tracking-[0.18em] text-[rgba(242,237,228,0.55)] uppercase">
+            <span className="etiqueta text-claro-55">
               {t("obra.sob_consulta", idioma)}
             </span>
           </div>
@@ -189,26 +195,13 @@ export default async function PaginaArtista({
           <ul className="grid gap-7" style={colunas(240)}>
             {obras.map((o) => (
               <li key={o.id}>
-                <Link
-                  href={caminho(idioma, `/obras/${o.slug}`)}
-                  className="group flex flex-col gap-3 text-papel"
-                >
-                  <Imagem
-                    media={o.fotografia}
-                    alt={`${texto(o.titulo, idioma)}, de ${artista.nome}`}
-                    proporcao="1/1"
-                    legenda={texto(o.titulo, idioma)}
-                    sizes="(max-width: 700px) 100vw, 24vw"
-                  />
-                  <div className="flex justify-between gap-3 text-[15px]">
-                    <span className="transition-colors group-hover:text-ouro">
-                      {texto(o.titulo, idioma) || t("obra.sem_titulo", idioma)}
-                    </span>
-                    <span className="shrink-0 text-[rgba(242,237,228,0.55)]">
-                      {o.ano ?? ""}
-                    </span>
-                  </div>
-                </Link>
+                <CartaoObra
+                  obra={o}
+                  idioma={idioma}
+                  tamanho="compacto"
+                  meta={["ano"]}
+                  sizes="(max-width: 700px) 100vw, 24vw"
+                />
               </li>
             ))}
           </ul>
@@ -217,24 +210,24 @@ export default async function PaginaArtista({
 
       {/* Exposições em que participou. */}
       {exposicoes.length > 0 && (
-        <Seccao semFio className="px-7 py-20 sm:px-10">
-          <h2 className="titulo mb-8 text-[clamp(28px,3.2vw,48px)] leading-[0.92] tracking-[-0.02em]">
-            {t("nav.exposicoes", idioma).toUpperCase()}
+        <Seccao semFio className="px-margem py-20">
+          <h2 className="titulo mb-8 d-apoio tracking-[-0.02em]">
+            {t("nav.exposicoes", idioma)}
           </h2>
           <div className="flex flex-col">
             {exposicoes.map((e) => (
               <Link
                 key={e.id}
                 href={caminho(idioma, `/exposicoes/${e.slug}`)}
-                className="grid grid-cols-[54px_minmax(0,1fr)] items-baseline gap-4 border-t border-[rgba(242,237,228,0.16)] py-6 text-papel transition-colors last:border-b last:border-b-[rgba(242,237,228,0.16)] hover:text-ouro sm:grid-cols-[90px_minmax(0,1.6fr)_minmax(0,1fr)] sm:gap-6"
+                className="grid grid-cols-[54px_minmax(0,1fr)] items-baseline gap-4 border-t border-fio py-6 text-papel transition-colors last:border-b last:border-b-fio hover:text-ouro sm:grid-cols-[90px_minmax(0,1.6fr)_minmax(0,1fr)] sm:gap-6"
               >
-                <span className="text-[13px] text-[rgba(242,237,228,0.55)]">
+                <span className="meta text-claro-55">
                   {anos(e.dataInicio, e.dataFim)}
                 </span>
-                <span className="titulo-med text-[clamp(18px,2vw,26px)]">
+                <span className="titulo-med d-linha">
                   {texto(e.titulo, idioma)}
                 </span>
-                <span className="hidden text-[14px] text-[rgba(242,237,228,0.6)] sm:block">
+                <span className="meta hidden text-claro-65 sm:block">
                   {e.lugar
                     ? `${e.lugar.nome} · ${texto(e.lugar.localidade, idioma)}`
                     : ""}

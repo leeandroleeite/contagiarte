@@ -141,6 +141,82 @@ export const DICIONARIO = {
   "acao.escolher": { pt: "Escolher ↑", en: "Choose ↑", es: "Elegir ↑" },
   "acao.anterior": { pt: "Anterior", en: "Previous", es: "Anterior" },
   "acao.seguinte": { pt: "Seguinte", en: "Next", es: "Siguiente" },
+  "acao.ver_obras": {
+    pt: "Ver as obras →",
+    en: "See the works →",
+    es: "Ver las obras →",
+  },
+  "acao.pedir_catalogo": {
+    pt: "Pedir o catálogo por WhatsApp",
+    en: "Ask for the catalogue on WhatsApp",
+    es: "Pedir el catálogo por WhatsApp",
+  },
+  "acao.limpar_filtros": {
+    pt: "Limpar os filtros",
+    en: "Clear the filters",
+    es: "Quitar los filtros",
+  },
+  // Recurso quando o texto editável ainda não existe na base: a
+  // página não pode ficar só com o título.
+  "descarregar.vazio": {
+    pt: "Ainda não há documentos publicados. Enquanto o catálogo não chega, peça-o e mandamos o PDF.",
+    en: "No documents published yet. Until the catalogue is up, ask for it and we will send you the PDF.",
+    es: "Todavía no hay documentos publicados. Mientras llega el catálogo, pídalo y le enviamos el PDF.",
+  },
+  // Mensagens pré-escritas para WhatsApp e email. Iam sempre em
+  // português, também a quem estava a ler o site em inglês ou espanhol.
+  "whatsapp.obra": {
+    pt: "Olá, tenho interesse na obra “{titulo}”{autor}. Podem dizer-me o preço?",
+    en: "Hello, I am interested in the work “{titulo}”{autor}. Could you tell me the price?",
+    es: "Hola, me interesa la obra “{titulo}”{autor}. ¿Pueden decirme el precio?",
+  },
+  "whatsapp.obra_autor": { pt: " de {autor}", en: " by {autor}", es: " de {autor}" },
+  "whatsapp.obra_assunto": {
+    pt: "Interesse na obra: {titulo}",
+    en: "Interest in the work: {titulo}",
+    es: "Interés en la obra: {titulo}",
+  },
+  "whatsapp.artista": {
+    pt: "Olá, queria saber mais sobre as obras de {artista}.",
+    en: "Hello, I would like to know more about the works by {artista}.",
+    es: "Hola, me gustaría saber más sobre las obras de {artista}.",
+  },
+  "whatsapp.exposicao": {
+    pt: "Olá, queria saber mais sobre a exposição {titulo}.",
+    en: "Hello, I would like to know more about the exhibition {titulo}.",
+    es: "Hola, me gustaría saber más sobre la exposición {titulo}.",
+  },
+  "whatsapp.visita": {
+    pt: "Olá, queria marcar uma visita à exposição {titulo}.",
+    en: "Hello, I would like to book a visit to the exhibition {titulo}.",
+    es: "Hola, me gustaría reservar una visita a la exposición {titulo}.",
+  },
+  // Verbo e objecto, sempre: o botão diz o que se pede e por onde.
+  "acao.preco_whatsapp": {
+    pt: "Pedir o preço por WhatsApp",
+    en: "Ask the price on WhatsApp",
+    es: "Pedir el precio por WhatsApp",
+  },
+  "acao.preco_email": {
+    pt: "Pedir o preço por email",
+    en: "Ask the price by email",
+    es: "Pedir el precio por email",
+  },
+  "acao.perguntar_whatsapp": {
+    pt: "Perguntar por WhatsApp",
+    en: "Ask on WhatsApp",
+    es: "Preguntar por WhatsApp",
+  },
+  "acao.obras_artista": {
+    pt: "Ver as obras ↓",
+    en: "See the works ↓",
+    es: "Ver las obras ↓",
+  },
+  "whatsapp.catalogo": {
+    pt: "Olá, gostava de receber o catálogo da Galeria Contagiarte.",
+    en: "Hello, I would like to receive the Galeria Contagiarte catalogue.",
+    es: "Hola, me gustaría recibir el catálogo de la Galeria Contagiarte.",
+  },
 
   // Obras -----------------------------------------------------------
   "obra.sob_consulta": {
@@ -160,6 +236,32 @@ export const DICIONARIO = {
     es: "Obras relacionadas",
   },
   "obra.sem_titulo": { pt: "Sem título", en: "Untitled", es: "Sin título" },
+  "obra.artista_por_atribuir": {
+    pt: "artista por atribuir",
+    en: "artist to be confirmed",
+    es: "artista por confirmar",
+  },
+  // Texto alternativo de uma obra: o "de" era escrito à mão em
+  // português e saía também nas páginas inglesa e espanhola.
+  "obra.alt": {
+    pt: "{titulo}, de {autor}",
+    en: "{titulo}, by {autor}",
+    es: "{titulo}, de {autor}",
+  },
+  "obra.relacionadas_artista": {
+    pt: "Do mesmo artista",
+    en: "By the same artist",
+    es: "Del mismo artista",
+  },
+  "obra.em_exposicao": {
+    pt: "Obras em exposição",
+    en: "Works on show",
+    es: "Obras en exposición",
+  },
+  // O rótulo que o cursor mostra por cima de uma obra.
+  "cursor.ver": { pt: "Ver", en: "View", es: "Ver" },
+  // Entre duas datas: "maio de 2026 a dezembro de 2026".
+  "periodo.ate": { pt: "a", en: "to", es: "a" },
   "obra.interesse": {
     pt: "Tenho interesse nesta obra",
     en: "I am interested in this work",
@@ -265,9 +367,9 @@ export const DICIONARIO = {
   },
   "msg.a_enviar": { pt: "A enviar…", en: "Sending…", es: "Enviando…" },
   "msg.sem_resultados": {
-    pt: "Não há nada a mostrar com estes filtros.",
-    en: "Nothing to show with these filters.",
-    es: "No hay nada que mostrar con estos filtros.",
+    pt: "Com estes filtros a parede fica nua.",
+    en: "With these filters the wall is bare.",
+    es: "Con estos filtros la pared se queda desnuda.",
   },
   "msg.sem_imagem": {
     pt: "Fotografia por publicar",
@@ -365,14 +467,81 @@ export const DICIONARIO = {
 
   // 404 -------------------------------------------------------------
   "404.titulo": {
-    pt: "Esta obra já não está aqui.",
-    en: "This work is no longer here.",
-    es: "Esta obra ya no está aquí.",
+    pt: "Esta parede está vazia.",
+    en: "This wall is empty.",
+    es: "Esta pared está vacía.",
   },
   "404.texto": {
-    pt: "A página que procurava mudou de sítio ou nunca existiu. Estas três saídas levam-no de volta.",
-    en: "The page you were looking for has moved or never existed. These three ways out will take you back.",
-    es: "La página que buscaba cambió de sitio o nunca existió. Estas tres salidas le llevan de vuelta.",
+    pt: "O que procurava já foi para casa de alguém, ou nunca esteve pendurado aqui. Estas saídas levam-no de volta.",
+    en: "What you were looking for has gone to someone's home, or was never hung here. These ways out will take you back.",
+    es: "Lo que buscaba ya se fue a casa de alguien, o nunca estuvo colgado aquí. Estas salidas le llevan de vuelta.",
+  },
+  "404.etiqueta": { pt: "Erro 404", en: "Error 404", es: "Error 404" },
+  "404.inicio": {
+    pt: "Voltar ao início",
+    en: "Back to home",
+    es: "Volver al inicio",
+  },
+  "404.exposicao": {
+    pt: "Exposição em curso",
+    en: "Current exhibition",
+    es: "Exposición en curso",
+  },
+  // O prego do 404: carregar nele pendura lá uma obra ao acaso.
+  "404.prego": {
+    pt: "Pendurar aqui uma obra",
+    en: "Hang a work here",
+    es: "Colgar aquí una obra",
+  },
+  "404.prego_legenda": {
+    pt: "Esta está cá.",
+    en: "This one is here.",
+    es: "Esta sí está.",
+  },
+
+  // Segredos: para quem repara ---------------------------------------
+  "segredo.consola": {
+    pt: "Olá, curioso. Quem abre a consola também vira os quadros para ler o verso.\nSe quer ver o resto do ateliê, escreva-nos: galeria@contagiarte.pt",
+    en: "Hello, curious one. People who open the console also turn paintings round to read the back.\nIf you want to see the rest of the studio, write to us: galeria@contagiarte.pt",
+    es: "Hola, curioso. Quien abre la consola también da la vuelta a los cuadros para leer el reverso.\nSi quiere ver el resto del taller, escríbanos: galeria@contagiarte.pt",
+  },
+  "segredo.separador": {
+    pt: "A obra fica à sua espera · Contagiarte",
+    en: "The work will wait for you · Contagiarte",
+    es: "La obra le espera · Contagiarte",
+  },
+  "segredo.torto": {
+    pt: "Alguém mexeu nos quadros.",
+    en: "Someone touched the pictures.",
+    es: "Alguien ha tocado los cuadros.",
+  },
+  "segredo.direito": {
+    pt: "Tudo a direito.",
+    en: "All straight again.",
+    es: "Todo derecho.",
+  },
+
+  // Erro ------------------------------------------------------------
+  "erro.etiqueta": { pt: "Erro", en: "Error", es: "Error" },
+  "erro.titulo": {
+    pt: "Caiu um quadro",
+    en: "A picture fell",
+    es: "Se cayó un cuadro",
+  },
+  "erro.texto": {
+    pt: "Esta página soltou-se da parede. Tente outra vez; se voltar a cair, diga-nos e penduramo-la nós.",
+    en: "This page came off the wall. Try again; if it falls again, tell us and we will hang it back.",
+    es: "Esta página se soltó de la pared. Inténtelo de nuevo; si vuelve a caer, díganoslo y la colgamos nosotros.",
+  },
+  "erro.tentar": {
+    pt: "Tentar outra vez",
+    en: "Try again",
+    es: "Intentar de nuevo",
+  },
+  "erro.referencia": {
+    pt: "Referência {codigo}",
+    en: "Reference {codigo}",
+    es: "Referencia {codigo}",
   },
   "404.whatsapp": {
     pt: "Olá, andava à procura de algo no site.",
@@ -473,6 +642,11 @@ export const DICIONARIO = {
     pt: "Filete azul",
     en: "Navy fillet",
     es: "Filete azul",
+  },
+  "parede.medidas.com_margem": {
+    pt: "{obra} · com margem, {conjunto} no total",
+    en: "{obra} · with mount, {conjunto} overall",
+    es: "{obra} · con paspartú, {conjunto} en total",
   },
   "parede.medidas.emoldurada": {
     pt: "{obra} · emoldurada {conjunto}",

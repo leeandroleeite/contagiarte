@@ -1,7 +1,10 @@
 "use client";
 
+import { usePathname } from "next/navigation";
 import { useEffect } from "react";
 import { Botao } from "@/components/Botao";
+import { t } from "@/lib/i18n";
+import { caminho, IDIOMA_BASE, IDIOMAS, type Idioma } from "@/lib/i18n/config";
 
 /**
  * Quando uma página rebenta a sério.
@@ -12,8 +15,8 @@ import { Botao } from "@/components/Botao";
  * cortesia que o 404 já lhe dava, e a galeria merece que o erro não
  * pareça um site abandonado.
  *
- * É cliente por obrigação do Next, e por isso não lê a base nem sabe o
- * idioma: os três textos vêm escritos à mão. Uma página de erro que
+ * É cliente por obrigação do Next, e por isso não lê a base: os textos
+ * vêm do dicionário, e o idioma do endereço. Uma página de erro que
  * depende da base é uma página de erro que também falha.
  */
 export default function Erro({
@@ -23,6 +26,11 @@ export default function Erro({
   error: Error & { digest?: string };
   reset: () => void;
 }) {
+  const primeiro = usePathname()?.split("/")[1] ?? "";
+  const idioma: Idioma = (IDIOMAS as readonly string[]).includes(primeiro)
+    ? (primeiro as Idioma)
+    : IDIOMA_BASE;
+
   useEffect(() => {
     // O `digest` é o que liga este ecrã à linha certa nos registos do
     // servidor. Sem ele, um relato de "deu erro" não se investiga.
@@ -30,32 +38,25 @@ export default function Erro({
   }, [error]);
 
   return (
-    <div className="flex min-h-[80dvh] flex-col justify-center gap-8 px-7 pt-[140px] pb-16">
-      <span className="text-[11px] tracking-[0.2em] text-[rgba(242,237,228,0.55)] uppercase">
-        Erro
-      </span>
+    <div className="flex min-h-[80dvh] flex-col justify-center gap-8 px-margem pt-[140px] pb-16">
+      <span className="etiqueta text-claro-55">{t("erro.etiqueta", idioma)}</span>
 
-      <h1 className="titulo max-w-[16ch] text-[clamp(40px,9vw,150px)] leading-[0.84]">
-        ALGO CORREU MAL
+      <h1 className="titulo max-w-[16ch] d-heroi uppercase">
+        {t("erro.titulo", idioma)}
       </h1>
 
-      <p className="max-w-[46ch] text-[18px] leading-[1.6] text-[rgba(242,237,228,0.75)]">
-        Esta página não conseguiu carregar. Tente outra vez; se voltar a
-        acontecer, fale connosco e resolvemos.
-        <br />
-        This page failed to load. Please try again.
-      </p>
+      <p className="lead max-w-[46ch] text-claro-80">{t("erro.texto", idioma)}</p>
 
       <div className="flex flex-wrap gap-3.5">
-        <Botao aoClicar={reset}>Tentar outra vez</Botao>
-        <Botao variante="linha" href="/">
-          Voltar ao início
+        <Botao aoClicar={reset}>{t("erro.tentar", idioma)}</Botao>
+        <Botao variante="linha" href={caminho(idioma, "/")}>
+          {t("404.inicio", idioma)}
         </Botao>
       </div>
 
       {error.digest && (
-        <p className="text-[12px] tracking-[0.1em] text-[rgba(242,237,228,0.4)]">
-          Referência {error.digest}
+        <p className="meta text-claro-55">
+          {t("erro.referencia", idioma, { codigo: error.digest })}
         </p>
       )}
     </div>

@@ -68,7 +68,7 @@ test.describe("Navegação e estrutura", () => {
     const resposta = await page.goto("/isto-nao-existe");
     expect(resposta?.status()).toBe(404);
     await expect(
-      page.getByRole("heading", { name: /ESTA OBRA JÁ NÃO ESTÁ AQUI/i }),
+      page.getByRole("heading", { name: /ESTA PAREDE ESTÁ VAZIA/i }),
     ).toBeVisible();
     await expect(
       page.getByRole("link", { name: /Voltar ao início/i }),
@@ -199,7 +199,8 @@ test.describe("Obras", () => {
     ).toBeVisible();
     await expect(page.getByText("Técnica mista sobre tela")).toBeVisible();
     await expect(page.getByText("100 × 100 cm")).toBeVisible();
-    await expect(page.getByText("2024")).toBeVisible();
+    // Na ficha técnica: o ano também aparece nas obras relacionadas.
+    await expect(page.locator("dl").getByText("2024")).toBeVisible();
     await expect(page.getByText("Sob consulta")).toBeVisible();
 
     const { numero, texto } = await mensagemWhatsApp(

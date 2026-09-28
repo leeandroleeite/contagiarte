@@ -40,13 +40,13 @@ export default async function PaginaContactos({
       <DadosEstruturados dados={galeria(def, idioma)} />
 
       <Seccao className="pt-[160px]">
-        <h1 className="titulo d-contactos mb-12">
-          {t("rodape.fale", idioma).toUpperCase()}
+        <h1 className="titulo d-pagina mb-12">
+          {t("rodape.fale", idioma)}
         </h1>
 
         <div className="grid gap-16" style={colunas(300)}>
           <div className="flex flex-col gap-6">
-            <p className="max-w-[44ch] text-[18px] leading-[1.6] text-[rgba(242,237,228,0.8)]">
+            <p className="lead max-w-[44ch] text-claro-80">
               {T("contactos.intro")}
             </p>
 
@@ -72,7 +72,7 @@ export default async function PaginaContactos({
             </div>
 
             {def.morada && (
-              <p className="text-[15px] text-claro-55">{def.morada}</p>
+              <p className="corpo text-claro-55">{def.morada}</p>
             )}
 
             <Botao
@@ -84,8 +84,8 @@ export default async function PaginaContactos({
             </Botao>
           </div>
 
-          <div className="flex flex-col gap-4 border border-[rgba(242,237,228,0.2)] p-7">
-            <span className="text-[10px] tracking-[0.24em] text-[rgba(242,237,228,0.55)] uppercase">
+          <div className="flex flex-col gap-4 border border-fio p-7">
+            <span className="etiqueta text-claro-55">
               {t("campo.mensagem", idioma)}
             </span>
             <FormularioPedido
@@ -100,13 +100,13 @@ export default async function PaginaContactos({
       <Seccao claro semFio>
         <div className="grid items-center gap-16" style={colunas(340)}>
           <div className="flex flex-col gap-5">
-            <span className="text-[11px] tracking-[0.3em] text-[rgba(14,12,11,0.62)] uppercase">
+            <span className="etiqueta text-escuro-62">
               {T("newsletter.etiqueta")}
             </span>
-            <h2 className="titulo max-w-[14ch] text-[clamp(34px,5.5vw,88px)] leading-[0.9]">
+            <h2 className="titulo max-w-[14ch] d-seccao">
               {T("newsletter.titulo")}
             </h2>
-            <p className="max-w-[44ch] text-[17px] leading-[1.6] text-[rgba(14,12,11,0.7)]">
+            <p className="corpo max-w-[44ch] text-escuro-78">
               {T("newsletter.texto")}
             </p>
           </div>

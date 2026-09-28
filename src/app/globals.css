@@ -10,14 +10,42 @@
   --color-papel: #f2ede4;
   --color-ouro: #b4884a;
 
-  --color-claro-75: rgba(242, 237, 228, 0.75);
-  --color-claro-55: rgba(242, 237, 228, 0.55);
-  --color-claro-45: rgba(242, 237, 228, 0.45);
-  --color-escuro-78: rgba(14, 12, 11, 0.78);
+  /* Texto sobre tinta: três degraus, cada um com função. Medido sobre
+     a tinta: 80 dá 10,8:1, 65 dá 7,3:1, 55 dá 5,5:1. Abaixo de 55 não
+     há texto, porque fica aquém dos 4,5 que o mínimo pede. */
+  --color-claro-80: rgba(242, 237, 228, 0.8); /* corpo de leitura */
+  --color-claro-65: rgba(242, 237, 228, 0.65); /* secundário */
+  --color-claro-55: rgba(242, 237, 228, 0.55); /* mínimo: etiquetas, meta */
 
+  /* Texto sobre papel. 62 dá 5,2:1. */
+  --color-escuro-78: rgba(14, 12, 11, 0.78);
+  --color-escuro-62: rgba(14, 12, 11, 0.62);
+
+  /* Linhas: fio separa, fio-forte contorna, fio-controlo desenha
+     controlos (botões de linha, campos). */
   --color-fio: rgba(242, 237, 228, 0.16);
   --color-fio-forte: rgba(242, 237, 228, 0.25);
+  --color-fio-controlo: rgba(242, 237, 228, 0.35);
   --color-fio-escuro: rgba(14, 12, 11, 0.16);
+  --color-fio-escuro-forte: rgba(14, 12, 11, 0.35);
+
+  /* Superfícies. A tinta elevada é o fundo de uma imagem que ainda não
+     chegou; o véu é a tinta translúcida por cima de fotografia. */
+  --color-tinta-elevada: #151211;
+  --color-veu: rgba(14, 12, 11, 0.82);
+  --color-ouro-lavado: rgba(180, 136, 74, 0.1);
+
+  /* Erro: o vinho do backoffice sobre papel, e o mesmo vinho aclarado
+     sobre tinta, onde o escuro não chegava ao contraste (2,7:1). O
+     aclarado dá 6:1. Só para erros; nunca decoração. */
+  --color-erro: #9b3226;
+  --color-erro-claro: #d9705e;
+
+  /* Movimento. Chegar trava; a cortina é o in-out das máscaras e das
+     cenas; sair acelera. As durações vivem em :root, mais abaixo. */
+  --ease-chegar: cubic-bezier(0.2, 0.7, 0.2, 1);
+  --ease-cortina: cubic-bezier(0.76, 0, 0.24, 1);
+  --ease-sair: cubic-bezier(0.4, 0, 1, 1);
 
   /* Carregadas por next/font, que expõe estas duas variáveis. */
   --font-titulo: var(--fonte-titulo), "Bricolage Grotesque", ui-sans-serif,
@@ -26,6 +54,28 @@
     sans-serif;
 
   --breakpoint-menu: 1120px;
+}
+
+/* Durações: quatro degraus e um ambiente. Ver docs/DESIGN-SYSTEM.md. */
+:root {
+  --duracao-micro: 150ms;
+  --duracao-rapida: 240ms;
+  --duracao-media: 480ms;
+  --duracao-revelar: 900ms;
+  --duracao-cena: 1100ms;
+
+  /* Margem lateral, a mesma no cabeçalho, nas secções e nas fichas. */
+  --margem: 20px;
+}
+
+@media (min-width: 640px) {
+  :root {
+    --margem: 28px;
+  }
+}
+
+@theme inline {
+  --spacing-margem: var(--margem);
 }
 
 @layer base {
@@ -106,19 +156,28 @@
   }
 }
 
+/* A cortina sobe como um pano: por máscara, sem deformar a palavra. */
 @keyframes cortina {
   from {
-    transform: scaleY(1);
+    clip-path: inset(0 0 0 0);
   }
   to {
-    transform: scaleY(0);
+    clip-path: inset(0 0 100% 0);
+  }
+}
+
+/* Cada letra da palavra da cortina chega de baixo, uma a uma. */
+@keyframes letra {
+  from {
+    opacity: 0;
+    transform: translateY(0.6em);
   }
 }
 
 @keyframes surge {
   from {
     opacity: 0;
-    transform: translateY(40px);
+    transform: translateY(16px);
   }
   to {
     opacity: 1;
@@ -126,35 +185,62 @@
   }
 }
 
-@keyframes pisca {
-  0%,
-  100% {
-    opacity: 0.25;
-  }
-  50% {
-    opacity: 1;
-  }
-}
-
-/* Entrada em scroll. O elemento nasce escondido e o
-   IntersectionObserver troca data-surge para "visivel".
-   Sem JS ou depois do timeout de segurança, fica visível. */
-[data-surge] {
+/* Entrada em scroll. Só se esconde com html.js, que o script inicial
+   põe antes da primeira pintura: sem JavaScript, ou se o código do
+   site falhar, fica tudo visível. O Movimento põe --i nos elementos
+   que entram juntos, para uma grelha se pendurar peça a peça e não de
+   uma vez; a partir do sétimo entram todos ao mesmo tempo. */
+.js [data-surge] {
   opacity: 0;
 }
 
-[data-surge="visivel"] {
-  animation: surge 0.9s cubic-bezier(0.2, 0.7, 0.2, 1) forwards;
+.js [data-surge="visivel"] {
+  animation: surge var(--duracao-revelar) var(--ease-chegar) forwards;
+  animation-delay: calc(var(--i, 0) * 60ms);
 }
 
-/* Revelação das imagens por clip-path, de cima para baixo. */
-[data-revelar] {
+/* Revelação das imagens: uma máscara abre de cima para baixo e a
+   fotografia assenta lá dentro, de 112% para o tamanho certo. É a
+   diferença entre uma imagem que aparece e uma que chega. */
+.js [data-revelar] {
   clip-path: inset(0 0 100% 0);
-  transition: clip-path 1.15s cubic-bezier(0.76, 0, 0.24, 1);
+  transition: clip-path var(--duracao-cena) var(--ease-cortina);
+  transition-delay: calc(var(--i, 0) * 60ms);
 }
 
-[data-revelar="visivel"] {
+.js [data-revelar] img {
+  transform: scale(1.12);
+  transition: transform calc(var(--duracao-cena) + 300ms) var(--ease-chegar);
+  transition-delay: calc(var(--i, 0) * 60ms);
+}
+
+.js [data-revelar="visivel"] {
   clip-path: inset(0 0 0 0);
+}
+
+.js [data-revelar="visivel"] img {
+  transform: none;
+}
+
+/* Títulos que respiram: entram estreitos no eixo de largura da
+   Bricolage e abrem até à largura toda enquanto sobem no ecrã. Só onde
+   o browser liga a animação ao scroll; nos outros ficam abertos. */
+@supports (animation-timeline: view()) {
+  .d-pagina,
+  .d-seccao {
+    animation: respira linear both;
+    animation-timeline: view();
+    animation-range: entry 10% cover 35%;
+  }
+}
+
+@keyframes respira {
+  from {
+    font-stretch: 78%;
+  }
+  to {
+    font-stretch: 100%;
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -166,16 +252,186 @@
     transition-duration: 0.001ms !important;
   }
 
-  [data-surge],
-  [data-surge="visivel"] {
+  .js [data-surge],
+  .js [data-surge="visivel"] {
     opacity: 1;
     animation: none;
   }
 
-  [data-revelar],
-  [data-revelar="visivel"] {
+  .js [data-revelar],
+  .js [data-revelar="visivel"] {
     clip-path: none;
     transition: none;
+  }
+
+  .js [data-revelar] img {
+    transform: none;
+  }
+
+  .d-pagina,
+  .d-seccao {
+    animation: none;
+  }
+}
+
+/* O título da entrada chega palavra a palavra, cada uma a subir de
+   dentro da sua linha. Na primeira visita espera pela cortina; nas
+   seguintes começa logo. */
+.heroi-palavra {
+  display: inline-block;
+  overflow: hidden;
+  /* Folga para os acentos das maiúsculas não ficarem cortados. */
+  padding-top: 0.12em;
+  margin-top: -0.12em;
+  vertical-align: top;
+}
+
+.heroi-palavra > span {
+  display: inline-block;
+  animation: subir-palavra var(--duracao-cena) var(--ease-cortina) both;
+  animation-delay: calc(1700ms + var(--i, 0) * 80ms);
+}
+
+[data-cortina-vista] .heroi-palavra > span {
+  animation-delay: calc(150ms + var(--i, 0) * 80ms);
+}
+
+@keyframes subir-palavra {
+  from {
+    transform: translateY(105%);
+  }
+}
+
+/* Com o menu compacto aberto, o botão flutuante sai: ficava por cima
+   das últimas entradas do menu. */
+[data-menu-aberto] .botao-whatsapp {
+  display: none;
+}
+
+/* O nível de bolha do segredo Konami: um fio de ouro com a bolha ao
+   meio, que atravessa o ecrã e endireita as obras. */
+.segredo-nivel {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 140;
+  height: 1px;
+  background: var(--color-ouro);
+  pointer-events: none;
+}
+
+.segredo-nivel::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: -4px;
+  width: 36px;
+  height: 9px;
+  margin-left: -18px;
+  border: 1px solid var(--color-ouro);
+  background: var(--color-tinta);
+}
+
+/* A obra pendurada no prego do 404 balança até assentar. */
+.prego-obra {
+  transform-origin: 50% -18px;
+  animation: balancar 1.8s var(--ease-chegar) both;
+}
+
+@keyframes balancar {
+  0% {
+    rotate: -9deg;
+    opacity: 0;
+  }
+  15% {
+    opacity: 1;
+  }
+  35% {
+    rotate: 6deg;
+  }
+  60% {
+    rotate: -3deg;
+  }
+  80% {
+    rotate: 1deg;
+  }
+  100% {
+    rotate: 0deg;
+  }
+}
+
+/* Grão de película por cima de tudo: o ecrã ganha matéria, como papel
+   de fotografia. Ruído desenhado em SVG na cor do papel, a 3,5%, e
+   parado: sem mix-blend-mode, que obrigaria a repintar a página a cada
+   frame de scroll. */
+body::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: 160;
+  pointer-events: none;
+  opacity: 0.035;
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='220' height='220'><filter id='g'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 0.95 0 0 0 0 0.93 0 0 0 0 0.89 0 0 0 1.6 -0.4'/></filter><rect width='100%' height='100%' filter='url(%23g)'/></svg>");
+}
+
+.admin::after,
+body:has(.admin)::after {
+  display: none;
+}
+
+/* A cortina já vista nesta sessão não chega a ser pintada. */
+[data-cortina-vista] [data-cortina] {
+  display: none;
+}
+
+/* O cursor da galeria. Um ponto de ouro que, por cima de uma obra,
+   abre numa etiqueta com o que se pode fazer. Só em ponteiros finos. */
+@layer components {
+  .cursor {
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: 150;
+    pointer-events: none;
+    will-change: transform;
+  }
+
+  .cursor-corpo {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 76px;
+    height: 76px;
+    margin: -38px 0 0 -38px;
+    border-radius: 50%;
+    background: var(--color-ouro);
+    color: var(--color-tinta);
+    transform: scale(0.18);
+    transition: transform var(--duracao-rapida) var(--ease-chegar);
+  }
+
+  .cursor[data-estado="link"] .cursor-corpo {
+    transform: scale(0.5);
+    background: transparent;
+    outline: 1px solid var(--color-ouro);
+  }
+
+  .cursor[data-estado="rotulo"] .cursor-corpo {
+    transform: scale(1);
+  }
+
+  .cursor-rotulo {
+    font-size: 11px;
+    font-weight: 500;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    opacity: 0;
+    transition: opacity var(--duracao-micro);
+  }
+
+  .cursor[data-estado="rotulo"] .cursor-rotulo {
+    opacity: 1;
   }
 }
 
@@ -214,6 +470,10 @@
   line-height: 0.88;
   margin: 0;
   overflow-wrap: break-word;
+  /* Em corpo grande uma palavra longa não cabe numa coluna: melhor
+     "Reminis-cência", com hífen, do que "Reminiscênci" e um "a" solto. */
+  hyphens: auto;
+  text-wrap: balance;
 }
 
 /* Títulos secundários e nomes de cartão: menos esticados. */
@@ -228,43 +488,92 @@
 
 /* Etiqueta em maiúsculas, muito espaçada. */
 @utility etiqueta {
-  font-size: 11px;
-  letter-spacing: 0.24em;
+  font-size: 12px;
+  font-weight: 500;
+  line-height: 1.3;
+  letter-spacing: 0.2em;
   text-transform: uppercase;
-  color: var(--color-claro-55);
 }
 
-/* Escalas fluidas usadas nos vários níveis de título. */
-@utility d-hero {
-  font-size: clamp(44px, 10.5vw, 190px);
-  line-height: 0.82;
-}
+/* Escala de títulos. Cada degrau tem uma função, e o nome diz qual.
+   Os pisos foram medidos no telemóvel: a 390px a razão entre o maior e
+   o menor título passa de 1,5 para 2, e "DESCARREGAR" ainda cabe numa
+   linha. Nenhum título se escreve com clamp() à mão fora daqui. */
 
-@utility d-1 {
-  font-size: clamp(44px, 7vw, 120px);
+/* A frase da entrada e o 404. Um por página, no máximo. */
+@utility d-heroi {
+  font-size: clamp(56px, 14vw, 200px);
   line-height: 0.84;
 }
 
-@utility d-2 {
-  font-size: clamp(38px, 5.5vw, 88px);
+/* O h1 das páginas de índice e institucionais. */
+@utility d-pagina {
+  text-transform: uppercase;
+  font-size: clamp(48px, 11vw, 128px);
+  line-height: 0.86;
+}
+
+/* O h1 de uma obra, de um artista, de uma exposição. */
+@utility d-ficha {
+  font-size: clamp(44px, 9vw, 112px);
   line-height: 0.88;
 }
 
-@utility d-3 {
-  font-size: clamp(28px, 3.6vw, 56px);
-  line-height: 0.94;
+/* O h2 de uma secção, e o fecho do rodapé. */
+@utility d-seccao {
+  text-transform: uppercase;
+  font-size: clamp(36px, 6vw, 88px);
+  line-height: 0.9;
 }
 
-/* Secções de apoio: molduras, lugares, arquivo, newsletter. Menores do
-   que as que vendem obra, para o olho saber onde parar primeiro. */
+/* Secções de apoio: molduras, lugares, arquivo, newsletter,
+   relacionadas. Menores do que as que vendem obra, para o olho saber
+   onde parar primeiro. */
 @utility d-apoio {
-  font-size: clamp(30px, 4vw, 62px);
+  text-transform: uppercase;
+  font-size: clamp(28px, 4.4vw, 60px);
   line-height: 0.92;
 }
 
-@utility d-contactos {
-  font-size: clamp(44px, 9vw, 160px);
-  line-height: 0.84;
+/* Uma linha de índice: exposição no arquivo, obra numa lista. */
+@utility d-linha {
+  font-size: clamp(20px, 2.4vw, 34px);
+  line-height: 1;
+}
+
+/* Citações. A grande é manifesto; a média é a voz de alguém. */
+@utility d-citacao {
+  font-size: clamp(30px, 5vw, 80px);
+  line-height: 1.02;
+}
+
+@utility d-citacao-med {
+  font-size: clamp(22px, 2.8vw, 44px);
+  line-height: 1.1;
+}
+
+/* Texto corrido. Corpo para ler, lead para o primeiro parágrafo, meta
+   para fichas técnicas e legendas. As medidas em ch vivem no próprio
+   parágrafo, para o ch ser o da letra que lá está. */
+@utility corpo {
+  font-size: 17px;
+  line-height: 1.6;
+}
+
+@utility lead {
+  font-size: 20px;
+  line-height: 1.45;
+}
+
+@utility meta {
+  font-size: 14px;
+  line-height: 1.5;
+  font-variant-numeric: tabular-nums lining-nums;
+}
+
+/* Algarismos de largura fixa: datas, medidas, ordinais, contadores. */
+@utility numeros {
+  font-variant-numeric: tabular-nums lining-nums;
 }
 
 /* --------------------------------------------------------------- */
@@ -304,7 +613,7 @@
 @utility btn-linha {
   background: transparent;
   color: var(--color-papel);
-  border: 1px solid rgba(242, 237, 228, 0.35);
+  border: 1px solid var(--color-fio-controlo);
 }
 
 @utility btn-linha-hover {
@@ -365,7 +674,7 @@
   }
 
   .campo-claro::placeholder {
-    color: rgba(14, 12, 11, 0.62);
+    color: var(--color-escuro-62);
   }
 }
 
@@ -404,6 +713,48 @@
 }
 
 /* --------------------------------------------------------------- */
+/* A obra sobre passe-partout                                       */
+/* --------------------------------------------------------------- */
+
+/* A moldura tem proporção fixa; a obra fica inteira lá dentro. Ao
+   passar o rato, a obra cresce dentro da margem e um fio de ouro
+   percorre a moldura, do canto de cima para o de baixo, como quem
+   passa o dedo por ela. Com movimento reduzido fica só o fio. */
+@layer components {
+  .obra-moldura {
+    position: relative;
+    overflow: hidden;
+    background: var(--color-tinta-obra);
+  }
+
+  .obra-moldura-interior {
+    position: absolute;
+    inset: 7%;
+    transition: transform var(--duracao-media) var(--ease-chegar);
+  }
+
+  .obra-moldura::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border: 1px solid var(--color-ouro);
+    clip-path: inset(0 100% 100% 0);
+    transition: clip-path var(--duracao-revelar) var(--ease-cortina);
+    pointer-events: none;
+  }
+
+  .group:hover .obra-moldura-interior,
+  .group:focus-visible .obra-moldura-interior {
+    transform: scale(1.05);
+  }
+
+  .group:hover .obra-moldura::after,
+  .group:focus-visible .obra-moldura::after {
+    clip-path: inset(0 0 0 0);
+  }
+}
+
+/* --------------------------------------------------------------- */
 /* Percurso pelas salas                                             */
 /* --------------------------------------------------------------- */
 
@@ -426,8 +777,17 @@
     display: block;
   }
 
+  /* No modo palco a lista sai de vista, mas não da árvore de
+     acessibilidade: o palco é aria-hidden, e com display:none quem usa
+     leitor de ecrã recebia uma página sem nenhuma sala. */
   .percurso[data-modo="palco"] .percurso-lista {
-    display: none;
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    margin: -1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
   }
 }
 
@@ -444,7 +804,7 @@
      4,13 sobre o fundo e 4,21 sobre o cartão, abaixo dos 4,5 que o
      mínimo pede. A 0,62 dá 5,22 e 5,35, e continua a ler-se como
      secundário. Vale para todo o backoffice, não só para um sítio. */
-  --color-adm-suave: rgba(14, 12, 11, 0.62);
+  --color-adm-suave: var(--color-escuro-62);
 }
 
 @layer components {
@@ -551,14 +911,14 @@
   .admin .adm-botao-perigo,
   .adm-botao-perigo {
     background: transparent;
-    border-color: #9b3226;
-    color: #9b3226;
+    border-color: var(--color-erro);
+    color: var(--color-erro);
   }
 
   .admin .adm-botao-perigo:hover,
   .adm-botao-perigo:hover {
-    background: #9b3226;
-    border-color: #9b3226;
+    background: var(--color-erro);
+    border-color: var(--color-erro);
     color: #fff;
   }
 
@@ -575,32 +935,56 @@
 /* --------------------------------------------------------------------
    Passagem entre páginas
 
-   Num sítio de galeria anda-se de uma obra para a seguinte, e o corte
-   seco interrompe a leitura. Um dissolver curto chega: a intenção é
-   ligar as duas páginas, não fazer número.
+   Feita pelo <ViewTransition> do React, que o App Router usa em cada
+   navegação. Três peças:
+   - a obra voa do cartão para a ficha (e volta), com um desfoque breve
+     a meio para esconder a interpolação;
+   - o resto do conteúdo sai depressa e o novo chega a subir 12px;
+   - o cabeçalho, a barra e o WhatsApp não entram: ficam parados.
    -------------------------------------------------------------------- */
 
-@view-transition {
-  navigation: auto;
+::view-transition {
+  pointer-events: none;
 }
 
-::view-transition-old(root) {
-  animation: sair 180ms ease both;
-}
-
+::view-transition-old(root),
 ::view-transition-new(root) {
-  animation: entrar 260ms ease both;
+  animation: none;
 }
 
-@keyframes sair {
+::view-transition-group(.obra-voo) {
+  animation-duration: var(--duracao-revelar);
+  animation-timing-function: var(--ease-cortina);
+}
+
+::view-transition-image-pair(.obra-voo) {
+  animation: var(--duracao-revelar) var(--ease-cortina) both via-desfoque;
+}
+
+::view-transition-old(.pagina) {
+  animation: var(--duracao-rapida) var(--ease-sair) both desvanecer;
+}
+
+::view-transition-new(.pagina) {
+  animation: var(--duracao-media) var(--ease-chegar) 120ms both surgir-pagina;
+}
+
+@keyframes via-desfoque {
+  40% {
+    filter: blur(4px);
+  }
+}
+
+@keyframes desvanecer {
   to {
     opacity: 0;
   }
 }
 
-@keyframes entrar {
+@keyframes surgir-pagina {
   from {
     opacity: 0;
+    transform: translateY(12px);
   }
 }
 
@@ -609,8 +993,11 @@
     scroll-behavior: auto;
   }
 
-  ::view-transition-old(root),
-  ::view-transition-new(root) {
-    animation: none;
+  ::view-transition-old(*),
+  ::view-transition-new(*),
+  ::view-transition-group(*),
+  ::view-transition-image-pair(*) {
+    animation-duration: 0s !important;
+    animation-delay: 0s !important;
   }
 }

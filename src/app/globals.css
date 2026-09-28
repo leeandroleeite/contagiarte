@@ -10,14 +10,42 @@
   --color-papel: #f2ede4;
   --color-ouro: #b4884a;
 
-  --color-claro-75: rgba(242, 237, 228, 0.75);
-  --color-claro-55: rgba(242, 237, 228, 0.55);
-  --color-claro-45: rgba(242, 237, 228, 0.45);
-  --color-escuro-78: rgba(14, 12, 11, 0.78);
+  /* Texto sobre tinta: três degraus, cada um com função. Medido sobre
+     a tinta: 80 dá 10,8:1, 65 dá 7,3:1, 55 dá 5,5:1. Abaixo de 55 não
+     há texto, porque fica aquém dos 4,5 que o mínimo pede. */
+  --color-claro-80: rgba(242, 237, 228, 0.8); /* corpo de leitura */
+  --color-claro-65: rgba(242, 237, 228, 0.65); /* secundário */
+  --color-claro-55: rgba(242, 237, 228, 0.55); /* mínimo: etiquetas, meta */
 
+  /* Texto sobre papel. 62 dá 5,2:1. */
+  --color-escuro-78: rgba(14, 12, 11, 0.78);
+  --color-escuro-62: rgba(14, 12, 11, 0.62);
+
+  /* Linhas: fio separa, fio-forte contorna, fio-controlo desenha
+     controlos (botões de linha, campos). */
   --color-fio: rgba(242, 237, 228, 0.16);
   --color-fio-forte: rgba(242, 237, 228, 0.25);
+  --color-fio-controlo: rgba(242, 237, 228, 0.35);
   --color-fio-escuro: rgba(14, 12, 11, 0.16);
+  --color-fio-escuro-forte: rgba(14, 12, 11, 0.35);
+
+  /* Superfícies. A tinta elevada é o fundo de uma imagem que ainda não
+     chegou; o véu é a tinta translúcida por cima de fotografia. */
+  --color-tinta-elevada: #151211;
+  --color-veu: rgba(14, 12, 11, 0.82);
+  --color-ouro-lavado: rgba(180, 136, 74, 0.1);
+
+  /* Erro: o vinho do backoffice sobre papel, e o mesmo vinho aclarado
+     sobre tinta, onde o escuro não chegava ao contraste (2,7:1). O
+     aclarado dá 6:1. Só para erros; nunca decoração. */
+  --color-erro: #9b3226;
+  --color-erro-claro: #d9705e;
+
+  /* Movimento. Chegar trava; a cortina é o in-out das máscaras e das
+     cenas; sair acelera. As durações vivem em :root, mais abaixo. */
+  --ease-chegar: cubic-bezier(0.2, 0.7, 0.2, 1);
+  --ease-cortina: cubic-bezier(0.76, 0, 0.24, 1);
+  --ease-sair: cubic-bezier(0.4, 0, 1, 1);
 
   /* Carregadas por next/font, que expõe estas duas variáveis. */
   --font-titulo: var(--fonte-titulo), "Bricolage Grotesque", ui-sans-serif,
@@ -26,6 +54,28 @@
     sans-serif;
 
   --breakpoint-menu: 1120px;
+}
+
+/* Durações: quatro degraus e um ambiente. Ver docs/DESIGN-SYSTEM.md. */
+:root {
+  --duracao-micro: 150ms;
+  --duracao-rapida: 240ms;
+  --duracao-media: 480ms;
+  --duracao-revelar: 900ms;
+  --duracao-cena: 1100ms;
+
+  /* Margem lateral, a mesma no cabeçalho, nas secções e nas fichas. */
+  --margem: 20px;
+}
+
+@media (min-width: 640px) {
+  :root {
+    --margem: 28px;
+  }
+}
+
+@theme inline {
+  --spacing-margem: var(--margem);
 }
 
 @layer base {
@@ -228,43 +278,92 @@
 
 /* Etiqueta em maiúsculas, muito espaçada. */
 @utility etiqueta {
-  font-size: 11px;
-  letter-spacing: 0.24em;
+  font-size: 12px;
+  font-weight: 500;
+  line-height: 1.3;
+  letter-spacing: 0.2em;
   text-transform: uppercase;
-  color: var(--color-claro-55);
 }
 
-/* Escalas fluidas usadas nos vários níveis de título. */
-@utility d-hero {
-  font-size: clamp(44px, 10.5vw, 190px);
-  line-height: 0.82;
-}
+/* Escala de títulos. Cada degrau tem uma função, e o nome diz qual.
+   Os pisos foram medidos no telemóvel: a 390px a razão entre o maior e
+   o menor título passa de 1,5 para 2, e "DESCARREGAR" ainda cabe numa
+   linha. Nenhum título se escreve com clamp() à mão fora daqui. */
 
-@utility d-1 {
-  font-size: clamp(44px, 7vw, 120px);
+/* A frase da entrada e o 404. Um por página, no máximo. */
+@utility d-heroi {
+  font-size: clamp(56px, 14vw, 200px);
   line-height: 0.84;
 }
 
-@utility d-2 {
-  font-size: clamp(38px, 5.5vw, 88px);
+/* O h1 das páginas de índice e institucionais. */
+@utility d-pagina {
+  text-transform: uppercase;
+  font-size: clamp(48px, 11vw, 128px);
+  line-height: 0.86;
+}
+
+/* O h1 de uma obra, de um artista, de uma exposição. */
+@utility d-ficha {
+  font-size: clamp(44px, 9vw, 112px);
   line-height: 0.88;
 }
 
-@utility d-3 {
-  font-size: clamp(28px, 3.6vw, 56px);
-  line-height: 0.94;
+/* O h2 de uma secção, e o fecho do rodapé. */
+@utility d-seccao {
+  text-transform: uppercase;
+  font-size: clamp(36px, 6vw, 88px);
+  line-height: 0.9;
 }
 
-/* Secções de apoio: molduras, lugares, arquivo, newsletter. Menores do
-   que as que vendem obra, para o olho saber onde parar primeiro. */
+/* Secções de apoio: molduras, lugares, arquivo, newsletter,
+   relacionadas. Menores do que as que vendem obra, para o olho saber
+   onde parar primeiro. */
 @utility d-apoio {
-  font-size: clamp(30px, 4vw, 62px);
+  text-transform: uppercase;
+  font-size: clamp(28px, 4.4vw, 60px);
   line-height: 0.92;
 }
 
-@utility d-contactos {
-  font-size: clamp(44px, 9vw, 160px);
-  line-height: 0.84;
+/* Uma linha de índice: exposição no arquivo, obra numa lista. */
+@utility d-linha {
+  font-size: clamp(20px, 2.4vw, 34px);
+  line-height: 1;
+}
+
+/* Citações. A grande é manifesto; a média é a voz de alguém. */
+@utility d-citacao {
+  font-size: clamp(30px, 5vw, 80px);
+  line-height: 1.02;
+}
+
+@utility d-citacao-med {
+  font-size: clamp(22px, 2.8vw, 44px);
+  line-height: 1.1;
+}
+
+/* Texto corrido. Corpo para ler, lead para o primeiro parágrafo, meta
+   para fichas técnicas e legendas. As medidas em ch vivem no próprio
+   parágrafo, para o ch ser o da letra que lá está. */
+@utility corpo {
+  font-size: 17px;
+  line-height: 1.6;
+}
+
+@utility lead {
+  font-size: 20px;
+  line-height: 1.45;
+}
+
+@utility meta {
+  font-size: 14px;
+  line-height: 1.5;
+  font-variant-numeric: tabular-nums lining-nums;
+}
+
+/* Algarismos de largura fixa: datas, medidas, ordinais, contadores. */
+@utility numeros {
+  font-variant-numeric: tabular-nums lining-nums;
 }
 
 /* --------------------------------------------------------------- */
@@ -304,7 +403,7 @@
 @utility btn-linha {
   background: transparent;
   color: var(--color-papel);
-  border: 1px solid rgba(242, 237, 228, 0.35);
+  border: 1px solid var(--color-fio-controlo);
 }
 
 @utility btn-linha-hover {
@@ -365,7 +464,7 @@
   }
 
   .campo-claro::placeholder {
-    color: rgba(14, 12, 11, 0.62);
+    color: var(--color-escuro-62);
   }
 }
 
@@ -444,7 +543,7 @@
      4,13 sobre o fundo e 4,21 sobre o cartão, abaixo dos 4,5 que o
      mínimo pede. A 0,62 dá 5,22 e 5,35, e continua a ler-se como
      secundário. Vale para todo o backoffice, não só para um sítio. */
-  --color-adm-suave: rgba(14, 12, 11, 0.62);
+  --color-adm-suave: var(--color-escuro-62);
 }
 
 @layer components {
@@ -551,14 +650,14 @@
   .admin .adm-botao-perigo,
   .adm-botao-perigo {
     background: transparent;
-    border-color: #9b3226;
-    color: #9b3226;
+    border-color: var(--color-erro);
+    color: var(--color-erro);
   }
 
   .admin .adm-botao-perigo:hover,
   .adm-botao-perigo:hover {
-    background: #9b3226;
-    border-color: #9b3226;
+    background: var(--color-erro);
+    border-color: var(--color-erro);
     color: #fff;
   }
 

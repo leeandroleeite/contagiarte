@@ -72,10 +72,10 @@ export function Percurso({ salas }: { salas: Sala[] }) {
       <div className="percurso-lista gap-20 px-7 pb-28">
         {salas.map((s, i) => (
           <article key={s.id} className="flex flex-col gap-6">
-            <span className="text-[11px] tracking-[0.3em] text-[rgba(242,237,228,0.6)] uppercase">
+            <span className="etiqueta text-claro-65">
               {numero(i + 1)} / {numero(salas.length)}
             </span>
-            <h2 className="titulo text-[clamp(34px,5.5vw,86px)] leading-[0.88] uppercase">
+            <h2 className="titulo d-seccao uppercase">
               {s.nome}
             </h2>
             <Imagem
@@ -85,11 +85,11 @@ export function Percurso({ salas }: { salas: Sala[] }) {
               legenda={s.nome}
               sizes="100vw"
             />
-            <p className="max-w-[54ch] text-[18px] leading-[1.6] text-[rgba(242,237,228,0.82)]">
+            <p className="lead max-w-[54ch] text-claro-80">
               {s.texto}
             </p>
             {s.notaObras && (
-              <p className="text-[14px] tracking-[0.06em] text-[rgba(242,237,228,0.55)]">
+              <p className="meta tracking-[0.06em] text-claro-55">
                 {s.notaObras}
               </p>
             )}
@@ -137,17 +137,17 @@ export function Percurso({ salas }: { salas: Sala[] }) {
           </div>
 
           <div className="pointer-events-none relative flex h-full max-w-[44ch] flex-col justify-center gap-[22px] px-7">
-            <span className="text-[11px] tracking-[0.3em] text-[rgba(242,237,228,0.6)]">
+            <span className="text-[11px] tracking-[0.3em] text-claro-65">
               {numero(indice + 1)} / {numero(salas.length)}
             </span>
-            <h2 className="titulo text-[clamp(34px,5.5vw,86px)] leading-[0.88] uppercase">
+            <h2 className="titulo d-seccao uppercase">
               {actual.nome}
             </h2>
-            <p className="text-[18px] leading-[1.6] text-[rgba(242,237,228,0.82)]">
+            <p className="lead text-claro-80">
               {actual.texto}
             </p>
             {actual.notaObras && (
-              <span className="text-[14px] tracking-[0.06em] text-[rgba(242,237,228,0.55)]">
+              <span className="meta tracking-[0.06em] text-claro-55">
                 {actual.notaObras}
               </span>
             )}
@@ -161,7 +161,7 @@ export function Percurso({ salas }: { salas: Sala[] }) {
                 style={{
                   width: i === indice ? 44 : 20,
                   background:
-                    i === indice ? "#B4884A" : "rgba(242,237,228,0.3)",
+                    i === indice ? "var(--color-ouro)" : "var(--color-fio-forte)",
                   transition: "width .4s ease, background .4s ease",
                 }}
               />

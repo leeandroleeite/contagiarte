@@ -98,7 +98,7 @@ function Grupo({
   children: React.ReactNode;
 }) {
   return (
-    <section className="flex flex-col gap-4 border-t border-[rgba(242,237,228,0.16)] pt-6">
+    <section className="flex flex-col gap-4 border-t border-fio pt-6">
       <h2 className="titulo-med text-[15px] tracking-[0.02em]">{titulo}</h2>
       {children}
     </section>
@@ -108,7 +108,7 @@ function Grupo({
 /** Rótulo de um controlo dentro de um grupo. */
 function Rotulo({ children }: { children: React.ReactNode }) {
   return (
-    <span className="text-[10px] tracking-[0.24em] text-[rgba(242,237,228,0.55)] uppercase">
+    <span className="etiqueta text-claro-55">
       {children}
     </span>
   );
@@ -407,7 +407,7 @@ export function VerNaParede({
           {aArrastarFicheiro && (
             <div
               aria-hidden="true"
-              className="pointer-events-none absolute inset-0 border-2 border-dashed border-ouro bg-[rgba(180,136,74,0.12)]"
+              className="pointer-events-none absolute inset-0 border-2 border-dashed border-ouro bg-ouro-lavado"
             />
           )}
 
@@ -489,8 +489,8 @@ export function VerNaParede({
                               backgroundPosition: "center",
                             }
                           : {
-                              background: "#1b1715",
-                              border: "1px dashed rgba(242,237,228,0.25)",
+                              background: "var(--color-tinta-elevada)",
+                              border: "1px dashed var(--color-fio-forte)",
                             }),
                       }}
                     />
@@ -501,7 +501,7 @@ export function VerNaParede({
           )}
         </div>
 
-        <div className="flex flex-wrap justify-between gap-4 pt-3.5 text-[13px] text-[rgba(242,237,228,0.55)]">
+        <div className="flex flex-wrap justify-between gap-4 pt-3.5 text-[13px] text-claro-55">
           <span>{legenda}</span>
           <span>{t("parede.arraste", idioma)}</span>
         </div>
@@ -509,7 +509,7 @@ export function VerNaParede({
         {/* Se não cabe, o visitante tem de saber que não cabe. Antes a
             peça era encolhida em silêncio até 92% da parede. */}
         {naoCabe && (
-          <p role="status" className="pt-2 text-[13px] text-[#E0765C]">
+          <p role="status" className="pt-2 text-[13px] text-erro-claro">
             {t("parede.naocabe", idioma, {
               conjunto: Math.round(conjuntoLargura),
               parede: larguraParede,
@@ -538,7 +538,7 @@ export function VerNaParede({
                     "aspect-square cursor-pointer border-2 p-0",
                     o.slug === obraSlug
                       ? "border-ouro"
-                      : "border-[rgba(242,237,228,0.25)] hover:border-papel",
+                      : "border-fio-forte hover:border-papel",
                   )}
                 >
                   <span
@@ -552,7 +552,7 @@ export function VerNaParede({
                             backgroundSize: "cover",
                             backgroundPosition: "center",
                           }
-                        : { background: "#1b1715" }
+                        : { background: "var(--color-tinta-elevada)" }
                     }
                   />
                 </button>
@@ -561,7 +561,7 @@ export function VerNaParede({
           </div>
 
           {obra?.origemProporcao === "fotografia" && (
-            <span className="text-[13px] leading-[1.5] text-[rgba(242,237,228,0.55)]">
+            <span className="text-[13px] leading-[1.5] text-claro-55">
               {t("parede.forma.aviso", idioma)}
             </span>
           )}
@@ -569,7 +569,7 @@ export function VerNaParede({
           <span className="text-[15px]">
             {obra?.titulo}
             {obra?.autor && (
-              <span className="text-[rgba(242,237,228,0.55)]">
+              <span className="text-claro-55">
                 {" · "}
                 {obra.autor}
               </span>
@@ -592,7 +592,7 @@ export function VerNaParede({
               <span className="text-[22px] tabular-nums">
                 {obra?.larguraCm} × {obra?.alturaCm} cm
               </span>
-              <span className="text-[13px] leading-[1.5] text-[rgba(242,237,228,0.55)]">
+              <span className="text-[13px] leading-[1.5] text-claro-55">
                 {t("parede.medidas.propria", idioma)}
               </span>
             </div>
@@ -600,7 +600,7 @@ export function VerNaParede({
             <>
               <label
                 htmlFor="largura-obra"
-                className="flex justify-between text-[10px] tracking-[0.24em] text-[rgba(242,237,228,0.55)] uppercase"
+                className="etiqueta flex justify-between text-claro-55"
               >
                 <span>{t("parede.largura_obra", idioma)}</span>
                 <span className="tabular-nums">{larguraObra} cm</span>
@@ -613,14 +613,14 @@ export function VerNaParede({
                 step={5}
                 value={larguraObra}
                 onChange={(e) => setLarguraEscolhida(Number(e.target.value))}
-                className="h-8 w-full accent-[#B4884A]"
+                className="h-8 w-full accent-ouro"
               />
               {/* O outro ramo diz que aquelas são as medidas da peça.
                   Este não dizia nada, e o número que sai do cursor ia
                   na mensagem para a galeria com o mesmo aspecto de
                   medida verdadeira. É uma simulação, e quem a faz tem
                   de o saber. */}
-              <span className="text-[13px] leading-[1.5] text-[rgba(242,237,228,0.55)]">
+              <span className="text-[13px] leading-[1.5] text-claro-55">
                 {t("parede.medidas.semficha", idioma)}
               </span>
             </>
@@ -643,15 +643,15 @@ export function VerNaParede({
                 onClick={() => setPasseSlug(p.slug)}
                 aria-pressed={p.slug === passeSlug}
                 className={cx(
-                  "flex min-h-11 cursor-pointer items-center gap-2.5 border px-4 py-2.5 text-[11px] tracking-[0.14em] uppercase transition-colors",
+                  "etiqueta flex min-h-11 cursor-pointer items-center gap-2.5 border px-4 py-2.5 transition-colors",
                   p.slug === passeSlug
                     ? "border-papel bg-papel text-tinta"
-                    : "border-[rgba(242,237,228,0.25)] text-[rgba(242,237,228,0.7)] hover:border-papel",
+                    : "border-fio-forte text-claro-65 hover:border-papel",
                 )}
               >
                 <span
                   aria-hidden="true"
-                  className="h-4 w-4 border border-[rgba(14,12,11,0.25)]"
+                  className="h-4 w-4 border border-fio-escuro-forte"
                   style={{ background: p.cor || "transparent" }}
                 />
                 {nomePasse(p.slug, idioma)}
@@ -668,15 +668,15 @@ export function VerNaParede({
                 onClick={() => setMolduraSlug(m.slug)}
                 aria-pressed={m.slug === molduraSlug}
                 className={cx(
-                  "flex min-h-11 cursor-pointer items-center gap-2.5 border px-4 py-2.5 text-[11px] tracking-[0.14em] uppercase transition-colors",
+                  "etiqueta flex min-h-11 cursor-pointer items-center gap-2.5 border px-4 py-2.5 transition-colors",
                   m.slug === molduraSlug
                     ? "border-papel bg-papel text-tinta"
-                    : "border-[rgba(242,237,228,0.25)] text-[rgba(242,237,228,0.7)] hover:border-papel",
+                    : "border-fio-forte text-claro-65 hover:border-papel",
                 )}
               >
                 <span
                   aria-hidden="true"
-                  className="h-4 w-4 border border-[rgba(14,12,11,0.25)]"
+                  className="h-4 w-4 border border-fio-escuro-forte"
                   style={{
                     background: m.cor === "transparent" ? "transparent" : m.cor,
                   }}
@@ -685,7 +685,7 @@ export function VerNaParede({
               </button>
             ))}
           </div>
-          <span className="text-[13px] leading-[1.55] text-[rgba(242,237,228,0.55)]">
+          <span className="text-[13px] leading-[1.55] text-claro-55">
             {t("parede.molduras.nota", idioma)}
           </span>
         </Grupo>
@@ -697,7 +697,7 @@ export function VerNaParede({
         >
           <label
             htmlFor="largura-parede"
-            className="flex justify-between text-[10px] tracking-[0.24em] text-[rgba(242,237,228,0.55)] uppercase"
+            className="etiqueta flex justify-between text-claro-55"
           >
             <span>{t("parede.largura_parede", idioma)}</span>
             <span>{larguraParede} cm</span>
@@ -710,9 +710,9 @@ export function VerNaParede({
             step={10}
             value={larguraParede}
             onChange={(e) => setLarguraParede(Number(e.target.value))}
-            className="h-8 w-full accent-[#B4884A]"
+            className="h-8 w-full accent-ouro"
           />
-          <span className="text-[13px] leading-[1.5] text-[rgba(242,237,228,0.55)]">
+          <span className="text-[13px] leading-[1.5] text-claro-55">
             {t("parede.escala", idioma)}
           </span>
 
@@ -720,7 +720,7 @@ export function VerNaParede({
             <button
               type="button"
               onClick={() => setPos({ x: 0.5, y: 0.45 })}
-              className="min-h-11 cursor-pointer border border-[rgba(242,237,228,0.25)] px-4 text-[11px] tracking-[0.14em] text-[rgba(242,237,228,0.7)] uppercase transition-colors hover:border-papel"
+              className="etiqueta min-h-11 cursor-pointer border border-fio-forte px-4 text-claro-65 transition-colors hover:border-papel"
             >
               {t("parede.centrar", idioma)}
             </button>
@@ -729,14 +729,14 @@ export function VerNaParede({
             <button
               type="button"
               onClick={() => setPos((p) => ({ x: p.x, y: 0.55 }))}
-              className="min-h-11 cursor-pointer border border-[rgba(242,237,228,0.25)] px-4 text-[11px] tracking-[0.14em] text-[rgba(242,237,228,0.7)] uppercase transition-colors hover:border-papel"
+              className="etiqueta min-h-11 cursor-pointer border border-fio-forte px-4 text-claro-65 transition-colors hover:border-papel"
             >
               {t("parede.altura.olhar", idioma)}
             </button>
           </div>
 
           <div className="mt-3 flex flex-col gap-2">
-            <label className="inline-flex min-h-11 w-fit cursor-pointer items-center border border-[rgba(242,237,228,0.25)] px-4 text-[11px] tracking-[0.16em] text-papel uppercase transition-colors focus-within:border-ouro hover:border-papel">
+            <label className="etiqueta inline-flex min-h-11 w-fit cursor-pointer items-center border border-fio-forte px-4 text-papel transition-colors focus-within:border-ouro hover:border-papel">
               {daGaleria
                 ? t("parede.carregar", idioma)
                 : t("acao.escolher", idioma)}
@@ -749,11 +749,11 @@ export function VerNaParede({
             </label>
 
             {erroFicheiro ? (
-              <span role="alert" className="text-[13px] text-[#E0765C]">
+              <span role="alert" className="text-[13px] text-erro-claro">
                 {erroFicheiro}
               </span>
             ) : (
-              <span className="max-w-[46ch] text-[13px] leading-[1.5] text-[rgba(242,237,228,0.55)]">
+              <span className="max-w-[46ch] text-[13px] leading-[1.5] text-claro-55">
                 {daGaleria
                   ? t("parede.exemplo", idioma)
                   : t("parede.privado", idioma)}
@@ -762,16 +762,16 @@ export function VerNaParede({
           </div>
         </Grupo>
 
-        <div className="flex flex-col gap-3 border-t border-[rgba(242,237,228,0.16)] pt-6">
+        <div className="flex flex-col gap-3 border-t border-fio pt-6">
           <a
             href={linkWhatsApp(whatsapp, mensagem)}
             target="_blank"
             rel="noopener noreferrer"
-            className="inline-flex min-h-12 items-center justify-center bg-ouro px-6 py-[17px] text-center text-[12px] tracking-[0.18em] text-tinta uppercase transition-colors hover:bg-papel"
+            className="etiqueta inline-flex min-h-12 items-center justify-center bg-ouro px-6 py-[17px] text-center text-tinta transition-colors hover:bg-papel"
           >
             {t("parede.pedir", idioma)}
           </a>
-          <span className="text-center text-[13px] text-[rgba(242,237,228,0.55)]">
+          <span className="text-center text-[13px] text-claro-55">
             {t("parede.nota_preco", idioma)}
           </span>
         </div>

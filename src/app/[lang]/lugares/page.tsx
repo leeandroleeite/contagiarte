@@ -40,7 +40,7 @@ export default async function PaginaLugares({
           </span>
         }
       >
-        {t("nav.lugares", idioma).toUpperCase()}
+        {t("nav.lugares", idioma)}
       </TituloSeccao>
 
       <ul className="grid gap-x-6 gap-y-14" style={colunas(260, "auto-fill")}>
@@ -54,13 +54,13 @@ export default async function PaginaLugares({
               sizes="(max-width: 700px) 100vw, 25vw"
             />
             <span className="titulo-med text-[18px] uppercase">{l.nome}</span>
-            <span className="text-[14px] text-claro-55">
+            <span className="meta text-claro-55">
               {[texto(l.localidade, idioma), texto(l.tipo, idioma)]
                 .filter(Boolean)
                 .join(" · ")}
             </span>
             {texto(l.descricao, idioma) && (
-              <p className="text-[15px] leading-[1.6] text-[rgba(242,237,228,0.7)]">
+              <p className="corpo text-claro-65">
                 {texto(l.descricao, idioma)}
               </p>
             )}
@@ -69,7 +69,7 @@ export default async function PaginaLugares({
                 href={l.site}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex min-h-11 items-center text-[12px] tracking-[0.18em] uppercase"
+                className="etiqueta inline-flex min-h-11 items-center"
               >
                 {new URL(l.site).hostname.replace("www.", "")} →
               </a>

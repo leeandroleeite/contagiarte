@@ -150,18 +150,18 @@ export default async function Homepage({
             o título ocupa três linhas e não pode tapar o "Desça". */}
         <div className="absolute inset-x-7 bottom-9 flex flex-col gap-6">
           <h1
-            className="titulo d-hero pointer-events-none text-papel"
+            className="titulo d-heroi pointer-events-none text-papel"
             style={{ mixBlendMode: "difference" }}
           >
             {T("home.hero.titulo", "FOR THE NEXT GENERATION OF ART LOVERS")}
           </h1>
 
           <div className="flex flex-wrap items-center gap-5">
-            <span className="flex items-center gap-3.5 text-[11px] tracking-[0.24em] text-[rgba(242,237,228,0.7)] uppercase">
-              <span className="h-px w-11 bg-[rgba(242,237,228,0.5)]" />
+            <span className="etiqueta flex items-center gap-3.5 text-claro-65">
+              <span className="h-px w-11 bg-claro-55" />
               {t("hero.desca", idioma)}
             </span>
-            <span className="max-w-[44ch] text-[14px] leading-relaxed text-claro-75">
+            <span className="meta max-w-[44ch] text-claro-80">
               {T(
                 "home.hero.posicionamento",
                 "Galeria de arte contemporânea. Porto, Douro e onde mais fizer sentido expor.",
@@ -186,7 +186,7 @@ export default async function Homepage({
         <Seccao id="exposicao">
           <div className="grid items-center gap-16" style={colunas(380)}>
             <div className="flex flex-col gap-[26px]" data-surge="">
-              <span className="text-[11px] tracking-[0.3em] text-[rgba(242,237,228,0.55)] uppercase">
+              <span className="etiqueta text-claro-55">
                 {[
                   t(`estado.${situacao(expo)}`, idioma),
                   periodo(
@@ -201,20 +201,20 @@ export default async function Homepage({
                   .join(" · ")}
               </span>
 
-              <h2 className="titulo d-1 uppercase">
+              <h2 className="titulo d-ficha uppercase">
                 {texto(expo.titulo, idioma)}
               </h2>
 
-              <p className="max-w-[46ch] text-[19px] leading-[1.55] text-[rgba(242,237,228,0.82)]">
+              <p className="lead max-w-[46ch] text-claro-80">
                 {texto(expo.texto, idioma)}
               </p>
 
               {expo.artistas.length > 0 && (
-                <div className="flex flex-wrap gap-4 text-[13px] tracking-[0.1em] text-[rgba(242,237,228,0.6)]">
+                <div className="flex flex-wrap gap-4 text-[13px] tracking-[0.1em] text-claro-65">
                   {expo.artistas.map((ea, i) => (
                     <span key={ea.artista.id} className="flex gap-4">
                       {i > 0 && (
-                        <span className="text-[rgba(242,237,228,0.55)]">·</span>
+                        <span className="text-claro-55">·</span>
                       )}
                       {ea.artista.nome}
                     </span>
@@ -254,8 +254,8 @@ export default async function Homepage({
       {obras.length > 0 && (
         <Seccao id="obras" semPadding>
           <div className="mb-14 flex flex-wrap items-baseline justify-between gap-5 px-7">
-            <h2 className="titulo d-2">{t("nav.obras", idioma)}</h2>
-            <span className="etiqueta">{t("acao.arrastar", idioma)}</span>
+            <h2 className="titulo d-seccao">{t("nav.obras", idioma)}</h2>
+            <span className="etiqueta text-claro-55">{t("acao.arrastar", idioma)}</span>
           </div>
 
           <ul
@@ -277,7 +277,7 @@ export default async function Homepage({
           <div className="px-7">
             <Link
               href={caminho(idioma, "/obras")}
-              className="inline-flex min-h-11 items-center text-[12px] tracking-[0.18em] uppercase"
+              className="etiqueta inline-flex min-h-11 items-center"
             >
               {t("acao.ver_todas", idioma)}
             </Link>
@@ -287,10 +287,10 @@ export default async function Homepage({
 
       {/* 5. Porque se compra arte --------------------------------------- */}
       <Seccao claro className="px-7 py-[140px]">
-        <span className="text-[11px] tracking-[0.3em] text-[rgba(14,12,11,0.62)] uppercase">
+        <span className="etiqueta text-escuro-62">
           {T("home.porque.etiqueta", "PORQUE SE COMPRA ARTE")}
         </span>
-        <h2 className="titulo mt-7 max-w-[16ch] text-[clamp(38px,6.5vw,110px)] leading-[0.9]">
+        <h2 className="titulo mt-7 max-w-[16ch] d-seccao">
           {T("home.porque.titulo", "UMA OBRA NÃO É SÓ O QUE FICA NA PAREDE.")}
         </h2>
         <div
@@ -306,12 +306,12 @@ export default async function Homepage({
               <span className="titulo text-[14px] tracking-[0.1em]">
                 {T(`home.porque.${n}.titulo`)}
               </span>
-              <p className="text-[17px] leading-[1.6] text-escuro-78">
+              <p className="corpo text-escuro-78">
                 {T(`home.porque.${n}.texto`)}{" "}
                 {n === 2 && (
                   <Link
                     href={caminho(idioma, "/a-obra-como-ativo")}
-                    className="border-b border-[rgba(14,12,11,0.4)] text-tinta"
+                    className="border-b border-fio-escuro-forte text-tinta"
                   >
                     {t("acao.avaliar", idioma)}
                   </Link>
@@ -324,10 +324,10 @@ export default async function Homepage({
 
       {/* 6. Citação ------------------------------------------------------ */}
       <Seccao className="px-7 py-[140px]">
-        <blockquote className="titulo mx-auto max-w-[22ch] text-center text-[clamp(30px,5vw,80px)] leading-[1.02]">
+        <blockquote className="titulo mx-auto max-w-[22ch] text-center d-citacao">
           {T("home.citacao")}
         </blockquote>
-        <p className="mt-9 text-center text-[11px] tracking-[0.24em] text-[rgba(242,237,228,0.55)]">
+        <p className="mt-9 text-center text-[11px] tracking-[0.24em] text-claro-55">
           {T("home.citacao.autor")}
         </p>
       </Seccao>
@@ -339,8 +339,8 @@ export default async function Homepage({
             className="mb-3 flex flex-wrap items-baseline gap-5"
             data-surge=""
           >
-            <h2 className="titulo d-2">{t("nav.artistas", idioma)}</h2>
-            <span className="text-[13px] tracking-[0.2em] text-[rgba(242,237,228,0.55)]">
+            <h2 className="titulo d-seccao">{t("nav.artistas", idioma)}</h2>
+            <span className="meta tracking-[0.2em] text-claro-55">
               {String(artistas.length).padStart(2, "0")}
             </span>
           </div>
@@ -362,11 +362,11 @@ export default async function Homepage({
       <Seccao id="molduras">
         <div className="grid items-center gap-16" style={colunas(360)}>
           <div className="flex flex-col gap-[26px]" data-surge="">
-            <span className="text-[11px] tracking-[0.3em] text-[rgba(242,237,228,0.55)] uppercase">
+            <span className="etiqueta text-claro-55">
               {T("molduras.etiqueta", "PARCERIA MOLDARTPÓVOA")}
             </span>
             <h2 className="titulo d-apoio">{t("faixa.molduras", idioma)}</h2>
-            <p className="max-w-[48ch] text-[18px] leading-[1.6] text-[rgba(242,237,228,0.8)]">
+            <p className="lead max-w-[48ch] text-claro-80">
               {T("molduras.texto")}
             </p>
 
@@ -383,8 +383,8 @@ export default async function Homepage({
               </Botao>
             </div>
 
-            <div className="mt-3 flex flex-col gap-4 border border-[rgba(242,237,228,0.2)] p-7">
-              <span className="text-[10px] tracking-[0.24em] text-[rgba(242,237,228,0.55)] uppercase">
+            <div className="mt-3 flex flex-col gap-4 border border-fio p-7">
+              <span className="etiqueta text-claro-55">
                 {t("acao.orcamento", idioma)}
               </span>
               <FormularioPedido
@@ -418,7 +418,7 @@ export default async function Homepage({
               </span>
             }
           >
-            {t("nav.lugares", idioma).toUpperCase()}
+            {t("nav.lugares", idioma)}
           </TituloSeccao>
 
           <ul className="grid gap-6" style={colunas(220)} data-surge="">
@@ -434,7 +434,7 @@ export default async function Homepage({
                 <span className="titulo-med text-[16px] uppercase">
                   {l.nome}
                 </span>
-                <span className="text-[14px] text-claro-55">
+                <span className="meta text-claro-55">
                   {[texto(l.localidade, idioma), texto(l.tipo, idioma)]
                     .filter(Boolean)
                     .join(" · ")}
@@ -459,7 +459,7 @@ export default async function Homepage({
                   : "EXPOSICIONES Y CURADURÍAS"
             }
           >
-            {t("nav.arquivo", idioma).toUpperCase()}
+            {t("nav.arquivo", idioma)}
           </TituloSeccao>
 
           <div className="flex flex-col" data-surge="">
@@ -467,25 +467,25 @@ export default async function Homepage({
               <Link
                 key={e.id}
                 href={caminho(idioma, `/exposicoes/${e.slug}`)}
-                className="grid grid-cols-[54px_minmax(0,1fr)_auto] items-baseline gap-4 border-t border-[rgba(242,237,228,0.16)] py-6 text-papel transition-colors hover:text-ouro sm:gap-7 sm:py-[30px] lg:grid-cols-[90px_minmax(0,1.7fr)_minmax(0,1fr)_auto]"
+                className="grid grid-cols-[54px_minmax(0,1fr)_auto] items-baseline gap-4 border-t border-fio py-6 text-papel transition-colors hover:text-ouro sm:gap-7 sm:py-[30px] lg:grid-cols-[90px_minmax(0,1.7fr)_minmax(0,1fr)_auto]"
               >
-                <span className="text-[13px] tracking-[0.1em] text-[rgba(242,237,228,0.55)]">
+                <span className="meta tracking-[0.1em] text-claro-55">
                   {anos(e.dataInicio, e.dataFim)}
                 </span>
-                <span className="titulo-med text-[clamp(20px,2.4vw,34px)] leading-none">
+                <span className="titulo-med d-linha leading-none">
                   {texto(e.titulo, idioma)}
                 </span>
-                <span className="hidden text-[14px] text-claro-55 lg:block">
+                <span className="meta hidden text-claro-55 lg:block">
                   {e.lugar
                     ? `${e.lugar.nome} · ${texto(e.lugar.localidade, idioma)}`
                     : ""}
                 </span>
-                <span className="text-[11px] tracking-[0.2em] text-[rgba(242,237,228,0.55)] uppercase">
+                <span className="etiqueta text-claro-55">
                   {t(`estado.${situacao(e)}`, idioma)}
                 </span>
               </Link>
             ))}
-            <span className="border-t border-[rgba(242,237,228,0.16)] pt-6 text-[13px] text-[rgba(242,237,228,0.55)]">
+            <span className="meta border-t border-fio pt-6 text-claro-55">
               {T("arquivo.nota")}
             </span>
           </div>
@@ -506,14 +506,14 @@ export default async function Homepage({
             className="flex flex-col justify-center gap-[26px]"
             data-surge=""
           >
-            <span className="text-[11px] tracking-[0.3em] text-[rgba(242,237,228,0.55)] uppercase">
-              {t("nav.galeria", idioma).toUpperCase()}
+            <span className="etiqueta text-claro-55">
+              {t("nav.galeria", idioma)}
             </span>
             <h2 className="titulo d-apoio">{T("home.galeria.titulo")}</h2>
-            <p className="max-w-[48ch] text-[18px] leading-[1.6] text-[rgba(242,237,228,0.8)]">
+            <p className="lead max-w-[48ch] text-claro-80">
               {T("home.galeria.texto")}
             </p>
-            <p className="text-[14px] tracking-[0.06em] text-[rgba(242,237,228,0.55)]">
+            <p className="meta tracking-[0.06em] text-claro-55">
               {T("home.galeria.assinatura")}
             </p>
           </div>
@@ -524,25 +524,25 @@ export default async function Homepage({
       {ficheiros.length > 0 && (
         <Seccao id="descarregar">
           <h2 className="titulo d-apoio mb-12">
-            {t("nav.descarregar", idioma).toUpperCase()}
+            {t("nav.descarregar", idioma)}
           </h2>
           <ul className="grid gap-6" style={colunas(260)} data-surge="">
             {ficheiros.map((f) => (
               <li key={f.id} className="contents">
                 <a
                   href={`/api/descarregar/${f.slug}`}
-                  className="flex flex-col gap-4 border border-[rgba(242,237,228,0.2)] p-8 text-papel transition-colors hover:border-ouro hover:bg-[rgba(180,136,74,0.08)]"
+                  className="flex flex-col gap-4 border border-fio p-8 text-papel transition-colors hover:border-ouro hover:bg-ouro-lavado"
                 >
-                  <span className="text-[10px] tracking-[0.24em] text-[rgba(242,237,228,0.55)] uppercase">
+                  <span className="etiqueta text-claro-55">
                     {texto(f.etiqueta, idioma)}
                   </span>
                   <span className="titulo-med text-[24px]">
                     {texto(f.nome, idioma)}
                   </span>
-                  <span className="text-[14px] text-claro-55">
+                  <span className="meta text-claro-55">
                     {texto(f.descricao, idioma)}
                   </span>
-                  <span className="mt-auto pt-5 text-[12px] tracking-[0.18em] text-ouro uppercase">
+                  <span className="etiqueta mt-auto pt-5 text-ouro">
                     {t("acao.descarregar", idioma)}
                   </span>
                 </a>
@@ -556,13 +556,13 @@ export default async function Homepage({
       <Seccao id="newsletter" claro semFio>
         <div className="grid items-center gap-16" style={colunas(340)}>
           <div className="flex flex-col gap-5">
-            <span className="text-[11px] tracking-[0.3em] text-[rgba(14,12,11,0.62)] uppercase">
+            <span className="etiqueta text-escuro-62">
               {texto(txt["newsletter.etiqueta"], idioma)}
             </span>
             <h2 className="titulo d-apoio max-w-[14ch]">
               {T("newsletter.titulo")}
             </h2>
-            <p className="max-w-[44ch] text-[17px] leading-[1.6] text-[rgba(14,12,11,0.7)]">
+            <p className="corpo max-w-[44ch] text-escuro-78">
               {T("newsletter.texto")}
             </p>
           </div>

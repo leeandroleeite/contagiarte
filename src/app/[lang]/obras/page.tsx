@@ -77,7 +77,7 @@ export default async function PaginaObras({
 
       <Seccao className="pt-[160px]" semFio>
       <TituloSeccao nota={`${String(obras.length).padStart(2, "0")}`}>
-        {t("nav.obras", idioma).toUpperCase()}
+        {t("nav.obras", idioma)}
       </TituloSeccao>
 
       <div className="mb-12 flex flex-wrap gap-2.5">
@@ -93,7 +93,7 @@ export default async function PaginaObras({
             {a.nome}
           </Filtro>
         ))}
-        <span className="w-px self-stretch bg-[rgba(242,237,228,0.16)]" />
+        <span className="w-px self-stretch bg-fio" />
         <Filtro
           href={url({ estado: soDisponiveis ? "" : "disponivel" })}
           activo={soDisponiveis}
@@ -103,7 +103,7 @@ export default async function PaginaObras({
       </div>
 
       {obras.length === 0 ? (
-        <p className="text-[16px] text-claro-55">
+        <p className="corpo text-claro-55">
           {t("msg.sem_resultados", idioma)}
         </p>
       ) : (
@@ -125,7 +125,7 @@ export default async function PaginaObras({
       )}
 
       {artistaEscolhido && (
-        <p className="mt-14 text-[15px]">
+        <p className="corpo mt-14">
           <Link href={caminho(idioma, `/artistas/${artistaEscolhido.slug}`)}>
             {texto(artistaEscolhido.nota, idioma) || artistaEscolhido.nome}{" "}
             {t("acao.ver_artista", idioma)}
@@ -151,10 +151,10 @@ function Filtro({
       href={href}
       aria-current={activo ? "true" : undefined}
       className={cx(
-        "inline-flex min-h-11 items-center border px-5 py-3 text-[11px] tracking-[0.18em] uppercase transition-colors",
+        "etiqueta inline-flex min-h-11 items-center border px-5 py-3 transition-colors",
         activo
           ? "border-papel bg-papel text-tinta hover:bg-papel hover:text-tinta"
-          : "border-[rgba(242,237,228,0.25)] text-[rgba(242,237,228,0.7)] hover:border-papel hover:text-papel",
+          : "border-fio-forte text-claro-65 hover:border-papel hover:text-papel",
       )}
     >
       {children}

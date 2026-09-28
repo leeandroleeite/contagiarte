@@ -12,6 +12,7 @@ import { env } from "@/lib/env";
 import { eIdioma, IDIOMA_BASE, t, texto, type Idioma } from "@/lib/i18n";
 import { urlMedia } from "@/lib/media/url";
 import { ePaginaComCartao, PAGINAS_COM_CARTAO } from "@/lib/metadados";
+import { FICHAS } from "@/lib/fichas";
 
 /**
  * O cartão que aparece quando alguém partilha um endereço do site.
@@ -43,9 +44,7 @@ export const dynamic = "force-dynamic";
 const LARGURA = 1200;
 const ALTURA = 630;
 
-const TINTA = "#0E0C0B";
-const PAPEL = "#F2EDE4";
-const OURO = "#B4884A";
+const { tinta: TINTA, papel: PAPEL, ouro: OURO } = FICHAS;
 
 /** O que um cartão mostra, depois de resolvido o identificador. */
 type Cartao = {
@@ -248,7 +247,7 @@ function compor({ titulo, sub, chave }: Cartao) {
 
         <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
           <div style={{ width: 56, height: 2, background: OURO }} />
-          <div style={{ fontSize: 20, color: "rgba(242,237,228,0.7)" }}>
+          <div style={{ fontSize: 20, color: FICHAS.claro65 }}>
             Arte contemporânea, Porto e Douro
           </div>
         </div>

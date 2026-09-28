@@ -8,6 +8,7 @@ import {
   IDIOMA_BASE,
 } from "@/lib/i18n/config";
 import "./globals.css";
+import { FICHAS } from "@/lib/fichas";
 
 const titulo = Bricolage_Grotesque({
   subsets: ["latin"],
@@ -25,7 +26,7 @@ const texto = Spline_Sans({
 });
 
 export const viewport: Viewport = {
-  themeColor: "#0E0C0B",
+  themeColor: FICHAS.tinta,
   width: "device-width",
   initialScale: 1,
   // A escala não é travada: quem precisa de ampliar tem de conseguir.

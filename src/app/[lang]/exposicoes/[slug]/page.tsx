@@ -140,7 +140,7 @@ export default async function PaginaExposicao({
           style={{ background: VEU_FICHA }}
         />
         <div className="pointer-events-none absolute inset-x-7 bottom-10 sm:inset-x-10">
-          <span className="text-[11px] tracking-[0.28em] text-[rgba(242,237,228,0.55)] uppercase">
+          <span className="etiqueta text-claro-55">
             {[
               t(`estado.${estado}`, idioma),
               periodo(expo.dataInicio, expo.dataFim, idioma, expo.permanente),
@@ -148,7 +148,7 @@ export default async function PaginaExposicao({
               .filter(Boolean)
               .join(" · ")}
           </span>
-          <h1 className="titulo mt-3.5 text-[clamp(40px,7vw,120px)] leading-[0.86] tracking-[-0.02em] uppercase">
+          <h1 className="titulo mt-3.5 d-ficha tracking-[-0.02em] uppercase">
             {titulo}
           </h1>
         </div>
@@ -164,14 +164,14 @@ export default async function PaginaExposicao({
                 className={
                   i === 0
                     ? "text-[20px] leading-[1.55] text-papel"
-                    : "text-[17px] leading-[1.65] text-[rgba(242,237,228,0.78)]"
+                    : "text-[17px] leading-[1.65] text-claro-80"
                 }
               >
                 {p}
               </p>
             ))}
             {expo.curadoria && (
-              <p className="text-[14px] tracking-[0.06em] text-[rgba(242,237,228,0.55)]">
+              <p className="meta tracking-[0.06em] text-claro-55">
                 {expo.curadoria}
               </p>
             )}
@@ -182,16 +182,16 @@ export default async function PaginaExposicao({
               {ficha.map(([rotulo, valor], i) => (
                 <div
                   key={rotulo}
-                  className={`flex flex-col gap-1.5 border-t border-[rgba(242,237,228,0.16)] py-[18px] ${
+                  className={`flex flex-col gap-1.5 border-t border-fio py-[18px] ${
                     i === ficha.length - 1
-                      ? "border-b border-b-[rgba(242,237,228,0.16)]"
+                      ? "border-b border-b-fio"
                       : ""
                   }`}
                 >
-                  <dt className="text-[10px] tracking-[0.22em] text-[rgba(242,237,228,0.55)]">
+                  <dt className="text-[10px] tracking-[0.22em] text-claro-55">
                     {rotulo}
                   </dt>
-                  <dd className="m-0 text-[16px]">{valor}</dd>
+                  <dd className="corpo m-0">{valor}</dd>
                 </div>
               ))}
             </dl>
@@ -243,11 +243,11 @@ export default async function PaginaExposicao({
       {/* Citação do anfitrião, em bloco claro. */}
       {texto(expo.citacao, idioma) && (
         <Seccao claro semFio className="px-7 py-[88px] sm:px-10">
-          <blockquote className="titulo-med mx-auto max-w-[26ch] text-center text-[clamp(24px,3vw,46px)] leading-[1.08]">
+          <blockquote className="titulo-med mx-auto max-w-[26ch] text-center d-citacao-med">
             {texto(expo.citacao, idioma)}
           </blockquote>
           {expo.citacaoAutor && (
-            <p className="mt-7 text-center text-[12px] tracking-[0.2em] text-[rgba(14,12,11,0.62)]">
+            <p className="mt-7 text-center text-[12px] tracking-[0.2em] text-escuro-62">
               {expo.citacaoAutor}
             </p>
           )}
@@ -257,7 +257,7 @@ export default async function PaginaExposicao({
       {/* Artistas em exposição. */}
       {expo.artistas.length > 0 && (
         <Seccao className="px-7 py-[88px] sm:px-10">
-          <h2 className="titulo mb-10 text-[clamp(30px,3.6vw,56px)] leading-[0.92] tracking-[-0.02em]">
+          <h2 className="titulo mb-10 d-apoio tracking-[-0.02em]">
             {idioma === "pt"
               ? "ARTISTAS EM EXPOSIÇÃO"
               : idioma === "en"
@@ -282,11 +282,11 @@ export default async function PaginaExposicao({
                     {ea.artista.nome}
                   </span>
                   {texto(ea.artista.nota, idioma) && (
-                    <span className="text-[14px] leading-[1.5] text-[rgba(242,237,228,0.6)]">
+                    <span className="meta text-claro-65">
                       {texto(ea.artista.nota, idioma)}
                     </span>
                   )}
-                  <span className="text-[13px] tracking-[0.14em] text-ouro">
+                  <span className="meta tracking-[0.14em] text-ouro">
                     {t("acao.ver_artista", idioma)}
                   </span>
                 </Link>
@@ -300,14 +300,14 @@ export default async function PaginaExposicao({
       {obras.length > 0 && (
         <Seccao semFio className="px-7 py-[88px] sm:px-10">
           <div className="mb-10 flex flex-wrap items-baseline justify-between gap-6">
-            <h2 className="titulo text-[clamp(30px,3.6vw,56px)] leading-[0.92] tracking-[-0.02em]">
+            <h2 className="titulo d-apoio tracking-[-0.02em]">
               {idioma === "pt"
                 ? "OBRAS EM EXPOSIÇÃO"
                 : idioma === "en"
                   ? "WORKS ON SHOW"
                   : "OBRAS EN EXPOSICIÓN"}
             </h2>
-            <span className="text-[12px] tracking-[0.18em] text-[rgba(242,237,228,0.55)] uppercase">
+            <span className="etiqueta text-claro-55">
               {t("obra.sob_consulta", idioma)}
             </span>
           </div>
@@ -329,7 +329,7 @@ export default async function PaginaExposicao({
                   <span className="text-[15px] transition-colors group-hover:text-ouro">
                     {texto(o.titulo, idioma) || t("obra.sem_titulo", idioma)}
                     {o.artista && (
-                      <span className="text-[rgba(242,237,228,0.55)]">
+                      <span className="text-claro-55">
                         {" · "}
                         {o.artista.nome}
                       </span>

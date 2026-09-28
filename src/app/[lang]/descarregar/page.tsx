@@ -35,10 +35,10 @@ export default async function PaginaDescarregar({
 
   return (
     <Seccao className="pt-[160px]" semFio>
-      <TituloSeccao>{t("nav.descarregar", idioma).toUpperCase()}</TituloSeccao>
+      <TituloSeccao>{t("nav.descarregar", idioma)}</TituloSeccao>
 
       {ficheiros.length === 0 ? (
-        <p className="max-w-[52ch] text-[16px] text-claro-55">
+        <p className="corpo max-w-[52ch] text-claro-55">
           {texto(txt["descarregar.vazio"], idioma)}
         </p>
       ) : (
@@ -47,18 +47,18 @@ export default async function PaginaDescarregar({
             <li key={f.id} className="contents">
               <a
                 href={`/api/descarregar/${f.slug}`}
-                className="flex flex-col gap-4 border border-[rgba(242,237,228,0.2)] p-8 text-papel transition-colors hover:border-ouro hover:bg-[rgba(180,136,74,0.08)]"
+                className="flex flex-col gap-4 border border-fio p-8 text-papel transition-colors hover:border-ouro hover:bg-ouro-lavado"
               >
-                <span className="text-[10px] tracking-[0.24em] text-[rgba(242,237,228,0.55)] uppercase">
+                <span className="etiqueta text-claro-55">
                   {texto(f.etiqueta, idioma)}
                 </span>
                 <span className="titulo-med text-[24px]">
                   {texto(f.nome, idioma)}
                 </span>
-                <span className="text-[14px] text-claro-55">
+                <span className="meta text-claro-55">
                   {texto(f.descricao, idioma)}
                 </span>
-                <span className="mt-auto pt-5 text-[12px] tracking-[0.18em] text-ouro uppercase">
+                <span className="etiqueta mt-auto pt-5 text-ouro">
                   {t("acao.descarregar", idioma)}
                 </span>
               </a>

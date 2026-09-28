@@ -1,5 +1,7 @@
 "use client";
 
+import { FICHAS } from "@/lib/fichas";
+
 /**
  * O último recurso: um erro no próprio layout de raiz.
  *
@@ -26,8 +28,8 @@ export default function ErroGlobal({
           justifyContent: "center",
           gap: "24px",
           padding: "40px 28px",
-          background: "#0E0C0B",
-          color: "#F2EDE4",
+          background: FICHAS.tinta,
+          color: FICHAS.papel,
           fontFamily: "system-ui, -apple-system, Segoe UI, sans-serif",
         }}
       >
@@ -36,7 +38,7 @@ export default function ErroGlobal({
             fontSize: 11,
             letterSpacing: "0.2em",
             textTransform: "uppercase",
-            color: "rgba(242,237,228,0.55)",
+            color: FICHAS.claro55,
           }}
         >
           Galeria Contagiarte
@@ -46,7 +48,7 @@ export default function ErroGlobal({
           O site não conseguiu abrir
         </h1>
 
-        <p style={{ margin: 0, maxWidth: "46ch", fontSize: 17, lineHeight: 1.6, color: "rgba(242,237,228,0.75)" }}>
+        <p style={{ margin: 0, maxWidth: "46ch", fontSize: 17, lineHeight: 1.6, color: FICHAS.claro80 }}>
           Tente outra vez daqui a pouco. Se precisar de falar connosco,
           galeria@contagiarte.pt ou +351 914 152 451.
         </p>
@@ -58,9 +60,9 @@ export default function ErroGlobal({
             style={{
               minHeight: 48,
               padding: "0 22px",
-              border: "1px solid #B4884A",
-              background: "#B4884A",
-              color: "#0E0C0B",
+              border: `1px solid ${FICHAS.ouro}`,
+              background: FICHAS.ouro,
+              color: FICHAS.tinta,
               fontSize: 12,
               letterSpacing: "0.16em",
               textTransform: "uppercase",
@@ -80,8 +82,8 @@ export default function ErroGlobal({
               display: "inline-flex",
               alignItems: "center",
               padding: "0 22px",
-              border: "1px solid rgba(242,237,228,0.35)",
-              color: "#F2EDE4",
+              border: `1px solid ${FICHAS.fioControlo}`,
+              color: FICHAS.papel,
               fontSize: 12,
               letterSpacing: "0.16em",
               textTransform: "uppercase",
@@ -93,7 +95,7 @@ export default function ErroGlobal({
         </div>
 
         {error.digest && (
-          <p style={{ margin: 0, fontSize: 12, color: "rgba(242,237,228,0.4)" }}>
+          <p style={{ margin: 0, fontSize: 12, color: FICHAS.claro55 }}>
             Referência {error.digest}
           </p>
         )}

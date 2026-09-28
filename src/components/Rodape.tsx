@@ -28,12 +28,12 @@ export function Rodape({
 
   return (
     <footer id="contactos" className="px-7 pt-[140px] pb-[76px]">
-      <h2 className="titulo d-contactos" data-surge="">
-        {t("rodape.fale", idioma).toUpperCase()}
+      <h2 className="titulo d-seccao" data-surge="">
+        {t("rodape.fale", idioma)}
       </h2>
 
       <div
-        className="mt-10 grid gap-10 border-b border-[rgba(242,237,228,0.16)] pb-14"
+        className="mt-10 grid gap-10 border-b border-fio pb-14"
         style={colunas(220)}
       >
         <Coluna titulo={t("rodape.direto", idioma)}>
@@ -90,14 +90,14 @@ export function Rodape({
         </Coluna>
       </div>
 
-      <div className="flex flex-wrap justify-between gap-5 pt-7 text-[11px] tracking-[0.18em] text-[rgba(242,237,228,0.55)]">
+      <div className="flex flex-wrap justify-between gap-5 pt-7 text-[11px] tracking-[0.18em] text-claro-55">
         <span>
           © {ano} GALERIA CONTAGIARTE® ·{" "}
           {/* Sublinhado, e não só a cor: no meio de uma linha de texto
               um link que só se distingue pela cor não se distingue de
               todo para quem não separa bem as cores. */}
-          <Link href={caminho(idioma, "/privacidade")} className="underline">
-            {t("rodape.privacidade", idioma).toUpperCase()}
+          <Link href={caminho(idioma, "/privacidade")} className="underline uppercase">
+            {t("rodape.privacidade", idioma)}
           </Link>
         </span>
         <span>{d.parceiros.join(" · ")}</span>
@@ -115,7 +115,7 @@ function Coluna({
 }) {
   return (
     <div className="flex flex-col gap-1 text-[17px] [&_a]:flex [&_a]:min-h-11 [&_a]:items-center [&_span]:flex [&_span]:min-h-11 [&_span]:items-center">
-      <span className="mb-1 text-[10px] tracking-[0.24em] text-[rgba(242,237,228,0.55)] uppercase">
+      <span className="etiqueta mb-1 text-claro-55">
         {titulo}
       </span>
       {children}

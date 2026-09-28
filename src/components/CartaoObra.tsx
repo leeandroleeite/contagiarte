@@ -50,12 +50,12 @@ export function CartaoObra({
           {titulo}
         </span>
         {numero !== undefined && (
-          <span className="text-[12px] tracking-[0.16em] text-[rgba(242,237,228,0.55)]">
+          <span className="text-[12px] tracking-[0.16em] text-claro-55">
             {ordinal(numero)}
           </span>
         )}
       </div>
-      <span className="text-[14px] text-claro-55">{meta}</span>
+      <span className="meta text-claro-55">{meta}</span>
     </Link>
   );
 }

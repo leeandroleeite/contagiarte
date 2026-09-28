@@ -45,7 +45,7 @@ export default async function PaginaArquivo({
               : "EXPOSICIONES Y CURADURÍAS"
         }
       >
-        {t("nav.arquivo", idioma).toUpperCase()}
+        {t("nav.arquivo", idioma)}
       </TituloSeccao>
 
       <div className="flex flex-col">
@@ -53,25 +53,25 @@ export default async function PaginaArquivo({
           <Link
             key={e.id}
             href={caminho(idioma, `/exposicoes/${e.slug}`)}
-            className="grid grid-cols-[54px_minmax(0,1fr)_auto] items-baseline gap-4 border-t border-[rgba(242,237,228,0.16)] py-6 text-papel transition-colors hover:text-ouro sm:gap-7 sm:py-[30px] lg:grid-cols-[90px_minmax(0,1.7fr)_minmax(0,1fr)_auto]"
+            className="grid grid-cols-[54px_minmax(0,1fr)_auto] items-baseline gap-4 border-t border-fio py-6 text-papel transition-colors hover:text-ouro sm:gap-7 sm:py-[30px] lg:grid-cols-[90px_minmax(0,1.7fr)_minmax(0,1fr)_auto]"
           >
-            <span className="text-[13px] tracking-[0.1em] text-[rgba(242,237,228,0.75)]">
+            <span className="meta tracking-[0.1em] text-claro-80">
               {anos(e.dataInicio, e.dataFim)}
             </span>
-            <span className="titulo-med text-[clamp(20px,2.4vw,34px)] leading-none">
+            <span className="titulo-med d-linha leading-none">
               {texto(e.titulo, idioma)}
             </span>
-            <span className="hidden text-[14px] text-claro-55 lg:block">
+            <span className="meta hidden text-claro-55 lg:block">
               {e.lugar
                 ? `${e.lugar.nome} · ${texto(e.lugar.localidade, idioma)}`
                 : ""}
             </span>
-            <span className="text-[11px] tracking-[0.2em] text-[rgba(242,237,228,0.55)] uppercase">
+            <span className="etiqueta text-claro-55">
               {t(`estado.${situacao(e)}`, idioma)}
             </span>
           </Link>
         ))}
-        <span className="border-t border-[rgba(242,237,228,0.16)] pt-6 text-[13px] text-[rgba(242,237,228,0.55)]">
+        <span className="meta border-t border-fio pt-6 text-claro-55">
           {texto(txt["arquivo.nota"], idioma)}
         </span>
       </div>

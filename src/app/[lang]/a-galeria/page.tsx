@@ -57,16 +57,16 @@ export default async function PaginaGaleria({
             sizes="(max-width: 900px) 100vw, 45vw"
           />
           <div className="flex flex-col justify-center gap-[26px]">
-            <span className="text-[11px] tracking-[0.3em] text-[rgba(242,237,228,0.55)] uppercase">
-              {t("nav.galeria", idioma).toUpperCase()}
+            <span className="etiqueta text-claro-55">
+              {t("nav.galeria", idioma)}
             </span>
-            <h1 className="titulo d-1">
+            <h1 className="titulo d-pagina">
               {texto(txt["home.galeria.titulo"], idioma)}
             </h1>
-            <p className="max-w-[48ch] text-[18px] leading-[1.6] text-[rgba(242,237,228,0.8)]">
+            <p className="lead max-w-[48ch] text-claro-80">
               {texto(txt["home.galeria.texto"], idioma)}
             </p>
-            <p className="text-[14px] tracking-[0.06em] text-[rgba(242,237,228,0.55)]">
+            <p className="meta tracking-[0.06em] text-claro-55">
               {texto(txt["home.galeria.assinatura"], idioma)}
             </p>
           </div>
@@ -74,17 +74,17 @@ export default async function PaginaGaleria({
       </Seccao>
 
       <Seccao claro className="px-7 py-[140px]">
-        <blockquote className="titulo mx-auto max-w-[22ch] text-center text-[clamp(30px,5vw,80px)] leading-[1.02]">
+        <blockquote className="titulo mx-auto max-w-[22ch] text-center d-citacao">
           {texto(txt["home.citacao"], idioma)}
         </blockquote>
-        <p className="mt-9 text-center text-[11px] tracking-[0.24em] text-[rgba(14,12,11,0.62)]">
+        <p className="mt-9 text-center text-[11px] tracking-[0.24em] text-escuro-62">
           {texto(txt["home.citacao.autor"], idioma)}
         </p>
       </Seccao>
 
       <Seccao semFio>
-        <h2 className="titulo d-2 mb-12">
-          {t("nav.lugares", idioma).toUpperCase()}
+        <h2 className="titulo d-seccao mb-12">
+          {t("nav.lugares", idioma)}
         </h2>
         <ul
           className="grid gap-x-6 gap-y-12"
@@ -100,7 +100,7 @@ export default async function PaginaGaleria({
                 sizes="(max-width: 700px) 50vw, 22vw"
               />
               <span className="titulo-med text-[16px] uppercase">{l.nome}</span>
-              <span className="text-[14px] text-claro-55">
+              <span className="meta text-claro-55">
                 {texto(l.localidade, idioma)}
               </span>
             </li>

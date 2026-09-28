@@ -1,4 +1,5 @@
 import type { MetadataRoute } from "next";
+import { FICHAS } from "@/lib/fichas";
 
 /**
  * Para quem guarda o site no ecrã inicial. Numa galeria é um gesto
@@ -13,8 +14,8 @@ export default function manifest(): MetadataRoute.Manifest {
       "Arte contemporânea de artistas nacionais e internacionais, molduras à medida e exposições em lugares que rompem com o modelo tradicional.",
     start_url: "/",
     display: "standalone",
-    background_color: "#0e0c0b",
-    theme_color: "#0e0c0b",
+    background_color: FICHAS.tinta,
+    theme_color: FICHAS.tinta,
     lang: "pt-PT",
     icons: [
       { src: "/icon.png", sizes: "512x512", type: "image/png" },

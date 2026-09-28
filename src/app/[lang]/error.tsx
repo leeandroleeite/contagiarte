@@ -31,15 +31,15 @@ export default function Erro({
 
   return (
     <div className="flex min-h-[80dvh] flex-col justify-center gap-8 px-7 pt-[140px] pb-16">
-      <span className="text-[11px] tracking-[0.2em] text-[rgba(242,237,228,0.55)] uppercase">
+      <span className="etiqueta text-claro-55">
         Erro
       </span>
 
-      <h1 className="titulo max-w-[16ch] text-[clamp(40px,9vw,150px)] leading-[0.84]">
+      <h1 className="titulo max-w-[16ch] d-heroi">
         ALGO CORREU MAL
       </h1>
 
-      <p className="max-w-[46ch] text-[18px] leading-[1.6] text-[rgba(242,237,228,0.75)]">
+      <p className="lead max-w-[46ch] text-claro-80">
         Esta página não conseguiu carregar. Tente outra vez; se voltar a
         acontecer, fale connosco e resolvemos.
         <br />
@@ -54,7 +54,7 @@ export default function Erro({
       </div>
 
       {error.digest && (
-        <p className="text-[12px] tracking-[0.1em] text-[rgba(242,237,228,0.4)]">
+        <p className="text-[12px] tracking-[0.1em] text-claro-55">
           Referência {error.digest}
         </p>
       )}

@@ -79,7 +79,7 @@ export function Cortina() {
       }}
     >
       <span
-        className="titulo text-[clamp(18px,2.4vw,32px)] tracking-[0.5em] text-claro-75"
+        className="titulo text-[clamp(18px,2.4vw,32px)] tracking-[0.5em] text-claro-80"
         style={{ animation: "pisca 1.6s ease-in-out infinite" }}
       >
         CONTAGIARTE

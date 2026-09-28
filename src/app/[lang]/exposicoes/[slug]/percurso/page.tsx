@@ -71,15 +71,15 @@ export default async function PaginaPercurso({
     <>
       {/* Abertura, antes de o percurso começar. */}
       <section className="flex min-h-[70dvh] flex-col justify-end px-7 pt-[120px] pb-12">
-        <span className="text-[11px] tracking-[0.3em] text-[rgba(242,237,228,0.55)] uppercase">
+        <span className="etiqueta text-claro-55">
           {[expo.lugar?.nome, texto(expo.lugar?.localidade, idioma)]
             .filter(Boolean)
             .join(" · ")}
         </span>
-        <h1 className="titulo mt-[18px] mb-4 text-[clamp(38px,8vw,130px)] leading-[0.84]">
+        <h1 className="titulo mt-[18px] mb-4 d-pagina">
           {T("percurso.titulo")}
         </h1>
-        <p className="max-w-[54ch] text-[18px] leading-[1.6] text-[rgba(242,237,228,0.78)]">
+        <p className="lead max-w-[54ch] text-claro-80">
           {T("percurso.intro")}
         </p>
       </section>
@@ -97,14 +97,14 @@ export default async function PaginaPercurso({
       {/* Fecho: convite a visitar, com a informação prática. */}
       <Seccao
         semFio
-        className="border-t border-[rgba(242,237,228,0.14)] px-7 py-[120px]"
+        className="border-t border-fio px-7 py-[120px]"
       >
         <div className="grid items-center gap-12" style={colunas(300)}>
           <div className="flex flex-col gap-[22px]">
-            <h2 className="titulo text-[clamp(32px,4.6vw,72px)] leading-[0.88]">
+            <h2 className="titulo d-seccao">
               {T("percurso.fim.titulo")}
             </h2>
-            <p className="max-w-[46ch] text-[17px] leading-[1.6] text-[rgba(242,237,228,0.78)]">
+            <p className="corpo max-w-[46ch] text-claro-80">
               {T("percurso.fim.texto")}
             </p>
             <div className="flex flex-wrap gap-3.5">
@@ -130,13 +130,13 @@ export default async function PaginaPercurso({
             {fim.map(([rotulo, valor], i) => (
               <div
                 key={rotulo}
-                className={`flex justify-between gap-4 border-t border-[rgba(242,237,228,0.16)] py-4 ${
+                className={`flex justify-between gap-4 border-t border-fio py-4 ${
                   i === fim.length - 1
-                    ? "border-b border-b-[rgba(242,237,228,0.16)]"
+                    ? "border-b border-b-fio"
                     : ""
                 }`}
               >
-                <dt className="text-[rgba(242,237,228,0.55)]">{rotulo}</dt>
+                <dt className="text-claro-55">{rotulo}</dt>
                 <dd className="m-0 text-right">{valor}</dd>
               </div>
             ))}

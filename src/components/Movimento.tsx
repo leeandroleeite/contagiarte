@@ -178,7 +178,7 @@ function criarPonto(): HTMLElement {
     width: "14px",
     height: "14px",
     margin: "-7px 0 0 -7px",
-    background: "#B4884A",
+    background: "var(--color-ouro)",
     borderRadius: "50%",
     pointerEvents: "none",
     mixBlendMode: "difference",

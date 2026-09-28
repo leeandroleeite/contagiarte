@@ -82,29 +82,29 @@ export default async function PaginaAtivo({
     <>
       {/* Abertura. */}
       <Seccao semFio className="px-7 pt-[130px] pb-[72px]">
-        <span className="text-[11px] tracking-[0.3em] text-[rgba(242,237,228,0.55)] uppercase">
+        <span className="etiqueta text-claro-55">
           {T("ativo.etiqueta")}
         </span>
-        <h1 className="titulo my-5 max-w-[18ch] text-[clamp(38px,7.5vw,124px)] leading-[0.84]">
-          {t("nav.ativo", idioma).toUpperCase()}
+        <h1 className="titulo my-5 max-w-[18ch] d-pagina">
+          {t("nav.ativo", idioma)}
         </h1>
-        <p className="max-w-[58ch] text-[19px] leading-[1.55] text-[rgba(242,237,228,0.8)]">
+        <p className="lead max-w-[58ch] text-claro-80">
           {T("ativo.intro")}
         </p>
       </Seccao>
 
       {/* Os quatro critérios. */}
       <Seccao semFio className="px-7 pt-0 pb-24">
-        <h2 className="titulo mb-10 text-[clamp(30px,4.4vw,68px)] leading-[0.9]">
+        <h2 className="titulo mb-10 d-apoio">
           {T("ativo.criterios.titulo")}
         </h2>
         <div className="grid gap-9" style={colunas(250)}>
           {[1, 2, 3, 4].map((n) => (
             <div
               key={n}
-              className="flex flex-col gap-3.5 border-t border-[rgba(242,237,228,0.25)] pt-[22px]"
+              className="flex flex-col gap-3.5 border-t border-fio-forte pt-[22px]"
             >
-              <span className="text-[11px] tracking-[0.2em] text-[rgba(242,237,228,0.55)]">
+              <span className="text-[11px] tracking-[0.2em] text-claro-55">
                 {String(n).padStart(2, "0")}
               </span>
               <span
@@ -113,7 +113,7 @@ export default async function PaginaAtivo({
               >
                 {T(`ativo.criterio.${n}.titulo`)}
               </span>
-              <p className="text-[16px] leading-[1.6] text-[rgba(242,237,228,0.7)]">
+              <p className="corpo text-claro-65">
                 {T(`ativo.criterio.${n}.texto`)}
               </p>
             </div>
@@ -124,13 +124,13 @@ export default async function PaginaAtivo({
       {/* Gráfico ilustrativo do percurso de um artista. */}
       <Seccao
         semFio
-        className="border-t border-[rgba(242,237,228,0.14)] px-7 py-24"
+        className="border-t border-fio px-7 py-24"
       >
         <div className="mb-3.5 flex flex-wrap items-baseline justify-between gap-5">
-          <h2 className="titulo text-[clamp(30px,4.4vw,68px)] leading-[0.9]">
+          <h2 className="titulo d-apoio">
             {T("ativo.grafico.titulo")}
           </h2>
-          <span className="border border-[rgba(242,237,228,0.35)] px-3.5 py-2 text-[10px] tracking-[0.22em] text-[rgba(242,237,228,0.6)] uppercase">
+          <span className="etiqueta border border-fio-controlo px-3.5 py-2 text-claro-65">
             {idioma === "pt"
               ? "Exemplo ilustrativo"
               : idioma === "en"
@@ -139,13 +139,13 @@ export default async function PaginaAtivo({
           </span>
         </div>
 
-        <p className="mb-12 max-w-[62ch] text-[16px] leading-[1.6] text-[rgba(242,237,228,0.65)]">
+        <p className="corpo mb-12 max-w-[62ch] text-claro-65">
           {T("ativo.grafico.aviso")}
         </p>
 
         <figure className="m-0">
           <div
-            className="flex h-[220px] items-end gap-2.5 border-b border-[rgba(242,237,228,0.25)] pb-4 sm:h-[280px] sm:gap-3.5"
+            className="flex h-[220px] items-end gap-2.5 border-b border-fio-forte pb-4 sm:h-[280px] sm:gap-3.5"
             role="img"
             aria-label={T("ativo.grafico.aviso")}
           >
@@ -154,7 +154,7 @@ export default async function PaginaAtivo({
                 key={p.ano}
                 className="flex h-full flex-1 flex-col items-center justify-end gap-2.5"
               >
-                <span className="text-[12px] text-[rgba(242,237,228,0.55)]">
+                <span className="text-[12px] text-claro-55">
                   {i === SERIE.length - 1 ? "↑" : ""}
                 </span>
                 <div
@@ -163,8 +163,8 @@ export default async function PaginaAtivo({
                     height: `${p.altura}%`,
                     background:
                       i === SERIE.length - 1
-                        ? "#B4884A"
-                        : "rgba(242,237,228,0.22)",
+                        ? "var(--color-ouro)"
+                        : "var(--color-fio-forte)",
                   }}
                 />
               </div>
@@ -174,7 +174,7 @@ export default async function PaginaAtivo({
             {SERIE.map((p) => (
               <span
                 key={p.ano}
-                className="flex-1 text-center text-[11px] tracking-[0.06em] text-[rgba(242,237,228,0.55)] sm:text-[12px]"
+                className="flex-1 text-center text-[11px] tracking-[0.06em] text-claro-55 sm:text-[12px]"
               >
                 {p.ano}
               </span>
@@ -186,12 +186,12 @@ export default async function PaginaAtivo({
           {MARCOS.map((m) => (
             <div
               key={m.ano}
-              className="flex flex-col gap-2.5 border-t border-[rgba(242,237,228,0.2)] pt-5"
+              className="flex flex-col gap-2.5 border-t border-fio pt-5"
             >
-              <span className="text-[12px] tracking-[0.18em] text-[rgba(242,237,228,0.55)]">
+              <span className="text-[12px] tracking-[0.18em] text-claro-55">
                 {m.ano}
               </span>
-              <span className="text-[16px] leading-[1.55] text-[rgba(242,237,228,0.75)]">
+              <span className="text-[16px] leading-[1.55] text-claro-80">
                 {T(m.chave)}
               </span>
             </div>
@@ -201,12 +201,12 @@ export default async function PaginaAtivo({
 
       {/* O que não prometemos. */}
       <Seccao claro semFio className="px-7 py-[110px]">
-        <h2 className="titulo mb-8 max-w-[20ch] text-[clamp(32px,5vw,80px)] leading-[0.9]">
+        <h2 className="titulo mb-8 max-w-[20ch] d-seccao">
           {T("ativo.promessas.titulo")}
         </h2>
         <div className="grid max-w-[1100px] gap-9" style={colunas(260)}>
           {[1, 2, 3].map((n) => (
-            <p key={n} className="text-[17px] leading-[1.6] text-escuro-78">
+            <p key={n} className="corpo text-escuro-78">
               {T(`ativo.promessa.${n}`)}
             </p>
           ))}
@@ -217,10 +217,10 @@ export default async function PaginaAtivo({
       <Seccao semFio className="px-7 py-[110px]">
         <div className="grid items-center gap-12" style={colunas(300)}>
           <div className="flex flex-col gap-5">
-            <h2 className="titulo text-[clamp(30px,4.4vw,68px)] leading-[0.88]">
+            <h2 className="titulo d-apoio">
               {T("ativo.final.titulo")}
             </h2>
-            <p className="max-w-[46ch] text-[17px] leading-[1.6] text-[rgba(242,237,228,0.78)]">
+            <p className="corpo max-w-[46ch] text-claro-80">
               {T("ativo.final.texto")}
             </p>
             <div className="flex flex-wrap gap-3.5">
@@ -251,13 +251,13 @@ export default async function PaginaAtivo({
             {garantias.map(([rotulo, valor], i) => (
               <div
                 key={rotulo}
-                className={`flex justify-between gap-4 border-t border-[rgba(242,237,228,0.16)] py-4 ${
+                className={`flex justify-between gap-4 border-t border-fio py-4 ${
                   i === garantias.length - 1
-                    ? "border-b border-b-[rgba(242,237,228,0.16)]"
+                    ? "border-b border-b-fio"
                     : ""
                 }`}
               >
-                <dt className="text-[rgba(242,237,228,0.55)]">{rotulo}</dt>
+                <dt className="text-claro-55">{rotulo}</dt>
                 <dd className="m-0 text-right">{valor}</dd>
               </div>
             ))}

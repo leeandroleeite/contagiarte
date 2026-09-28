@@ -40,15 +40,15 @@ export async function Pagina404({
 
   return (
     <div className="flex min-h-[80dvh] flex-col justify-center gap-8 px-7 pt-[140px] pb-16">
-      <span className="text-[11px] tracking-[0.2em] text-[rgba(242,237,228,0.55)] uppercase">
+      <span className="etiqueta text-claro-55">
         Erro 404
       </span>
 
-      <h1 className="titulo max-w-[16ch] text-[clamp(40px,9vw,150px)] leading-[0.84]">
+      <h1 className="titulo max-w-[16ch] d-heroi">
         {titulo}
       </h1>
 
-      <p className="max-w-[46ch] text-[18px] leading-[1.6] text-[rgba(242,237,228,0.75)]">
+      <p className="lead max-w-[46ch] text-claro-80">
         {corpo}
       </p>
 

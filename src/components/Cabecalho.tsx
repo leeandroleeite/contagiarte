@@ -79,7 +79,7 @@ export function Cabecalho({ idioma }: { idioma: Idioma }) {
            conteúdo passava por baixo do cabeçalho meio nítido e meio
            desfocado, e o logótipo colidia com os títulos. Parecia um
            erro de renderização. */
-        className="fixed top-0 right-0 left-0 z-[120] flex flex-wrap items-center justify-between gap-x-4 gap-y-3 bg-[rgba(14,12,11,0.82)] px-4 py-[18px] backdrop-blur-[10px] sm:px-7 sm:py-[22px]"
+        className="fixed top-0 right-0 left-0 z-[120] flex flex-wrap items-center justify-between gap-x-4 gap-y-3 bg-veu px-4 py-[18px] backdrop-blur-[10px] sm:px-7 sm:py-[22px]"
         style={{
           background:
             "linear-gradient(to bottom, rgba(14,12,11,0.75), rgba(14,12,11,0.35) 60%, transparent)",
@@ -126,7 +126,7 @@ export function Cabecalho({ idioma }: { idioma: Idioma }) {
             onClick={() => setAberto((v) => !v)}
             aria-expanded={aberto}
             aria-controls="menu-compacto"
-            className="-my-3 min-h-11 cursor-pointer border-0 bg-transparent px-1 py-3 text-[11px] tracking-[0.2em] text-papel uppercase menu:hidden"
+            className="etiqueta -my-3 min-h-11 cursor-pointer border-0 bg-transparent px-1 py-3 text-papel menu:hidden"
           >
             {aberto ? t("nav.fechar", idioma) : t("nav.abrir", idioma)}
           </button>
@@ -138,7 +138,7 @@ export function Cabecalho({ idioma }: { idioma: Idioma }) {
             aria-label={t("nav.principal", idioma)}
             className="basis-full pt-4 text-[15px] tracking-[0.14em] uppercase menu:hidden"
           >
-            <div className="mb-3 border-b border-[rgba(242,237,228,0.16)] pb-3 sm:hidden">
+            <div className="mb-3 border-b border-fio pb-3 sm:hidden">
               <SelectorIdioma idioma={idioma} caminhoActual={actual} />
             </div>
             <ul className="flex max-h-[70dvh] flex-col gap-1 overflow-y-auto">
@@ -184,7 +184,7 @@ function SelectorIdioma({
             "flex min-h-11 items-center px-2 uppercase transition-colors",
             id === idioma
               ? "text-ouro"
-              : "text-[rgba(242,237,228,0.55)] hover:text-papel",
+              : "text-claro-55 hover:text-papel",
           )}
         >
           {id}

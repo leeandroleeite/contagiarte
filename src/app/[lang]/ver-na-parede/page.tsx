@@ -41,14 +41,14 @@ export default async function PaginaVerNaParede({
 
   return (
     <Seccao className="pt-[160px]" semFio>
-      <span className="etiqueta">{t("parede.etiqueta", idioma)}</span>
-      <h1 className="titulo d-1 mt-4">{t("parede.titulo", idioma)}</h1>
-      <p className="mt-6 mb-14 max-w-[54ch] text-[18px] leading-[1.6] text-[rgba(242,237,228,0.8)]">
+      <span className="etiqueta text-claro-55">{t("parede.etiqueta", idioma)}</span>
+      <h1 className="titulo d-pagina mt-4">{t("parede.titulo", idioma)}</h1>
+      <p className="lead mt-6 mb-14 max-w-[54ch] text-claro-80">
         {t("parede.intro", idioma)}
       </p>
 
       {obras.length === 0 ? (
-        <p className="text-[16px] text-claro-55">
+        <p className="corpo text-claro-55">
           {t("msg.sem_resultados", idioma)}
         </p>
       ) : (

@@ -41,10 +41,10 @@ export default async function PaginaExposicoes({
   return (
     <>
       <Seccao className="pt-[160px]" semFio={passadas.length === 0}>
-        <TituloSeccao>{t("nav.exposicoes", idioma).toUpperCase()}</TituloSeccao>
+        <TituloSeccao>{t("nav.exposicoes", idioma)}</TituloSeccao>
 
         {activas.length === 0 ? (
-          <p className="text-[16px] text-claro-55">
+          <p className="corpo text-claro-55">
             {t("msg.sem_resultados", idioma)}
           </p>
         ) : (
@@ -64,7 +64,7 @@ export default async function PaginaExposicoes({
                     sizes="(max-width: 900px) 100vw, 50vw"
                   />
                   <div className="flex flex-col gap-5">
-                    <span className="etiqueta">
+                    <span className="etiqueta text-claro-55">
                       {[
                         t(`estado.${situacao(e)}`, idioma),
                         periodo(e.dataInicio, e.dataFim, idioma, e.permanente),
@@ -73,13 +73,13 @@ export default async function PaginaExposicoes({
                         .filter(Boolean)
                         .join(" · ")}
                     </span>
-                    <h2 className="titulo d-3 transition-colors group-hover:text-ouro">
+                    <h2 className="titulo d-seccao transition-colors group-hover:text-ouro">
                       {texto(e.titulo, idioma)}
                     </h2>
-                    <p className="max-w-[46ch] text-[17px] leading-[1.6] text-[rgba(242,237,228,0.75)]">
+                    <p className="corpo max-w-[46ch] text-claro-80">
                       {texto(e.texto, idioma)}
                     </p>
-                    <span className="text-[12px] tracking-[0.18em] text-ouro uppercase">
+                    <span className="etiqueta text-ouro">
                       {t("acao.ver_exposicao", idioma)} →
                     </span>
                   </div>
@@ -92,23 +92,23 @@ export default async function PaginaExposicoes({
 
       {passadas.length > 0 && (
         <Seccao semFio>
-          <h2 className="titulo d-2 mb-12">
-            {t("estado.arquivo", idioma).toUpperCase()}
+          <h2 className="titulo d-apoio mb-12">
+            {t("estado.arquivo", idioma)}
           </h2>
           <div className="flex flex-col">
             {passadas.map((e) => (
               <Link
                 key={e.id}
                 href={caminho(idioma, `/exposicoes/${e.slug}`)}
-                className="grid grid-cols-[54px_minmax(0,1fr)] items-baseline gap-4 border-t border-[rgba(242,237,228,0.16)] py-6 text-papel transition-colors hover:text-ouro sm:grid-cols-[90px_minmax(0,2fr)_minmax(0,1fr)] sm:gap-7 sm:py-7"
+                className="grid grid-cols-[54px_minmax(0,1fr)] items-baseline gap-4 border-t border-fio py-6 text-papel transition-colors hover:text-ouro sm:grid-cols-[90px_minmax(0,2fr)_minmax(0,1fr)] sm:gap-7 sm:py-7"
               >
-                <span className="text-[13px] tracking-[0.1em] text-[rgba(242,237,228,0.55)]">
+                <span className="meta tracking-[0.1em] text-claro-55">
                   {e.dataInicio ? new Date(e.dataInicio).getFullYear() : ""}
                 </span>
-                <span className="titulo-med text-[clamp(18px,2vw,28px)]">
+                <span className="titulo-med d-linha">
                   {texto(e.titulo, idioma)}
                 </span>
-                <span className="hidden text-[14px] text-claro-55 sm:block">
+                <span className="meta hidden text-claro-55 sm:block">
                   {e.lugar?.nome ?? ""}
                 </span>
               </Link>

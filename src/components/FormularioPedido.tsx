@@ -57,7 +57,7 @@ export function FormularioPedido({
     return (
       <p
         role="status"
-        className="border border-ouro bg-[rgba(180,136,74,0.08)] p-7 text-[16px] text-papel"
+        className="corpo border border-ouro bg-ouro-lavado p-7 text-papel"
       >
         {t("msg.enviado", idioma)}
       </p>
@@ -133,7 +133,7 @@ export function FormularioPedido({
       <button
         type="submit"
         disabled={aEnviar}
-        className="min-h-12 cursor-pointer self-start border-0 bg-ouro px-7 py-4 text-[12px] tracking-[0.18em] text-tinta uppercase transition-colors hover:bg-papel disabled:opacity-60"
+        className="etiqueta min-h-12 cursor-pointer self-start border-0 bg-ouro px-7 py-4 text-tinta transition-colors hover:bg-papel disabled:opacity-60"
       >
         {aEnviar
           ? t("msg.a_enviar", idioma)
@@ -143,7 +143,7 @@ export function FormularioPedido({
       <span
         role="status"
         aria-live="polite"
-        className="text-[13px] text-claro-55"
+        className="meta text-claro-55"
       >
         {estado && !estado.ok
           ? t(estado.mensagem, idioma)

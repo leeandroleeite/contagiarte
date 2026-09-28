@@ -152,13 +152,13 @@ export default async function PaginaObra({
             {autor && (
               <Link
                 href={caminho(idioma, `/artistas/${obra.artista!.slug}`)}
-                className="inline-flex min-h-11 items-center text-[11px] tracking-[0.28em] uppercase"
+                className="etiqueta inline-flex min-h-11 items-center"
               >
                 {autor} →
               </Link>
             )}
 
-            <h1 className="titulo text-[clamp(38px,5vw,86px)] leading-[0.9] tracking-[-0.02em]">
+            <h1 className="titulo d-ficha tracking-[-0.02em]">
               {titulo}
             </h1>
 
@@ -166,20 +166,20 @@ export default async function PaginaObra({
               {ficha.map(([rotulo, valor], i) => (
                 <div
                   key={rotulo}
-                  className={`flex justify-between gap-4 border-t border-[rgba(242,237,228,0.16)] py-3.5 text-[15px] ${
+                  className={`flex justify-between gap-4 border-t border-fio py-3.5 text-[15px] ${
                     i === ficha.length - 1
-                      ? "border-b border-b-[rgba(242,237,228,0.16)]"
+                      ? "border-b border-b-fio"
                       : ""
                   }`}
                 >
-                  <dt className="text-[rgba(242,237,228,0.55)]">{rotulo}</dt>
+                  <dt className="text-claro-55">{rotulo}</dt>
                   <dd className="m-0 text-right">{valor}</dd>
                 </div>
               ))}
             </dl>
 
             {texto(obra.descricao, idioma) && (
-              <p className="max-w-[48ch] text-[16px] leading-[1.65] text-[rgba(242,237,228,0.75)]">
+              <p className="corpo max-w-[48ch] text-claro-80">
                 {texto(obra.descricao, idioma)}
               </p>
             )}
@@ -207,7 +207,7 @@ export default async function PaginaObra({
                       ? "Ask by email"
                       : "Pedir por email"}
                 </Botao>
-                <span className="text-center text-[13px] text-[rgba(242,237,228,0.55)]">
+                <span className="meta text-center text-claro-55">
                   {T("obra.nota.servico")}
                 </span>
               </div>
@@ -215,7 +215,7 @@ export default async function PaginaObra({
 
             <Link
               href={caminho(idioma, `/ver-na-parede?obra=${obra.slug}`)}
-              className="inline-flex min-h-11 items-center text-[12px] tracking-[0.18em] uppercase"
+              className="etiqueta inline-flex min-h-11 items-center"
             >
               {t("acao.parede", idioma)}
             </Link>
@@ -249,7 +249,7 @@ export default async function PaginaObra({
               <span className="titulo-med text-[13px] tracking-[0.12em]">
                 {T(`obra.servico.${n}.titulo`)}
               </span>
-              <p className="text-[16px] leading-[1.6] text-[rgba(14,12,11,0.75)]">
+              <p className="corpo text-escuro-78">
                 {T(`obra.servico.${n}.texto`)}
               </p>
             </div>
@@ -260,7 +260,7 @@ export default async function PaginaObra({
       {/* Pedido escrito, para quem não usa WhatsApp. */}
       <Seccao className="px-7 sm:px-10">
         <div className="max-w-[680px]">
-          <h2 className="titulo mb-6 text-[clamp(24px,2.6vw,38px)]">
+          <h2 className="titulo mb-6 d-apoio">
             {t("obra.interesse", idioma)}
           </h2>
           <FormularioPedido
@@ -275,14 +275,14 @@ export default async function PaginaObra({
       {/* Do mesmo artista, ou da mesma exposição quando não há mais. */}
       {relacionadas.lista.length > 0 && (
         <Seccao semFio className="px-7 py-20 sm:px-10">
-          <h2 className="titulo mb-8 text-[clamp(26px,3vw,44px)] leading-[0.92] tracking-[-0.02em]">
+          <h2 className="titulo mb-8 d-apoio tracking-[-0.02em]">
             {relacionadas.mesmoArtista
               ? idioma === "pt"
                 ? "DO MESMO ARTISTA"
                 : idioma === "en"
                   ? "BY THE SAME ARTIST"
                   : "DEL MISMO ARTISTA"
-              : t("obra.relacionadas", idioma).toUpperCase()}
+              : t("obra.relacionadas", idioma)}
           </h2>
           <ul className="grid gap-6" style={colunas(220)}>
             {relacionadas.lista.map((o) => (

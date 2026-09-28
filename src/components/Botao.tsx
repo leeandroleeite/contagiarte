@@ -9,7 +9,7 @@ const BASE =
 const VARIANTES: Record<Variante, string> = {
   ouro: "bg-ouro text-tinta border border-ouro hover:bg-papel hover:border-papel hover:text-tinta",
   linha:
-    "bg-transparent text-papel border border-[rgba(242,237,228,0.35)] hover:border-ouro hover:text-ouro",
+    "bg-transparent text-papel border border-fio-controlo hover:border-ouro hover:text-ouro",
   claro:
     "bg-tinta text-papel border border-tinta hover:bg-ouro hover:border-ouro hover:text-tinta",
 };

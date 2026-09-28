@@ -71,7 +71,7 @@ export function BotaoWhatsApp({
         href={linkWhatsApp(numero, mensagem)}
         target="_blank"
         rel="noopener noreferrer"
-        className="fixed right-4 bottom-4 z-[110] inline-flex min-h-12 items-center bg-ouro px-[22px] py-4 text-[12px] tracking-[0.16em] text-tinta uppercase transition-[background-color,transform,opacity] duration-300 hover:bg-papel"
+        className="etiqueta fixed right-4 bottom-4 z-[110] inline-flex min-h-12 items-center bg-ouro px-[22px] py-4 text-tinta transition-[background-color,transform,opacity] duration-300 hover:bg-papel"
         style={{
           boxShadow: "0 14px 44px rgba(0,0,0,0.5)",
           transform: recolhido ? "translateY(calc(100% + 1rem))" : "none",

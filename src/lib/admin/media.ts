@@ -11,6 +11,7 @@ import {
   apagarFicheiro,
   guardarFicheiro,
 } from "@/lib/media/armazenamento";
+import { normalizarImagem } from "@/lib/media/normalizar";
 import { chaveParaFicheiro } from "@/lib/media/r2";
 
 const MAXIMO_BYTES = 25 * 1024 * 1024;
@@ -36,8 +37,11 @@ export type ResultadoUpload =
 
 /**
  * Recebe um ficheiro do backoffice, guarda-o (no R2 ou em disco,
- * conforme o ambiente) e cria o registo de media. Para imagens calcula largura, altura, cor média e um
- * placeholder de desfoque, para o site não saltar durante o carregamento.
+ * conforme o ambiente) e cria o registo de media. As fotografias são
+ * primeiro normalizadas (rodadas, reduzidas a 2400px, sem metadados;
+ * ver `normalizarImagem`). Para imagens calcula largura, altura, cor
+ * média e um placeholder de desfoque, para o site não saltar durante o
+ * carregamento.
  */
 export async function carregarFicheiro(
   dados: FormData,
@@ -59,15 +63,20 @@ export async function carregarFicheiro(
   }
 
   const pasta = ficheiro.type === "application/pdf" ? "documentos" : "imagens";
-  const chave = chaveParaFicheiro(pasta, ficheiro.name);
-  const bytes = Buffer.from(await ficheiro.arrayBuffer());
+  const normalizada = await normalizarImagem(
+    Buffer.from(await ficheiro.arrayBuffer()),
+    ficheiro.type,
+    ficheiro.name,
+  );
+  const { bytes, tipoMime } = normalizada;
+  const chave = chaveParaFicheiro(pasta, normalizada.nome);
 
-  let largura: number | null = null;
-  let altura: number | null = null;
+  let largura: number | null = normalizada.largura;
+  let altura: number | null = normalizada.altura;
   let corDominante: string | null = null;
   let blur: string | null = null;
 
-  if (ficheiro.type.startsWith("image/")) {
+  if (tipoMime.startsWith("image/")) {
     try {
       const sharp = (await import("sharp")).default;
       const imagem = sharp(bytes, { failOn: "none" });
@@ -95,7 +104,7 @@ export async function carregarFicheiro(
   }
 
   try {
-    await guardarFicheiro(chave, bytes, ficheiro.type);
+    await guardarFicheiro(chave, bytes, tipoMime);
   } catch (erro) {
     console.error("[media] falhou o envio:", erro);
     return { ok: false, erro: "Não foi possível guardar o ficheiro." };
@@ -106,8 +115,10 @@ export async function carregarFicheiro(
     .values({
       chave,
       nomeOriginal: ficheiro.name,
-      tipoMime: ficheiro.type,
-      tamanho: ficheiro.size,
+      // O formato e o tamanho do que ficou guardado, não do que veio:
+      // um PNG de 12 MB tirado ao telemóvel fica um JPEG de centenas de KB.
+      tipoMime,
+      tamanho: bytes.length,
       largura,
       altura,
       corDominante,

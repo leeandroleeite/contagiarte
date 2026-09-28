@@ -1,6 +1,5 @@
 "use client";
 
-import { usePathname } from "next/navigation";
 import { useEffect } from "react";
 
 /**
@@ -16,31 +15,33 @@ import { useEffect } from "react";
  *  - há uma rede de segurança de 5s que revela tudo, para o conteúdo
  *    nunca ficar invisível se um observador falhar.
  */
-let ultimaPosicao: { x: number; y: number } | null = null;
-
 export function Movimento({ cursor = true }: { cursor?: boolean }) {
-  // O layout não volta a montar quando se navega por um link: sem o
-  // endereço nas dependências, o efeito só via os elementos da primeira
-  // página, e os da página seguinte ficavam escondidos para sempre.
-  const endereco = usePathname();
-
   useEffect(() => {
     const semMovimento = window.matchMedia(
       "(prefers-reduced-motion: reduce)",
     ).matches;
 
-    const revelaveis = () =>
-      Array.from(
-        document.querySelectorAll<HTMLElement>("[data-surge],[data-revelar]"),
+    const SELECTOR = "[data-surge],[data-revelar]";
+    const revelar = (n: Element) => {
+      if (n.hasAttribute("data-surge")) n.setAttribute("data-surge", "visivel");
+      if (n.hasAttribute("data-revelar"))
+        n.setAttribute("data-revelar", "visivel");
+    };
+    const porRevelar = (raiz: ParentNode): Element[] =>
+      Array.from(raiz.querySelectorAll(SELECTOR)).filter(
+        (n) =>
+          n.getAttribute("data-surge") !== "visivel" &&
+          n.getAttribute("data-revelar") !== "visivel",
       );
 
     if (semMovimento) {
-      revelaveis().forEach((n) => {
-        if (n.hasAttribute("data-surge")) n.setAttribute("data-surge", "visivel");
-        if (n.hasAttribute("data-revelar"))
-          n.setAttribute("data-revelar", "visivel");
-      });
-      return;
+      porRevelar(document).forEach(revelar);
+      // Também o que entra depois, numa página nova ou ao filtrar.
+      const vigia = new MutationObserver(() =>
+        porRevelar(document).forEach(revelar),
+      );
+      vigia.observe(document.body, { childList: true, subtree: true });
+      return () => vigia.disconnect();
     }
 
     // --- Entradas em scroll -------------------------------------------
@@ -48,26 +49,46 @@ export function Movimento({ cursor = true }: { cursor?: boolean }) {
       (entradas) => {
         entradas.forEach((e) => {
           if (!e.isIntersecting) return;
-          const alvo = e.target as HTMLElement;
-          if (alvo.hasAttribute("data-surge"))
-            alvo.setAttribute("data-surge", "visivel");
-          if (alvo.hasAttribute("data-revelar"))
-            alvo.setAttribute("data-revelar", "visivel");
-          observador.unobserve(alvo);
+          revelar(e.target);
+          observador.unobserve(e.target);
         });
       },
       { rootMargin: "0px 0px -10% 0px" },
     );
-    revelaveis().forEach((n) => observador.observe(n));
 
-    // Rede de segurança: ao fim de 5s nada fica escondido.
-    const seguranca = window.setTimeout(() => {
-      revelaveis().forEach((n) => {
-        if (n.hasAttribute("data-surge")) n.setAttribute("data-surge", "visivel");
-        if (n.hasAttribute("data-revelar"))
-          n.setAttribute("data-revelar", "visivel");
-      });
-    }, 5000);
+    // Cada lote de elementos tem a sua rede de segurança: ao fim de 5s
+    // nada fica escondido, mesmo que o observador falhe.
+    const redes = new Set<number>();
+    const acompanhar = (nos: Element[]) => {
+      if (nos.length === 0) return;
+      nos.forEach((n) => observador.observe(n));
+      const rede = window.setTimeout(() => {
+        nos.forEach(revelar);
+        redes.delete(rede);
+      }, 5000);
+      redes.add(rede);
+    };
+    const vistos = new WeakSet<Element>();
+    const novos = () => {
+      const lote = porRevelar(document).filter((n) => !vistos.has(n));
+      lote.forEach((n) => vistos.add(n));
+      acompanhar(lote);
+    };
+    novos();
+
+    // O layout não volta a montar ao navegar, e os filtros trocam a
+    // lista sem mudar de página: o que entra no DOM depois também tem
+    // de ser observado, senão fica escondido para sempre.
+    let paralaxes = Array.from(
+      document.querySelectorAll<HTMLElement>("[data-paralaxe]"),
+    );
+    const vigia = new MutationObserver(() => {
+      novos();
+      paralaxes = Array.from(
+        document.querySelectorAll<HTMLElement>("[data-paralaxe]"),
+      );
+    });
+    vigia.observe(document.body, { childList: true, subtree: true });
 
     // --- Cursor --------------------------------------------------------
     const ratoFino = window.matchMedia(
@@ -75,17 +96,14 @@ export function Movimento({ cursor = true }: { cursor?: boolean }) {
     ).matches;
     const ponto = cursor && ratoFino ? criarPonto() : null;
 
-    // O efeito recomeça a cada página: o cursor parte de onde o rato
-    // estava, e não do centro do ecrã.
-    let px = ultimaPosicao?.x ?? window.innerWidth / 2;
-    let py = ultimaPosicao?.y ?? window.innerHeight / 2;
+    let px = window.innerWidth / 2;
+    let py = window.innerHeight / 2;
     let cx = px;
     let cy = py;
 
     const aoMover = (e: MouseEvent) => {
       px = e.clientX;
       py = e.clientY;
-      ultimaPosicao = { x: px, y: py };
       if (!ponto) return;
       const alvo =
         e.target instanceof Element ? e.target.closest("a,button") : null;
@@ -98,9 +116,6 @@ export function Movimento({ cursor = true }: { cursor?: boolean }) {
 
     // --- Loop de animação ---------------------------------------------
     const barra = document.getElementById("barra-progresso");
-    const paralaxes = Array.from(
-      document.querySelectorAll<HTMLElement>("[data-paralaxe]"),
-    );
 
     let raf = 0;
     const laco = () => {
@@ -140,12 +155,13 @@ export function Movimento({ cursor = true }: { cursor?: boolean }) {
 
     return () => {
       observador.disconnect();
+      vigia.disconnect();
       cancelAnimationFrame(raf);
-      window.clearTimeout(seguranca);
+      redes.forEach((r) => window.clearTimeout(r));
       window.removeEventListener("mousemove", aoMover);
       ponto?.remove();
     };
-  }, [cursor, endereco]);
+  }, [cursor]);
 
   return null;
 }

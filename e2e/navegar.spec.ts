@@ -29,3 +29,49 @@ test("a página a que se chega por um link não fica com imagens escondidas", as
   const escondidas = page.locator('main [data-revelar=""], main [data-surge=""]');
   await expect(escondidas).toHaveCount(0);
 });
+
+/** Os filtros trocam a lista sem mudar de página, e o Voltar também. */
+test("filtrar as obras e voltar não deixa cartões vazios", async ({ page }) => {
+  await page.goto("/obras");
+  await page.waitForTimeout(6000);
+
+  const filtros = page.locator('main a[href*="artista="]:visible');
+  await filtros.nth(1).click();
+  await page.waitForURL(/artista=/);
+  await page.goBack();
+  await page.waitForURL((u) => !u.search.includes("artista="));
+
+  for (let i = 0; i < 8; i++) {
+    await page.evaluate(() => window.scrollBy(0, 600));
+    await page.waitForTimeout(150);
+  }
+
+  const escondidas = page.locator('main [data-revelar=""], main [data-surge=""]');
+  await expect(escondidas).toHaveCount(0);
+});
+
+test.describe("menu compacto", () => {
+  test.use({ viewport: { width: 390, height: 844 } });
+
+  test("sair pelo logótipo fecha o menu e devolve o scroll", async ({ page }) => {
+    await page.goto("/obras");
+    await page.getByRole("button", { name: /menu/i }).click();
+    await expect(page.locator("#menu-compacto")).toBeVisible();
+
+    await page.getByRole("link", { name: "CONTAGIARTE®" }).click();
+    await page.waitForURL((u) => u.pathname === "/");
+
+    await expect(page.locator("#menu-compacto")).toHaveCount(0);
+    expect(await page.evaluate(() => document.body.style.overflow)).toBe("");
+  });
+
+  test("alargar o ecrã com o menu aberto devolve o scroll", async ({ page }) => {
+    await page.goto("/obras");
+    await page.getByRole("button", { name: /menu/i }).click();
+    await page.setViewportSize({ width: 1280, height: 844 });
+
+    await expect
+      .poll(() => page.evaluate(() => document.body.style.overflow))
+      .toBe("");
+  });
+});

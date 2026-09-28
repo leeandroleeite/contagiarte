@@ -29,6 +29,26 @@ export function Cabecalho({ idioma }: { idioma: Idioma }) {
   const pathname = usePathname();
   const actual = semPrefixo(pathname ?? "/");
 
+  // O cabeçalho vive no layout e não desmonta ao mudar de página. Sem
+  // isto, o logótipo ou o Voltar do browser levavam a uma página nova
+  // com o menu ainda aberto e o scroll travado.
+  const [paginaDoMenu, setPaginaDoMenu] = useState(pathname);
+  if (pathname !== paginaDoMenu) {
+    setPaginaDoMenu(pathname);
+    setAberto(false);
+  }
+
+  // Rodar o tablet com o menu aberto escondia-o pelo CSS, mas o scroll
+  // continuava travado e não havia botão para o fechar.
+  useEffect(() => {
+    const largo = window.matchMedia("(min-width: 1120px)");
+    const aoMudar = () => {
+      if (largo.matches) setAberto(false);
+    };
+    largo.addEventListener("change", aoMudar);
+    return () => largo.removeEventListener("change", aoMudar);
+  }, []);
+
   // Trava o scroll da página enquanto o menu compacto está aberto.
   useEffect(() => {
     document.body.style.overflow = aberto ? "hidden" : "";

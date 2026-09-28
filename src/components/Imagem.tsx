@@ -23,6 +23,9 @@ type Props = {
   prioridade?: boolean;
   /** Revela por clip-path quando entra no ecrã. */
   revelar?: boolean;
+  /** Sem a cor dominante por trás: para obras sobre passe-partout, onde
+   *  a cor pintava um rectângulo à volta da obra. */
+  semFundo?: boolean;
   className?: string;
 };
 
@@ -40,6 +43,7 @@ export function Imagem({
   sizes = "(max-width: 900px) 100vw, 50vw",
   prioridade = false,
   revelar = true,
+  semFundo = false,
   className,
 }: Props) {
   const src = urlMedia(media?.chave);
@@ -65,7 +69,12 @@ export function Imagem({
 
   return (
     <div
-      style={{ ...estilo, background: media?.corDominante ?? "var(--color-tinta-elevada)" }}
+      style={{
+        ...estilo,
+        background: semFundo
+          ? undefined
+          : (media?.corDominante ?? "var(--color-tinta-elevada)"),
+      }}
       className={cx("relative w-full overflow-hidden", className)}
       data-revelar={revelar ? "" : undefined}
     >

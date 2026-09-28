@@ -503,6 +503,48 @@
 }
 
 /* --------------------------------------------------------------- */
+/* A obra sobre passe-partout                                       */
+/* --------------------------------------------------------------- */
+
+/* A moldura tem proporção fixa; a obra fica inteira lá dentro. Ao
+   passar o rato, a obra cresce dentro da margem e um fio de ouro
+   percorre a moldura, do canto de cima para o de baixo, como quem
+   passa o dedo por ela. Com movimento reduzido fica só o fio. */
+@layer components {
+  .obra-moldura {
+    position: relative;
+    overflow: hidden;
+    background: var(--color-tinta-obra);
+  }
+
+  .obra-moldura-interior {
+    position: absolute;
+    inset: 7%;
+    transition: transform var(--duracao-media) var(--ease-chegar);
+  }
+
+  .obra-moldura::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border: 1px solid var(--color-ouro);
+    clip-path: inset(0 100% 100% 0);
+    transition: clip-path var(--duracao-revelar) var(--ease-cortina);
+    pointer-events: none;
+  }
+
+  .group:hover .obra-moldura-interior,
+  .group:focus-visible .obra-moldura-interior {
+    transform: scale(1.05);
+  }
+
+  .group:hover .obra-moldura::after,
+  .group:focus-visible .obra-moldura::after {
+    clip-path: inset(0 0 0 0);
+  }
+}
+
+/* --------------------------------------------------------------- */
 /* Percurso pelas salas                                             */
 /* --------------------------------------------------------------- */
 

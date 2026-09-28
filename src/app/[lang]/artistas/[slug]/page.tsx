@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Botao } from "@/components/Botao";
+import { CartaoObra } from "@/components/CartaoObra";
 import { Imagem } from "@/components/Imagem";
 import { Seccao } from "@/components/Seccao";
 import {
@@ -189,26 +190,13 @@ export default async function PaginaArtista({
           <ul className="grid gap-7" style={colunas(240)}>
             {obras.map((o) => (
               <li key={o.id}>
-                <Link
-                  href={caminho(idioma, `/obras/${o.slug}`)}
-                  className="group flex flex-col gap-3 text-papel"
-                >
-                  <Imagem
-                    media={o.fotografia}
-                    alt={`${texto(o.titulo, idioma)}, de ${artista.nome}`}
-                    proporcao="1/1"
-                    legenda={texto(o.titulo, idioma)}
-                    sizes="(max-width: 700px) 100vw, 24vw"
-                  />
-                  <div className="flex justify-between gap-3 text-[15px]">
-                    <span className="transition-colors group-hover:text-ouro">
-                      {texto(o.titulo, idioma) || t("obra.sem_titulo", idioma)}
-                    </span>
-                    <span className="shrink-0 text-claro-55">
-                      {o.ano ?? ""}
-                    </span>
-                  </div>
-                </Link>
+                <CartaoObra
+                  obra={o}
+                  idioma={idioma}
+                  tamanho="compacto"
+                  meta={["ano"]}
+                  sizes="(max-width: 700px) 100vw, 24vw"
+                />
               </li>
             ))}
           </ul>

@@ -160,6 +160,32 @@ export const DICIONARIO = {
     es: "Obras relacionadas",
   },
   "obra.sem_titulo": { pt: "Sem título", en: "Untitled", es: "Sin título" },
+  "obra.artista_por_atribuir": {
+    pt: "artista por atribuir",
+    en: "artist to be confirmed",
+    es: "artista por confirmar",
+  },
+  // Texto alternativo de uma obra: o "de" era escrito à mão em
+  // português e saía também nas páginas inglesa e espanhola.
+  "obra.alt": {
+    pt: "{titulo}, de {autor}",
+    en: "{titulo}, by {autor}",
+    es: "{titulo}, de {autor}",
+  },
+  "obra.relacionadas_artista": {
+    pt: "Do mesmo artista",
+    en: "By the same artist",
+    es: "Del mismo artista",
+  },
+  "obra.em_exposicao": {
+    pt: "Obras em exposição",
+    en: "Works on show",
+    es: "Obras en exposición",
+  },
+  // O rótulo que o cursor mostra por cima de uma obra.
+  "cursor.ver": { pt: "Ver", en: "View", es: "Ver" },
+  // Entre duas datas: "maio de 2026 a dezembro de 2026".
+  "periodo.ate": { pt: "a", en: "to", es: "a" },
   "obra.interesse": {
     pt: "Tenho interesse nesta obra",
     en: "I am interested in this work",

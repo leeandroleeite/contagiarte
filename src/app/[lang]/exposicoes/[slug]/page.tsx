@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Botao } from "@/components/Botao";
+import { CartaoObra } from "@/components/CartaoObra";
 import { Imagem } from "@/components/Imagem";
 import { Seccao } from "@/components/Seccao";
 import {
@@ -301,11 +302,7 @@ export default async function PaginaExposicao({
         <Seccao semFio className="px-7 py-[88px] sm:px-10">
           <div className="mb-10 flex flex-wrap items-baseline justify-between gap-6">
             <h2 className="titulo d-apoio tracking-[-0.02em]">
-              {idioma === "pt"
-                ? "OBRAS EM EXPOSIÇÃO"
-                : idioma === "en"
-                  ? "WORKS ON SHOW"
-                  : "OBRAS EN EXPOSICIÓN"}
+              {t("obra.em_exposicao", idioma)}
             </h2>
             <span className="etiqueta text-claro-55">
               {t("obra.sob_consulta", idioma)}
@@ -315,27 +312,13 @@ export default async function PaginaExposicao({
           <ul className="grid gap-7" style={colunas(240)}>
             {obras.map((o) => (
               <li key={o.id}>
-                <Link
-                  href={caminho(idioma, `/obras/${o.slug}`)}
-                  className="group flex flex-col gap-3 text-papel"
-                >
-                  <Imagem
-                    media={o.fotografia}
-                    alt={`${texto(o.titulo, idioma)}, de ${o.artista?.nome ?? "artista por atribuir"}`}
-                    proporcao="1/1"
-                    legenda={texto(o.titulo, idioma)}
-                    sizes="(max-width: 700px) 100vw, 24vw"
-                  />
-                  <span className="text-[15px] transition-colors group-hover:text-ouro">
-                    {texto(o.titulo, idioma) || t("obra.sem_titulo", idioma)}
-                    {o.artista && (
-                      <span className="text-claro-55">
-                        {" · "}
-                        {o.artista.nome}
-                      </span>
-                    )}
-                  </span>
-                </Link>
+                <CartaoObra
+                  obra={o}
+                  idioma={idioma}
+                  tamanho="compacto"
+                  meta={["artista"]}
+                  sizes="(max-width: 700px) 100vw, 24vw"
+                />
               </li>
             ))}
           </ul>

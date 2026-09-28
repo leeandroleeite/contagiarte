@@ -3,6 +3,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Botao } from "@/components/Botao";
 import { FormularioPedido } from "@/components/FormularioPedido";
+import { CartaoObra } from "@/components/CartaoObra";
 import { Imagem } from "@/components/Imagem";
 import { Seccao } from "@/components/Seccao";
 import {
@@ -277,31 +278,19 @@ export default async function PaginaObra({
         <Seccao semFio className="px-7 py-20 sm:px-10">
           <h2 className="titulo mb-8 d-apoio tracking-[-0.02em]">
             {relacionadas.mesmoArtista
-              ? idioma === "pt"
-                ? "DO MESMO ARTISTA"
-                : idioma === "en"
-                  ? "BY THE SAME ARTIST"
-                  : "DEL MISMO ARTISTA"
+              ? t("obra.relacionadas_artista", idioma)
               : t("obra.relacionadas", idioma)}
           </h2>
           <ul className="grid gap-6" style={colunas(220)}>
             {relacionadas.lista.map((o) => (
               <li key={o.id}>
-                <Link
-                  href={caminho(idioma, `/obras/${o.slug}`)}
-                  className="group flex flex-col gap-3 text-papel"
-                >
-                  <Imagem
-                    media={o.fotografia}
-                    alt={texto(o.titulo, idioma)}
-                    proporcao="1/1"
-                    legenda={texto(o.titulo, idioma)}
-                    sizes="(max-width: 700px) 50vw, 22vw"
-                  />
-                  <span className="text-[15px] transition-colors group-hover:text-ouro">
-                    {texto(o.titulo, idioma) || t("obra.sem_titulo", idioma)}
-                  </span>
-                </Link>
+                <CartaoObra
+                  obra={o}
+                  idioma={idioma}
+                  tamanho="compacto"
+                  meta={["ano"]}
+                  sizes="(max-width: 700px) 50vw, 22vw"
+                />
               </li>
             ))}
           </ul>

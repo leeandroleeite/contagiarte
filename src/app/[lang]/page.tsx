@@ -149,7 +149,7 @@ export default async function Homepage({
 
         {/* Título e linha de rodapé numa coluna só: em ecrãs estreitos
             o título ocupa três linhas e não pode tapar o "Desça". */}
-        <div className="absolute inset-x-7 bottom-9 flex flex-col gap-6">
+        <div className="absolute inset-x-margem bottom-9 flex flex-col gap-6">
           <h1
             className="titulo d-heroi pointer-events-none text-papel"
             style={{ mixBlendMode: "difference" }}
@@ -267,13 +267,13 @@ export default async function Homepage({
       {/* 4. Obras ------------------------------------------------------- */}
       {obras.length > 0 && (
         <Seccao id="obras" semPadding>
-          <div className="mb-14 flex flex-wrap items-baseline justify-between gap-5 px-7">
+          <div className="mb-14 flex flex-wrap items-baseline justify-between gap-5 px-margem">
             <h2 className="titulo d-seccao">{t("nav.obras", idioma)}</h2>
             <span className="etiqueta text-claro-55">{t("acao.arrastar", idioma)}</span>
           </div>
 
           <ul
-            className="faixa-h flex gap-8 overflow-x-auto px-7 pb-8"
+            className="faixa-h flex gap-8 overflow-x-auto px-margem pb-8"
             style={{ scrollSnapType: "x mandatory" }}
           >
             {obras.map((obra, i) => (
@@ -288,7 +288,7 @@ export default async function Homepage({
             ))}
           </ul>
 
-          <div className="px-7">
+          <div className="px-margem">
             <Link
               href={caminho(idioma, "/obras")}
               className="etiqueta inline-flex min-h-11 items-center"
@@ -300,7 +300,7 @@ export default async function Homepage({
       )}
 
       {/* 5. Porque se compra arte --------------------------------------- */}
-      <Seccao claro className="px-7 py-[140px]">
+      <Seccao claro className="px-margem py-[140px]">
         <span className="etiqueta text-escuro-62">
           {T("home.porque.etiqueta", "PORQUE SE COMPRA ARTE")}
         </span>
@@ -337,7 +337,7 @@ export default async function Homepage({
       </Seccao>
 
       {/* 6. Citação ------------------------------------------------------ */}
-      <Seccao className="px-7 py-[140px]">
+      <Seccao className="px-margem py-[140px]">
         <blockquote className="titulo mx-auto max-w-[22ch] text-center d-citacao">
           {T("home.citacao")}
         </blockquote>

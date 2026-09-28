@@ -69,7 +69,7 @@ export function Percurso({ salas }: { salas: Sala[] }) {
       data-etapas={salas.length}
     >
       {/* Lista: base semântica, e o que vê quem não tem o palco. */}
-      <div className="percurso-lista gap-20 px-7 pb-28">
+      <div className="percurso-lista gap-20 px-margem pb-28">
         {salas.map((s, i) => (
           <article key={s.id} className="flex flex-col gap-6">
             <span className="etiqueta text-claro-65">
@@ -83,7 +83,7 @@ export function Percurso({ salas }: { salas: Sala[] }) {
               alt={s.nome}
               proporcao="16/9"
               legenda={s.nome}
-              sizes="100vw"
+              sizes="calc(100vw - 40px)"
             />
             <p className="lead max-w-[54ch] text-claro-80">
               {s.texto}
@@ -113,7 +113,8 @@ export function Percurso({ salas }: { salas: Sala[] }) {
                 style={{
                   opacity: i === indice ? 1 : 0,
                   transform: `scale(${i === indice ? 1 : 1.06})`,
-                  transition: "opacity 1s ease, transform 1.6s ease",
+                  transition:
+                    "opacity var(--duracao-cena) var(--ease-cortina), transform 1.6s var(--ease-chegar)",
                 }}
               >
                 <Imagem
@@ -136,7 +137,7 @@ export function Percurso({ salas }: { salas: Sala[] }) {
             />
           </div>
 
-          <div className="pointer-events-none relative flex h-full max-w-[44ch] flex-col justify-center gap-[22px] px-7">
+          <div className="pointer-events-none relative flex h-full max-w-[44ch] flex-col justify-center gap-[22px] px-margem">
             <span className="text-[11px] tracking-[0.3em] text-claro-65">
               {numero(indice + 1)} / {numero(salas.length)}
             </span>

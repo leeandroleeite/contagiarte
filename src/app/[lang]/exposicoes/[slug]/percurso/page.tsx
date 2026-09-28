@@ -70,7 +70,7 @@ export default async function PaginaPercurso({
   return (
     <>
       {/* Abertura, antes de o percurso começar. */}
-      <section className="flex min-h-[70dvh] flex-col justify-end px-7 pt-[120px] pb-12">
+      <section className="flex min-h-[70dvh] flex-col justify-end px-margem pt-[120px] pb-12">
         <span className="etiqueta text-claro-55">
           {[expo.lugar?.nome, texto(expo.lugar?.localidade, idioma)]
             .filter(Boolean)
@@ -97,7 +97,7 @@ export default async function PaginaPercurso({
       {/* Fecho: convite a visitar, com a informação prática. */}
       <Seccao
         semFio
-        className="border-t border-fio px-7 py-[120px]"
+        className="border-t border-fio px-margem py-[120px]"
       >
         <div className="grid items-center gap-12" style={colunas(300)}>
           <div className="flex flex-col gap-[22px]">
@@ -112,7 +112,9 @@ export default async function PaginaPercurso({
                 externo
                 href={linkWhatsApp(
                   def.whatsapp,
-                  `Olá, queria marcar uma visita à exposição ${texto(expo.titulo, idioma)}.`,
+                  t("whatsapp.visita", idioma, {
+                    titulo: texto(expo.titulo, idioma),
+                  }),
                 )}
               >
                 {t("acao.visita", idioma)}

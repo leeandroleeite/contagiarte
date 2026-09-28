@@ -38,14 +38,31 @@ export default async function PaginaObras({
   const { lang: idioma } = await params;
   const busca = await searchParams;
 
-  const artistas = await listarArtistas();
-  const artistaEscolhido = artistas.find((a) => a.slug === busca.artista);
+  const [todosArtistas, todas] = await Promise.all([
+    listarArtistas(),
+    listarObras({}),
+  ]);
+  const artistaEscolhido = todosArtistas.find((a) => a.slug === busca.artista);
   const soDisponiveis = busca.estado === "disponivel";
 
-  const obras = await listarObras({
-    artistaId: artistaEscolhido?.id,
-    soDisponiveis,
-  });
+  const obras = todas.filter(
+    (o) =>
+      (!artistaEscolhido || o.artistaId === artistaEscolhido.id) &&
+      (!soDisponiveis || o.disponibilidade === "disponivel"),
+  );
+
+  // Um filtro que leva a uma parede vazia, ou que não muda nada, ensina
+  // a não confiar nos filtros. Só aparecem artistas com obras, e o
+  // "Disponíveis" só quando tira alguma coisa da lista.
+  const artistas = todosArtistas.filter(
+    (a) => a.id === artistaEscolhido?.id || todas.some((o) => o.artistaId === a.id),
+  );
+  const doArtista = todas.filter(
+    (o) => !artistaEscolhido || o.artistaId === artistaEscolhido.id,
+  );
+  const disponiveisFiltram =
+    soDisponiveis ||
+    doArtista.some((o) => o.disponibilidade !== "disponivel");
 
   // Os filtros são links: funcionam sem JavaScript e ficam indexáveis.
   const url = (mudanca: Partial<Busca>) => {
@@ -93,19 +110,29 @@ export default async function PaginaObras({
             {a.nome}
           </Filtro>
         ))}
-        <span className="w-px self-stretch bg-fio" />
-        <Filtro
-          href={url({ estado: soDisponiveis ? "" : "disponivel" })}
-          activo={soDisponiveis}
-        >
-          {t("filtro.disponivel", idioma)}
-        </Filtro>
+        {disponiveisFiltram && (
+          <>
+            <span className="w-px self-stretch bg-fio" />
+            <Filtro
+              href={url({ estado: soDisponiveis ? "" : "disponivel" })}
+              activo={soDisponiveis}
+            >
+              {t("filtro.disponivel", idioma)}
+            </Filtro>
+          </>
+        )}
       </div>
 
       {obras.length === 0 ? (
-        <p className="corpo text-claro-55">
-          {t("msg.sem_resultados", idioma)}
-        </p>
+        <div className="flex flex-col items-start gap-5">
+          <p className="corpo text-claro-65">{t("msg.sem_resultados", idioma)}</p>
+          <Link
+            href={caminho(idioma, "/obras")}
+            className="etiqueta inline-flex min-h-11 items-center"
+          >
+            {t("acao.limpar_filtros", idioma)}
+          </Link>
+        </div>
       ) : (
         <ul
           className="grid gap-x-8 gap-y-14"

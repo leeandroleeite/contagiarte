@@ -20,7 +20,7 @@ export function Seccao({
     <section
       id={id}
       className={cx(
-        semPadding ? "py-[120px]" : "px-7 py-[120px]",
+        semPadding ? "py-[120px]" : "px-margem py-[120px]",
         claro && "bg-papel text-tinta",
         !semFio && !claro && "border-b border-fio",
         className,

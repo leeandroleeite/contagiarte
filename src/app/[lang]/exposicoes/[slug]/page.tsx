@@ -140,7 +140,7 @@ export default async function PaginaExposicao({
           className="pointer-events-none absolute inset-0"
           style={{ background: VEU_FICHA }}
         />
-        <div className="pointer-events-none absolute inset-x-7 bottom-10 sm:inset-x-10">
+        <div className="pointer-events-none absolute inset-x-margem bottom-10 sm:inset-x-10">
           <span className="etiqueta text-claro-55">
             {[
               t(`estado.${estado}`, idioma),
@@ -156,7 +156,7 @@ export default async function PaginaExposicao({
       </section>
 
       {/* Texto curatorial e ficha de visita. */}
-      <Seccao className="px-7 py-[88px] sm:px-10">
+      <Seccao className="px-margem py-[88px]">
         <div className="grid gap-14" style={colunas(300)}>
           <div className="flex flex-col gap-[22px]">
             {paragrafos.map((p, i) => (
@@ -203,14 +203,10 @@ export default async function PaginaExposicao({
                 className="px-6 py-[15px]"
                 href={linkWhatsApp(
                   def.whatsapp,
-                  `Olá, queria saber mais sobre a exposição ${titulo}.`,
+                  t("whatsapp.exposicao", idioma, { titulo }),
                 )}
               >
-                {idioma === "pt"
-                  ? "Falar connosco"
-                  : idioma === "en"
-                    ? "Talk to us"
-                    : "Hablar con nosotros"}
+                {t("acao.perguntar_whatsapp", idioma)}
               </Botao>
 
               {expo.salas.length > 0 && (
@@ -243,7 +239,7 @@ export default async function PaginaExposicao({
 
       {/* Citação do anfitrião, em bloco claro. */}
       {texto(expo.citacao, idioma) && (
-        <Seccao claro semFio className="px-7 py-[88px] sm:px-10">
+        <Seccao claro semFio className="px-margem py-[88px]">
           <blockquote className="titulo-med mx-auto max-w-[26ch] text-center d-citacao-med">
             {texto(expo.citacao, idioma)}
           </blockquote>
@@ -257,7 +253,7 @@ export default async function PaginaExposicao({
 
       {/* Artistas em exposição. */}
       {expo.artistas.length > 0 && (
-        <Seccao className="px-7 py-[88px] sm:px-10">
+        <Seccao className="px-margem py-[88px]">
           <h2 className="titulo mb-10 d-apoio tracking-[-0.02em]">
             {idioma === "pt"
               ? "ARTISTAS EM EXPOSIÇÃO"
@@ -299,7 +295,7 @@ export default async function PaginaExposicao({
 
       {/* Obras em exposição. */}
       {obras.length > 0 && (
-        <Seccao semFio className="px-7 py-[88px] sm:px-10">
+        <Seccao semFio className="px-margem py-[88px]">
           <div className="mb-10 flex flex-wrap items-baseline justify-between gap-6">
             <h2 className="titulo d-apoio tracking-[-0.02em]">
               {t("obra.em_exposicao", idioma)}

@@ -77,7 +77,11 @@ export function FormularioNewsletter({
       <span
         role="status"
         aria-live="polite"
-        className="meta text-escuro-62"
+        className={
+          estado && !estado.ok
+            ? "meta border-l-2 border-erro pl-3 text-erro"
+            : "meta text-escuro-62"
+        }
       >
         {estado
           ? t(estado.mensagem, idioma)

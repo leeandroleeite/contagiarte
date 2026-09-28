@@ -73,7 +73,7 @@ export default async function PaginaGaleria({
         </div>
       </Seccao>
 
-      <Seccao claro className="px-7 py-[140px]">
+      <Seccao claro className="px-margem py-[140px]">
         <blockquote className="titulo mx-auto max-w-[22ch] text-center d-citacao">
           {texto(txt["home.citacao"], idioma)}
         </blockquote>

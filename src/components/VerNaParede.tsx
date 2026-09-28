@@ -324,15 +324,20 @@ export function VerNaParede({
   const comMolduraOuPasse = perfil > 0 || passeTotal > 0;
   const medidasObra = `${larguraObra} × ${alturaCm} cm`;
   const medidasConjunto = `${Math.round(conjuntoLargura)} × ${Math.round(conjuntoAltura)} cm`;
-  const medidas = comMolduraOuPasse
-    ? t("parede.medidas.emoldurada", idioma, {
-        obra: medidasObra,
-        conjunto: medidasConjunto,
-      })
-    : medidasObra;
+  // Só margem não é "emoldurada": a legenda dizia "emoldurada 108 ×
+  // 108 cm · sem moldura" na mesma linha, logo no estado inicial.
+  const medidas = !comMolduraOuPasse
+    ? medidasObra
+    : t(
+        perfil > 0 ? "parede.medidas.emoldurada" : "parede.medidas.com_margem",
+        idioma,
+        { obra: medidasObra, conjunto: medidasConjunto },
+      );
 
   const legenda = obra
-    ? `${obra.titulo} · ${medidas} · ${(moldura?.nome ?? "").toLowerCase()}`
+    ? [obra.titulo, medidas, perfil > 0 ? (moldura?.nome ?? "").toLowerCase() : ""]
+        .filter(Boolean)
+        .join(" · ")
     : "";
 
   // Quando a ficha não traz medidas, o tamanho da mensagem é o que o
@@ -371,7 +376,7 @@ export function VerNaParede({
         ferramenta que mostra o resultado tem de o mostrar enquanto se
         mexe nos controlos.
       */}
-      <div className="sticky top-[80px] z-[10] -mx-7 bg-tinta px-7 pb-3 sm:mx-0 sm:bg-transparent sm:px-0 sm:pb-0">
+      <div className="sticky top-[80px] z-[10] -mx-margem bg-tinta px-margem pb-3 sm:mx-0 sm:bg-transparent sm:px-0 sm:pb-0">
         <div
           ref={palco}
           /* `w-full` é obrigatório: com `aspect-[4/3]` e `min-h`, sem

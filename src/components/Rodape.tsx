@@ -27,7 +27,7 @@ export function Rodape({
   const ano = new Date().getFullYear();
 
   return (
-    <footer id="contactos" className="px-7 pt-[140px] pb-[76px]">
+    <footer id="contactos" className="px-margem pt-[140px] pb-[76px]">
       <h2 className="titulo d-seccao" data-surge="">
         {t("rodape.fale", idioma)}
       </h2>

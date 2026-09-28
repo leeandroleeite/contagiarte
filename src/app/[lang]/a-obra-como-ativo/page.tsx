@@ -81,7 +81,7 @@ export default async function PaginaAtivo({
   return (
     <>
       {/* Abertura. */}
-      <Seccao semFio className="px-7 pt-[130px] pb-[72px]">
+      <Seccao semFio className="px-margem pt-[130px] pb-[72px]">
         <span className="etiqueta text-claro-55">
           {T("ativo.etiqueta")}
         </span>
@@ -94,7 +94,7 @@ export default async function PaginaAtivo({
       </Seccao>
 
       {/* Os quatro critérios. */}
-      <Seccao semFio className="px-7 pt-0 pb-24">
+      <Seccao semFio className="px-margem pt-0 pb-24">
         <h2 className="titulo mb-10 d-apoio">
           {T("ativo.criterios.titulo")}
         </h2>
@@ -124,7 +124,7 @@ export default async function PaginaAtivo({
       {/* Gráfico ilustrativo do percurso de um artista. */}
       <Seccao
         semFio
-        className="border-t border-fio px-7 py-24"
+        className="border-t border-fio px-margem py-24"
       >
         <div className="mb-3.5 flex flex-wrap items-baseline justify-between gap-5">
           <h2 className="titulo d-apoio">
@@ -200,7 +200,7 @@ export default async function PaginaAtivo({
       </Seccao>
 
       {/* O que não prometemos. */}
-      <Seccao claro semFio className="px-7 py-[110px]">
+      <Seccao claro semFio className="px-margem py-[110px]">
         <h2 className="titulo mb-8 max-w-[20ch] d-seccao">
           {T("ativo.promessas.titulo")}
         </h2>
@@ -214,7 +214,7 @@ export default async function PaginaAtivo({
       </Seccao>
 
       {/* Fecho. */}
-      <Seccao semFio className="px-7 py-[110px]">
+      <Seccao semFio className="px-margem py-[110px]">
         <div className="grid items-center gap-12" style={colunas(300)}>
           <div className="flex flex-col gap-5">
             <h2 className="titulo d-apoio">

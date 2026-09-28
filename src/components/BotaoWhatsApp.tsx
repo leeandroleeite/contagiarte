@@ -13,6 +13,11 @@ import { linkWhatsApp } from "@/lib/utils";
  * escolher, e na ficha de obra em telemóvel escondia a linha do ano.
  *
  * Quem pede menos movimento não perde o botão: fica quieto e visível.
+ *
+ * Sai também do caminho quando há um formulário no ecrã. Voltava
+ * sempre que o scroll parava, que é exactamente o momento em que se
+ * toca em "Enviar pedido", e no telemóvel ficava por cima dele: medido,
+ * tocar na metade direita do botão de envio abria o WhatsApp.
  */
 export function BotaoWhatsApp({
   numero,
@@ -30,6 +35,7 @@ export function BotaoWhatsApp({
   const escondido = /\/ver-na-parede$/.test(caminho ?? "");
 
   const [recolhido, setRecolhido] = useState(false);
+  const [formularioAVista, setFormularioAVista] = useState(false);
   const ultimo = useRef(0);
   const parado = useRef<ReturnType<typeof setTimeout> | null>(null);
 
@@ -60,7 +66,28 @@ export function BotaoWhatsApp({
     };
   }, []);
 
+  // Um formulário (ou algo marcado com data-sem-whatsapp) no ecrã
+  // manda o botão sair. Recomeça a cada página.
+  useEffect(() => {
+    const aVista = new Set<Element>();
+    const observador = new IntersectionObserver((entradas) => {
+      entradas.forEach((e) =>
+        e.isIntersecting ? aVista.add(e.target) : aVista.delete(e.target),
+      );
+      setFormularioAVista(aVista.size > 0);
+    });
+    document
+      .querySelectorAll("main form, [data-sem-whatsapp]")
+      .forEach((n) => observador.observe(n));
+    return () => {
+      observador.disconnect();
+      setFormularioAVista(false);
+    };
+  }, [caminho]);
+
   if (escondido) return null;
+
+  const fora = recolhido || formularioAVista;
 
   return (
     // Numa região com nome, e não solto no `body`: sem isto o botão
@@ -69,14 +96,17 @@ export function BotaoWhatsApp({
     <aside aria-label={rotulo}>
       <a
         href={linkWhatsApp(numero, mensagem)}
+        // Fora do ecrã, fora do Tab: um link invisível não recebe foco.
+        tabIndex={fora ? -1 : undefined}
+        aria-hidden={fora || undefined}
         target="_blank"
         rel="noopener noreferrer"
-        className="etiqueta fixed right-4 bottom-4 z-[110] inline-flex min-h-12 items-center bg-ouro px-[22px] py-4 text-tinta transition-[background-color,transform,opacity] duration-300 hover:bg-papel"
+        className="botao-whatsapp etiqueta fixed right-4 bottom-4 z-[110] inline-flex min-h-12 items-center bg-ouro px-[22px] py-4 text-tinta transition-[background-color,transform,opacity] duration-300 hover:bg-papel"
         style={{
           boxShadow: "0 14px 44px rgba(0,0,0,0.5)",
-          transform: recolhido ? "translateY(calc(100% + 1rem))" : "none",
-          opacity: recolhido ? 0 : 1,
-          pointerEvents: recolhido ? "none" : "auto",
+          transform: fora ? "translateY(calc(100% + 1rem))" : "none",
+          opacity: fora ? 0 : 1,
+          pointerEvents: fora ? "none" : "auto",
         }}
       >
         {rotulo}

@@ -90,7 +90,7 @@ export default async function PaginaArtista({
       />
 
       {/* Herói: nome gigante à esquerda, retrato à direita. */}
-      <Seccao className="px-7 pt-[130px] pb-[72px] sm:px-10">
+      <Seccao className="px-margem pt-[130px] pb-[72px]">
         <div className="grid items-end gap-14" style={colunas(320)}>
           <div className="flex flex-col gap-[22px]">
             <span className="etiqueta text-claro-55">
@@ -108,19 +108,24 @@ export default async function PaginaArtista({
             )}
 
             <div className="flex flex-wrap gap-3">
+              {/* O botão principal diz "obras" e leva às obras, que estão
+                  mais abaixo nesta página. Antes abria o WhatsApp, e quem
+                  esperava ver obras saía para outra aplicação. */}
+              {obras.length > 0 && (
+                <Botao className="px-6 py-[15px]" href="#obras">
+                  {t("acao.obras_artista", idioma)}
+                </Botao>
+              )}
               <Botao
                 externo
+                variante={obras.length > 0 ? "linha" : "ouro"}
                 className="px-6 py-[15px]"
                 href={linkWhatsApp(
                   def.whatsapp,
-                  `Olá, queria saber mais sobre as obras de ${artista.nome}.`,
+                  t("whatsapp.artista", idioma, { artista: artista.nome }),
                 )}
               >
-                {idioma === "pt"
-                  ? "Obras disponíveis"
-                  : idioma === "en"
-                    ? "Available works"
-                    : "Obras disponibles"}
+                {t("acao.perguntar_whatsapp", idioma)}
               </Botao>
 
               {catalogo?.ficheiro && (
@@ -163,7 +168,7 @@ export default async function PaginaArtista({
 
       {/* Citação em bloco claro, alinhada à esquerda como no design. */}
       {texto(artista.citacao, idioma) && (
-        <Seccao claro semFio className="px-7 py-20 sm:px-10">
+        <Seccao claro semFio className="px-margem py-20">
           <blockquote className="titulo-med max-w-[34ch] d-citacao-med">
             {texto(artista.citacao, idioma)}
           </blockquote>
@@ -177,7 +182,7 @@ export default async function PaginaArtista({
 
       {/* Obras do artista. */}
       {obras.length > 0 && (
-        <Seccao className="px-7 py-20 sm:px-10">
+        <Seccao id="obras" className="px-margem py-20">
           <div className="mb-10 flex flex-wrap items-baseline justify-between gap-6">
             <h2 className="titulo d-apoio tracking-[-0.02em]">
               {t("nav.obras", idioma)}
@@ -205,7 +210,7 @@ export default async function PaginaArtista({
 
       {/* Exposições em que participou. */}
       {exposicoes.length > 0 && (
-        <Seccao semFio className="px-7 py-20 sm:px-10">
+        <Seccao semFio className="px-margem py-20">
           <h2 className="titulo mb-8 d-apoio tracking-[-0.02em]">
             {t("nav.exposicoes", idioma)}
           </h2>

@@ -31,18 +31,15 @@ export async function Pagina404({
   const mensagem =
     texto(txt["404.whatsapp"], idioma) || t("404.whatsapp", idioma);
 
-  const rotulos =
-    idioma === "en"
-      ? ["Back to home", "Current exhibition", "Ask on WhatsApp"]
-      : idioma === "es"
-        ? ["Volver al inicio", "Exposición en curso", "Preguntar por WhatsApp"]
-        : ["Voltar ao início", "Exposição em curso", "Perguntar por WhatsApp"];
+  const rotulos = [
+    t("404.inicio", idioma),
+    t("404.exposicao", idioma),
+    t("acao.perguntar_whatsapp", idioma),
+  ];
 
   return (
-    <div className="flex min-h-[80dvh] flex-col justify-center gap-8 px-7 pt-[140px] pb-16">
-      <span className="etiqueta text-claro-55">
-        Erro 404
-      </span>
+    <div className="flex min-h-[80dvh] flex-col justify-center gap-8 px-margem pt-[140px] pb-16">
+      <span className="etiqueta text-claro-55">{t("404.etiqueta", idioma)}</span>
 
       <h1 className="titulo max-w-[16ch] d-heroi">
         {titulo}

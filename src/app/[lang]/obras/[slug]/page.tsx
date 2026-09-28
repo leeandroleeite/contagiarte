@@ -8,6 +8,7 @@ import { CartaoObra } from "@/components/CartaoObra";
 import { Imagem } from "@/components/Imagem";
 import { Seccao } from "@/components/Seccao";
 import {
+  listarObras,
   obraPorSlug,
   obrasRelacionadas,
   obterDefinicoes,
@@ -58,11 +59,22 @@ export default async function PaginaObra({
   const obra = await obraPorSlug(slug);
   if (!obra) notFound();
 
-  const [def, txt, relacionadas] = await Promise.all([
+  const [def, txt, relacionadas, todas] = await Promise.all([
     obterDefinicoes(),
     obterTextos(),
     obrasRelacionadas(obra),
+    listarObras({}),
   ]);
+
+  // Anterior e seguinte na ordem da lista, em volta: a ficha deixava de
+  // ser um beco, e percorrer obras passa a ser como andar numa sala.
+  const posicao = todas.findIndex((o) => o.id === obra.id);
+  const vizinha = (passo: number) =>
+    todas.length > 1 && posicao >= 0
+      ? todas[(posicao + passo + todas.length) % todas.length]
+      : null;
+  const anterior = vizinha(-1);
+  const seguinte = vizinha(1);
 
   const T = (chave: string) => texto(txt[chave], idioma);
   const titulo = texto(obra.titulo, idioma) || t("obra.sem_titulo", idioma);
@@ -75,7 +87,10 @@ export default async function PaginaObra({
       ? t("estado.reservada", idioma)
       : texto(obra.preco, idioma) || t("obra.sob_consulta", idioma);
 
-  const mensagem = `Olá, tenho interesse na obra “${titulo}”${autor ? ` de ${autor}` : ""}. Podem dizer-me o preço?`;
+  const mensagem = t("whatsapp.obra", idioma, {
+    titulo,
+    autor: autor ? t("whatsapp.obra_autor", idioma, { autor }) : "",
+  });
 
   // Proporção real da obra, quando conhecida: uma peça alta não deve
   // ser mostrada dentro de um quadrado.
@@ -135,7 +150,7 @@ export default async function PaginaObra({
         ])}
       />
 
-      <Seccao semFio className="px-7 pt-[120px] pb-20 sm:px-10">
+      <Seccao semFio className="px-margem pt-[120px] pb-20">
         <div className="grid gap-14" style={colunas(340)}>
           {/* A obra inteira, sem cortes, sobre o fundo mais escuro. */}
           <ViewTransition
@@ -200,25 +215,17 @@ export default async function PaginaObra({
             {!vendida && (
               <div className="flex flex-col gap-3">
                 <Botao externo href={linkWhatsApp(def.whatsapp, mensagem)}>
-                  {idioma === "pt"
-                    ? "Pedir preço por WhatsApp"
-                    : idioma === "en"
-                      ? "Ask the price on WhatsApp"
-                      : "Pedir precio por WhatsApp"}
+                  {t("acao.preco_whatsapp", idioma)}
                 </Botao>
                 <Botao
                   variante="linha"
                   href={linkEmail(
                     def.email,
-                    `Interesse na obra: ${titulo}`,
+                    t("whatsapp.obra_assunto", idioma, { titulo }),
                     mensagem,
                   )}
                 >
-                  {idioma === "pt"
-                    ? "Pedir por email"
-                    : idioma === "en"
-                      ? "Ask by email"
-                      : "Pedir por email"}
+                  {t("acao.preco_email", idioma)}
                 </Botao>
                 <span className="meta text-center text-claro-55">
                   {T("obra.nota.servico")}
@@ -238,7 +245,7 @@ export default async function PaginaObra({
 
       {/* Imagens adicionais da obra. */}
       {obra.galeria.length > 0 && (
-        <Seccao className="px-7 sm:px-10">
+        <Seccao className="px-margem">
           <ul className="grid gap-6" style={colunas(280)}>
             {obra.galeria.map((g) => (
               <li key={g.mediaId}>
@@ -255,7 +262,7 @@ export default async function PaginaObra({
       )}
 
       {/* O que a galeria trata depois da compra. */}
-      <Seccao claro semFio className="px-7 py-[72px] sm:px-10">
+      <Seccao claro semFio className="px-margem py-[72px]">
         <div className="grid gap-8" style={colunas(280)}>
           {[1, 2, 3].map((n) => (
             <div key={n} className="flex flex-col gap-3">
@@ -271,7 +278,7 @@ export default async function PaginaObra({
       </Seccao>
 
       {/* Pedido escrito, para quem não usa WhatsApp. */}
-      <Seccao className="px-7 sm:px-10">
+      <Seccao className="px-margem">
         <div className="max-w-[680px]">
           <h2 className="titulo mb-6 d-apoio">
             {t("obra.interesse", idioma)}
@@ -287,7 +294,7 @@ export default async function PaginaObra({
 
       {/* Do mesmo artista, ou da mesma exposição quando não há mais. */}
       {relacionadas.lista.length > 0 && (
-        <Seccao semFio className="px-7 py-20 sm:px-10">
+        <Seccao semFio className="px-margem py-20">
           <h2 className="titulo mb-8 d-apoio tracking-[-0.02em]">
             {relacionadas.mesmoArtista
               ? t("obra.relacionadas_artista", idioma)
@@ -308,6 +315,42 @@ export default async function PaginaObra({
             ))}
           </ul>
         </Seccao>
+      )}
+
+      {anterior && seguinte && (
+        <nav
+          aria-label={t("nav.obras", idioma)}
+          className="grid grid-cols-[1fr_auto_1fr] items-center gap-6 border-t border-fio px-margem py-12"
+        >
+          <Link
+            href={caminho(idioma, `/obras/${anterior.slug}`)}
+            className="group flex flex-col gap-2 text-papel"
+          >
+            <span className="etiqueta text-claro-55">
+              ← {t("acao.anterior", idioma)}
+            </span>
+            <span className="d-linha titulo-med transition-colors group-hover:text-ouro">
+              {texto(anterior.titulo, idioma) || t("obra.sem_titulo", idioma)}
+            </span>
+          </Link>
+          <Link
+            href={caminho(idioma, "/obras")}
+            className="etiqueta inline-flex min-h-11 items-center"
+          >
+            {t("filtro.todas", idioma)}
+          </Link>
+          <Link
+            href={caminho(idioma, `/obras/${seguinte.slug}`)}
+            className="group flex flex-col items-end gap-2 text-right text-papel"
+          >
+            <span className="etiqueta text-claro-55">
+              {t("acao.seguinte", idioma)} →
+            </span>
+            <span className="d-linha titulo-med transition-colors group-hover:text-ouro">
+              {texto(seguinte.titulo, idioma) || t("obra.sem_titulo", idioma)}
+            </span>
+          </Link>
+        </nav>
       )}
     </>
   );

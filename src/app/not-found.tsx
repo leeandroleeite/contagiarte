@@ -5,7 +5,8 @@ import {
   DEFINICOES_OMISSAO,
   MENSAGEM_WHATSAPP_OMISSAO,
 } from "@/lib/db/omissoes";
-import { IDIOMA_BASE } from "@/lib/i18n/config";
+import { headers } from "next/headers";
+import { CABECALHO_IDIOMA, eIdioma, IDIOMA_BASE } from "@/lib/i18n/config";
 
 /**
  * Endereços que não correspondem a rota nenhuma caem aqui, fora do
@@ -25,17 +26,19 @@ import { IDIOMA_BASE } from "@/lib/i18n/config";
  */
 export const dynamic = "force-dynamic";
 
-export default function NaoEncontradoRaiz() {
+export default async function NaoEncontradoRaiz() {
   const def = DEFINICOES_OMISSAO;
+  const pedido = (await headers()).get(CABECALHO_IDIOMA) ?? "";
+  const idioma = eIdioma(pedido) ? pedido : IDIOMA_BASE;
 
   return (
     <div className="min-h-dvh bg-tinta text-papel">
-      <Cabecalho idioma={IDIOMA_BASE} />
+      <Cabecalho idioma={idioma} />
       <main id="conteudo">
-        <Pagina404 semBase />
+        <Pagina404 idioma={idioma} semBase />
       </main>
       <Rodape
-        idioma={IDIOMA_BASE}
+        idioma={idioma}
         definicoes={def}
         mensagemWhatsApp={MENSAGEM_WHATSAPP_OMISSAO}
       />

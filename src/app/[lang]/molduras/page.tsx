@@ -84,7 +84,7 @@ export default async function PaginaMolduras({
         </div>
       </Seccao>
 
-      <Seccao claro className="px-7 py-[120px]">
+      <Seccao claro className="px-margem py-[120px]">
         <div className="grid gap-12" style={colunas(220)}>
           {passos.map(({ numero, titulo, descricao }) => (
             <div

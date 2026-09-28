@@ -302,6 +302,12 @@
   }
 }
 
+/* Com o menu compacto aberto, o botão flutuante sai: ficava por cima
+   das últimas entradas do menu. */
+[data-menu-aberto] .botao-whatsapp {
+  display: none;
+}
+
 /* A cortina já vista nesta sessão não chega a ser pintada. */
 [data-cortina-vista] [data-cortina] {
   display: none;
@@ -699,8 +705,17 @@
     display: block;
   }
 
+  /* No modo palco a lista sai de vista, mas não da árvore de
+     acessibilidade: o palco é aria-hidden, e com display:none quem usa
+     leitor de ecrã recebia uma página sem nenhuma sala. */
   .percurso[data-modo="palco"] .percurso-lista {
-    display: none;
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    margin: -1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
   }
 }
 

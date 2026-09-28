@@ -2,6 +2,7 @@
 
 import { useActionState, useState } from "react";
 import { enviarPedido, type Resultado } from "@/app/accoes";
+import { cx } from "@/lib/utils";
 import { t } from "@/lib/i18n";
 import type { Idioma } from "@/lib/i18n/config";
 
@@ -53,6 +54,8 @@ export function FormularioPedido({
   const mudar = (chave: keyof Campos) => (valor: string) =>
     setCampos((c) => ({ ...c, [chave]: valor }));
 
+  const erro = estado !== null && !estado.ok;
+
   if (estado?.ok) {
     return (
       <p
@@ -90,6 +93,7 @@ export function FormularioPedido({
           rotulo={t("campo.nome", idioma)}
           autoComplete="name"
           obrigatorio
+          erro={erro ? `pedido-erro-${tipo}` : undefined}
           valor={campos.nome}
           aoMudar={mudar("nome")}
         />
@@ -99,6 +103,7 @@ export function FormularioPedido({
           rotulo={t("campo.contacto", idioma)}
           autoComplete="email"
           obrigatorio
+          erro={erro ? `pedido-erro-${tipo}` : undefined}
           valor={campos.contacto}
           aoMudar={mudar("contacto")}
         />
@@ -140,15 +145,21 @@ export function FormularioPedido({
           : (rotuloBotao ?? t("acao.enviar", idioma))}
       </button>
 
-      <span
+      {/* O erro tem a sua própria linha e a sua cor. Antes substituía a
+          nota legal no mesmo sítio e com o mesmo cinzento, e quem falhava
+          um pedido de obra não dava por isso. */}
+      <p
+        id={`pedido-erro-${tipo}`}
         role="status"
         aria-live="polite"
-        className="meta text-claro-55"
+        className={cx(
+          "meta",
+          erro ? "border-l-2 border-erro-claro pl-3 text-erro-claro" : "so-leitor",
+        )}
       >
-        {estado && !estado.ok
-          ? t(estado.mensagem, idioma)
-          : t("campo.rgpd", idioma)}
-      </span>
+        {erro ? t(estado.mensagem, idioma) : ""}
+      </p>
+      <span className="meta text-claro-55">{t("campo.rgpd", idioma)}</span>
     </form>
   );
 }
@@ -159,6 +170,7 @@ function Campo({
   rotulo,
   autoComplete,
   obrigatorio = false,
+  erro,
   valor,
   aoMudar,
 }: {
@@ -167,6 +179,8 @@ function Campo({
   rotulo: string;
   autoComplete?: string;
   obrigatorio?: boolean;
+  /** O id da mensagem de erro, quando o último envio falhou. */
+  erro?: string;
   valor: string;
   aoMudar: (valor: string) => void;
 }) {
@@ -185,7 +199,9 @@ function Campo({
         placeholder={rotulo}
         value={valor}
         onChange={(e) => aoMudar(e.target.value)}
-        className="campo"
+        aria-invalid={erro ? true : undefined}
+        aria-describedby={erro}
+        className="campo aria-invalid:border-erro-claro"
       />
     </div>
   );

@@ -3,6 +3,9 @@
 import { useEffect, useRef } from "react";
 
 const CHAVE = "contagiarte-cortina";
+const PALAVRA = "CONTAGIARTE";
+/** Quanto tempo a palavra fica à vista antes de o pano subir. */
+const SUBIDA_MS = 1100;
 
 /**
  * Decisão tomada uma única vez por carregamento de página.
@@ -34,17 +37,21 @@ function deveMostrar(): boolean {
 }
 
 /**
- * Cortina de abertura da homepage. Fica parada 0.9s com a palavra
- * CONTAGIARTE a pulsar e sobe em 1.1s, com origem no topo.
+ * Cortina de abertura da página inicial, uma vez por sessão.
  *
- * A cortina vem no HTML servido, para estar lá no primeiro pixel
- * pintado. Depois de subir fica escondida por `display:none`.
+ * As letras de CONTAGIARTE chegam uma a uma, e ao fim de 1,1s o pano
+ * sobe por máscara, sem esmagar a palavra como fazia o scaleY. Quem
+ * não quer esperar não espera: qualquer tecla, clique, toque ou scroll
+ * levanta-a logo. Antes, o Tab andava por baixo dela sem se ver.
+ *
+ * A cortina vem no HTML servido, para estar lá no primeiro pixel. Quem
+ * já a viu nesta sessão não a chega a ver pintada: o ScriptInicial põe
+ * a marca no `<html>` antes da primeira pintura.
  *
  * IMPORTANTE: nunca tirar este elemento do DOM com `remove()`. É um nó
  * que o React desenhou; se o arrancarmos por baixo dele, a próxima
  * reconciliação rebenta com `removeChild` e leva atrás a árvore toda
- * do lado do cliente. Na prática, os links deixam de navegar. Só se
- * mexe no estilo, que o React não disputa.
+ * do lado do cliente. Só se mexe no estilo, que o React não disputa.
  */
 export function Cortina() {
   const elemento = useRef<HTMLDivElement>(null);
@@ -58,13 +65,30 @@ export function Cortina() {
       return;
     }
 
-    // 0.9s de espera mais 1.1s a subir. Depois sai da frente, mas
-    // continua a pertencer ao React.
-    const fim = window.setTimeout(() => {
+    const esconder = () => {
       if (elemento.current) elemento.current.style.display = "none";
-    }, 2200);
+    };
+    // A subida vem no CSS servido, e por isso acontece mesmo sem
+    // JavaScript; aqui só se tira o elemento do caminho no fim.
+    let fim = window.setTimeout(esconder, SUBIDA_MS + 1200);
 
-    return () => window.clearTimeout(fim);
+    const pressa = () => {
+      window.clearTimeout(fim);
+      no.style.animation = "cortina var(--duracao-rapida) var(--ease-sair) forwards";
+      fim = window.setTimeout(esconder, 400);
+      tirarOuvintes();
+    };
+    const eventos = ["keydown", "pointerdown", "wheel", "touchstart"] as const;
+    const tirarOuvintes = () =>
+      eventos.forEach((e) => window.removeEventListener(e, pressa));
+    eventos.forEach((e) =>
+      window.addEventListener(e, pressa, { passive: true, once: true }),
+    );
+
+    return () => {
+      window.clearTimeout(fim);
+      tirarOuvintes();
+    };
   }, []);
 
   return (
@@ -74,15 +98,21 @@ export function Cortina() {
       data-cortina=""
       className="pointer-events-none fixed inset-0 z-[200] flex items-center justify-center bg-tinta"
       style={{
-        transformOrigin: "top",
-        animation: "cortina 1.1s cubic-bezier(.76,0,.24,1) 0.9s forwards",
+        animation: `cortina var(--duracao-cena) var(--ease-cortina) ${SUBIDA_MS}ms forwards`,
       }}
     >
-      <span
-        className="titulo text-[clamp(18px,2.4vw,32px)] tracking-[0.5em] text-claro-80"
-        style={{ animation: "pisca 1.6s ease-in-out infinite" }}
-      >
-        CONTAGIARTE
+      <span className="titulo flex text-[clamp(18px,2.4vw,32px)] tracking-[0.5em] text-claro-80">
+        {PALAVRA.split("").map((letra, i) => (
+          <span
+            key={i}
+            className="inline-block"
+            style={{
+              animation: `letra var(--duracao-media) var(--ease-chegar) ${120 + i * 45}ms both`,
+            }}
+          >
+            {letra}
+          </span>
+        ))}
       </span>
     </div>
   );

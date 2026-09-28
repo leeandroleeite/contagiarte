@@ -25,6 +25,7 @@ export function Faixa({ palavras }: { palavras: string[] }) {
     >
       <div
         className="flex flex-none"
+        data-faixa=""
         style={{ animation: "desliza 38s linear infinite", willChange: "transform" }}
       >
         {conteudo}

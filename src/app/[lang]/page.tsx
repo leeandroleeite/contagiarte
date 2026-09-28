@@ -1,3 +1,4 @@
+import { Fragment } from "react";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { Botao } from "@/components/Botao";
@@ -153,7 +154,20 @@ export default async function Homepage({
             className="titulo d-heroi pointer-events-none text-papel"
             style={{ mixBlendMode: "difference" }}
           >
-            {T("home.hero.titulo", "FOR THE NEXT GENERATION OF ART LOVERS")}
+            {/* Palavra a palavra, cada uma a subir de dentro da sua
+                linha quando o pano da cortina passa. */}
+            {T("home.hero.titulo", "FOR THE NEXT GENERATION OF ART LOVERS")
+              .split(/\s+/)
+              .filter(Boolean)
+              .map((palavra, i) => (
+                <Fragment key={i}>
+                  <span className="heroi-palavra">
+                    <span style={{ "--i": i } as React.CSSProperties}>
+                      {palavra}
+                    </span>
+                  </span>{" "}
+                </Fragment>
+              ))}
           </h1>
 
           <div className="flex flex-wrap items-center gap-5">

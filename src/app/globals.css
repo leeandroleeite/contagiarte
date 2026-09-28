@@ -156,19 +156,28 @@
   }
 }
 
+/* A cortina sobe como um pano: por máscara, sem deformar a palavra. */
 @keyframes cortina {
   from {
-    transform: scaleY(1);
+    clip-path: inset(0 0 0 0);
   }
   to {
-    transform: scaleY(0);
+    clip-path: inset(0 0 100% 0);
+  }
+}
+
+/* Cada letra da palavra da cortina chega de baixo, uma a uma. */
+@keyframes letra {
+  from {
+    opacity: 0;
+    transform: translateY(0.6em);
   }
 }
 
 @keyframes surge {
   from {
     opacity: 0;
-    transform: translateY(40px);
+    transform: translateY(16px);
   }
   to {
     opacity: 1;
@@ -176,35 +185,62 @@
   }
 }
 
-@keyframes pisca {
-  0%,
-  100% {
-    opacity: 0.25;
-  }
-  50% {
-    opacity: 1;
-  }
-}
-
-/* Entrada em scroll. O elemento nasce escondido e o
-   IntersectionObserver troca data-surge para "visivel".
-   Sem JS ou depois do timeout de segurança, fica visível. */
-[data-surge] {
+/* Entrada em scroll. Só se esconde com html.js, que o ScriptInicial
+   põe antes da primeira pintura: sem JavaScript, ou se o código do
+   site falhar, fica tudo visível. O Movimento põe --i nos elementos
+   que entram juntos, para uma grelha se pendurar peça a peça e não de
+   uma vez; a partir do sétimo entram todos ao mesmo tempo. */
+.js [data-surge] {
   opacity: 0;
 }
 
-[data-surge="visivel"] {
-  animation: surge 0.9s cubic-bezier(0.2, 0.7, 0.2, 1) forwards;
+.js [data-surge="visivel"] {
+  animation: surge var(--duracao-revelar) var(--ease-chegar) forwards;
+  animation-delay: calc(var(--i, 0) * 60ms);
 }
 
-/* Revelação das imagens por clip-path, de cima para baixo. */
-[data-revelar] {
+/* Revelação das imagens: uma máscara abre de cima para baixo e a
+   fotografia assenta lá dentro, de 112% para o tamanho certo. É a
+   diferença entre uma imagem que aparece e uma que chega. */
+.js [data-revelar] {
   clip-path: inset(0 0 100% 0);
-  transition: clip-path 1.15s cubic-bezier(0.76, 0, 0.24, 1);
+  transition: clip-path var(--duracao-cena) var(--ease-cortina);
+  transition-delay: calc(var(--i, 0) * 60ms);
 }
 
-[data-revelar="visivel"] {
+.js [data-revelar] img {
+  transform: scale(1.12);
+  transition: transform calc(var(--duracao-cena) + 300ms) var(--ease-chegar);
+  transition-delay: calc(var(--i, 0) * 60ms);
+}
+
+.js [data-revelar="visivel"] {
   clip-path: inset(0 0 0 0);
+}
+
+.js [data-revelar="visivel"] img {
+  transform: none;
+}
+
+/* Títulos que respiram: entram estreitos no eixo de largura da
+   Bricolage e abrem até à largura toda enquanto sobem no ecrã. Só onde
+   o browser liga a animação ao scroll; nos outros ficam abertos. */
+@supports (animation-timeline: view()) {
+  .d-pagina,
+  .d-seccao {
+    animation: respira linear both;
+    animation-timeline: view();
+    animation-range: entry 10% cover 35%;
+  }
+}
+
+@keyframes respira {
+  from {
+    font-stretch: 78%;
+  }
+  to {
+    font-stretch: 100%;
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -216,16 +252,108 @@
     transition-duration: 0.001ms !important;
   }
 
-  [data-surge],
-  [data-surge="visivel"] {
+  .js [data-surge],
+  .js [data-surge="visivel"] {
     opacity: 1;
     animation: none;
   }
 
-  [data-revelar],
-  [data-revelar="visivel"] {
+  .js [data-revelar],
+  .js [data-revelar="visivel"] {
     clip-path: none;
     transition: none;
+  }
+
+  .js [data-revelar] img {
+    transform: none;
+  }
+
+  .d-pagina,
+  .d-seccao {
+    animation: none;
+  }
+}
+
+/* O título da entrada chega palavra a palavra, cada uma a subir de
+   dentro da sua linha. Na primeira visita espera pela cortina; nas
+   seguintes começa logo. */
+.heroi-palavra {
+  display: inline-block;
+  overflow: hidden;
+  /* Folga para os acentos das maiúsculas não ficarem cortados. */
+  padding-top: 0.12em;
+  margin-top: -0.12em;
+  vertical-align: top;
+}
+
+.heroi-palavra > span {
+  display: inline-block;
+  animation: subir-palavra var(--duracao-cena) var(--ease-cortina) both;
+  animation-delay: calc(1700ms + var(--i, 0) * 80ms);
+}
+
+[data-cortina-vista] .heroi-palavra > span {
+  animation-delay: calc(150ms + var(--i, 0) * 80ms);
+}
+
+@keyframes subir-palavra {
+  from {
+    transform: translateY(105%);
+  }
+}
+
+/* A cortina já vista nesta sessão não chega a ser pintada. */
+[data-cortina-vista] [data-cortina] {
+  display: none;
+}
+
+/* O cursor da galeria. Um ponto de ouro que, por cima de uma obra,
+   abre numa etiqueta com o que se pode fazer. Só em ponteiros finos. */
+@layer components {
+  .cursor {
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: 150;
+    pointer-events: none;
+    will-change: transform;
+  }
+
+  .cursor-corpo {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 76px;
+    height: 76px;
+    margin: -38px 0 0 -38px;
+    border-radius: 50%;
+    background: var(--color-ouro);
+    color: var(--color-tinta);
+    transform: scale(0.18);
+    transition: transform var(--duracao-rapida) var(--ease-chegar);
+  }
+
+  .cursor[data-estado="link"] .cursor-corpo {
+    transform: scale(0.5);
+    background: transparent;
+    outline: 1px solid var(--color-ouro);
+  }
+
+  .cursor[data-estado="rotulo"] .cursor-corpo {
+    transform: scale(1);
+  }
+
+  .cursor-rotulo {
+    font-size: 11px;
+    font-weight: 500;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    opacity: 0;
+    transition: opacity var(--duracao-micro);
+  }
+
+  .cursor[data-estado="rotulo"] .cursor-rotulo {
+    opacity: 1;
   }
 }
 

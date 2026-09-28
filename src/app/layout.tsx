@@ -9,6 +9,7 @@ import {
 } from "@/lib/i18n/config";
 import "./globals.css";
 import { FICHAS } from "@/lib/fichas";
+import { ScriptInicial } from "@/components/ScriptInicial";
 
 const titulo = Bricolage_Grotesque({
   subsets: ["latin"],
@@ -72,7 +73,13 @@ export default async function RootLayout({
       // O Next desliga o scroll suave durante a mudança de página. Sem
       // isto, abrir uma obra mostrava o rodapé a passar até ao topo.
       data-scroll-behavior="smooth"
+      // O ScriptInicial acrescenta "js" e a marca da cortina antes de o
+      // React chegar; são diferenças esperadas, não um erro.
+      suppressHydrationWarning
     >
+      <head>
+        <ScriptInicial />
+      </head>
       <body>{children}</body>
     </html>
   );

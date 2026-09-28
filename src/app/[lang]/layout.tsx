@@ -33,7 +33,7 @@ export default async function LayoutSite({
       <div
         id="barra-progresso"
         aria-hidden="true"
-        className="fixed top-0 left-0 z-[130] h-[2px] w-0 bg-ouro"
+        className="fixed top-0 left-0 z-[130] h-[2px] w-full origin-left scale-x-0 bg-ouro"
       />
 
       <Cabecalho idioma={idioma} />

@@ -32,6 +32,7 @@ export function CartaoObra({
   numero,
   largura,
   sizes = "(max-width: 900px) 78vw, 440px",
+  voa = true,
 }: {
   obra: ObraCartao;
   idioma: Idioma;
@@ -42,6 +43,12 @@ export function CartaoObra({
   /** Largura fixa, para o carrossel. Sem isto ocupa a célula da grelha. */
   largura?: string;
   sizes?: string;
+  /**
+   * Se a obra voa deste cartão para a ficha. Desligar onde a ficha de
+   * outra obra está aberta: as relacionadas de uma ficha também existem
+   * na lista, e voavam todas de uma página para a outra.
+   */
+  voa?: boolean;
 }) {
   const titulo = texto(obra.titulo, idioma) || t("obra.sem_titulo", idioma);
   const preco =
@@ -79,7 +86,7 @@ export function CartaoObra({
         alt={t("obra.alt", idioma, { titulo, autor })}
         legenda={titulo}
         sizes={sizes}
-        transicao={`obra-${obra.slug}`}
+        transicao={voa ? `obra-${obra.slug}` : undefined}
       />
       <div className="flex items-baseline justify-between gap-4">
         <span

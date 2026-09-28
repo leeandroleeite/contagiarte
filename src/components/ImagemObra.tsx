@@ -1,3 +1,4 @@
+import { ViewTransition } from "react";
 import { Imagem, type MediaLeve } from "@/components/Imagem";
 import { cx } from "@/lib/utils";
 
@@ -34,13 +35,10 @@ export function ImagemObra({
   transicao?: string;
   className?: string;
 }) {
-  return (
+  const moldura = (
     <div
       className={cx("obra-moldura", className)}
-      style={{
-        aspectRatio: proporcao,
-        viewTransitionName: transicao,
-      }}
+      style={{ aspectRatio: proporcao }}
     >
       <div className="obra-moldura-interior">
         <Imagem
@@ -55,5 +53,12 @@ export function ImagemObra({
         />
       </div>
     </div>
+  );
+
+  if (!transicao) return moldura;
+  return (
+    <ViewTransition name={transicao} share="obra-voo" default="none">
+      {moldura}
+    </ViewTransition>
   );
 }

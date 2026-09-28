@@ -1,4 +1,5 @@
 import { notFound } from "next/navigation";
+import { ViewTransition } from "react";
 import { Cabecalho } from "@/components/Cabecalho";
 import { BotaoWhatsApp } from "@/components/BotaoWhatsApp";
 import { Movimento } from "@/components/Movimento";
@@ -37,7 +38,12 @@ export default async function LayoutSite({
 
       <Cabecalho idioma={idioma} />
 
-      <main id="conteudo">{children}</main>
+      {/* A passagem entre páginas: o conteúdo antigo sai depressa e o novo
+          chega a subir. O cabeçalho e o botão flutuante ficam parados,
+          para haver um ponto fixo enquanto o resto muda. */}
+      <ViewTransition default="none" update="pagina">
+        <main id="conteudo">{children}</main>
+      </ViewTransition>
 
       <Rodape
         idioma={idioma}

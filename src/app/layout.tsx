@@ -69,6 +69,9 @@ export default async function RootLayout({
     <html
       lang={HREFLANG[idioma]}
       className={`${titulo.variable} ${texto.variable}`}
+      // O Next desliga o scroll suave durante a mudança de página. Sem
+      // isto, abrir uma obra mostrava o rodapé a passar até ao topo.
+      data-scroll-behavior="smooth"
     >
       <body>{children}</body>
     </html>

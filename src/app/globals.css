@@ -264,6 +264,10 @@
   line-height: 0.88;
   margin: 0;
   overflow-wrap: break-word;
+  /* Em corpo grande uma palavra longa não cabe numa coluna: melhor
+     "Reminis-cência", com hífen, do que "Reminiscênci" e um "a" solto. */
+  hyphens: auto;
+  text-wrap: balance;
 }
 
 /* Títulos secundários e nomes de cartão: menos esticados. */
@@ -716,32 +720,56 @@
 /* --------------------------------------------------------------------
    Passagem entre páginas
 
-   Num sítio de galeria anda-se de uma obra para a seguinte, e o corte
-   seco interrompe a leitura. Um dissolver curto chega: a intenção é
-   ligar as duas páginas, não fazer número.
+   Feita pelo <ViewTransition> do React, que o App Router usa em cada
+   navegação. Três peças:
+   - a obra voa do cartão para a ficha (e volta), com um desfoque breve
+     a meio para esconder a interpolação;
+   - o resto do conteúdo sai depressa e o novo chega a subir 12px;
+   - o cabeçalho, a barra e o WhatsApp não entram: ficam parados.
    -------------------------------------------------------------------- */
 
-@view-transition {
-  navigation: auto;
+::view-transition {
+  pointer-events: none;
 }
 
-::view-transition-old(root) {
-  animation: sair 180ms ease both;
-}
-
+::view-transition-old(root),
 ::view-transition-new(root) {
-  animation: entrar 260ms ease both;
+  animation: none;
 }
 
-@keyframes sair {
+::view-transition-group(.obra-voo) {
+  animation-duration: var(--duracao-revelar);
+  animation-timing-function: var(--ease-cortina);
+}
+
+::view-transition-image-pair(.obra-voo) {
+  animation: var(--duracao-revelar) var(--ease-cortina) both via-desfoque;
+}
+
+::view-transition-old(.pagina) {
+  animation: var(--duracao-rapida) var(--ease-sair) both desvanecer;
+}
+
+::view-transition-new(.pagina) {
+  animation: var(--duracao-media) var(--ease-chegar) 120ms both surgir-pagina;
+}
+
+@keyframes via-desfoque {
+  40% {
+    filter: blur(4px);
+  }
+}
+
+@keyframes desvanecer {
   to {
     opacity: 0;
   }
 }
 
-@keyframes entrar {
+@keyframes surgir-pagina {
   from {
     opacity: 0;
+    transform: translateY(12px);
   }
 }
 
@@ -750,8 +778,11 @@
     scroll-behavior: auto;
   }
 
-  ::view-transition-old(root),
-  ::view-transition-new(root) {
-    animation: none;
+  ::view-transition-old(*),
+  ::view-transition-new(*),
+  ::view-transition-group(*),
+  ::view-transition-image-pair(*) {
+    animation-duration: 0s !important;
+    animation-delay: 0s !important;
   }
 }

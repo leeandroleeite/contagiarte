@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { ViewTransition } from "react";
 import { notFound } from "next/navigation";
 import { Botao } from "@/components/Botao";
 import { FormularioPedido } from "@/components/FormularioPedido";
@@ -137,17 +138,28 @@ export default async function PaginaObra({
       <Seccao semFio className="px-7 pt-[120px] pb-20 sm:px-10">
         <div className="grid gap-14" style={colunas(340)}>
           {/* A obra inteira, sem cortes, sobre o fundo mais escuro. */}
-          <div className="bg-tinta-obra">
-            <Imagem
-              media={obra.fotografia}
-              alt={`${titulo}${autor ? `, de ${autor}` : ""}`}
-              proporcao={proporcao}
-              ajuste="contain"
-              legenda={`${titulo}, alta resolução`}
-              prioridade
-              sizes="(max-width: 900px) 100vw, 50vw"
-            />
-          </div>
+          <ViewTransition
+            name={`obra-${slug}`}
+            share="obra-voo"
+            default="none"
+          >
+            <div className="bg-tinta-obra">
+              <Imagem
+                media={obra.fotografia}
+                alt={
+                  autor
+                    ? t("obra.alt", idioma, { titulo, autor })
+                    : titulo
+                }
+                proporcao={proporcao}
+                ajuste="contain"
+                legenda={`${titulo}, alta resolução`}
+                prioridade
+                revelar={false}
+                sizes="(max-width: 900px) 100vw, 50vw"
+              />
+            </div>
+          </ViewTransition>
 
           <div className="flex flex-col gap-6 self-center">
             {autor && (
@@ -290,6 +302,7 @@ export default async function PaginaObra({
                   tamanho="compacto"
                   meta={["ano"]}
                   sizes="(max-width: 700px) 50vw, 22vw"
+                  voa={false}
                 />
               </li>
             ))}

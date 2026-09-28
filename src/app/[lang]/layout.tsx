@@ -3,6 +3,7 @@ import { ViewTransition } from "react";
 import { Cabecalho } from "@/components/Cabecalho";
 import { BotaoWhatsApp } from "@/components/BotaoWhatsApp";
 import { Movimento } from "@/components/Movimento";
+import { Segredos } from "@/components/Segredos";
 import { Rodape } from "@/components/Rodape";
 import { obterDefinicoes, obterTextos } from "@/lib/dados";
 import { eIdioma, HREFLANG, IDIOMAS, type Idioma } from "@/lib/i18n/config";
@@ -58,6 +59,7 @@ export default async function LayoutSite({
       />
 
       <Movimento />
+      <Segredos idioma={idioma} />
     </div>
   );
 }

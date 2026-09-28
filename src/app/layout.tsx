@@ -77,10 +77,10 @@ export default async function RootLayout({
       // React chegar; são diferenças esperadas, não um erro.
       suppressHydrationWarning
     >
-      <head>
+      <body>
         <ScriptInicial />
-      </head>
-      <body>{children}</body>
+        {children}
+      </body>
     </html>
   );
 }

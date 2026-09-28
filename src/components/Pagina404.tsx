@@ -1,5 +1,11 @@
 import { Botao } from "@/components/Botao";
-import { obterDefinicoes, obterTextos, type MapaTextos } from "@/lib/dados";
+import { Prego, type ObraPrego } from "@/components/Prego";
+import {
+  listarObras,
+  obterDefinicoes,
+  obterTextos,
+  type MapaTextos,
+} from "@/lib/dados";
 import { DEFINICOES_OMISSAO } from "@/lib/db/omissoes";
 import { t, texto } from "@/lib/i18n";
 import { caminho, IDIOMA_BASE, type Idioma } from "@/lib/i18n/config";
@@ -22,9 +28,22 @@ export async function Pagina404({
   idioma?: Idioma;
   semBase?: boolean;
 }) {
-  const [txt, def]: [MapaTextos, typeof DEFINICOES_OMISSAO] = semBase
-    ? [{}, DEFINICOES_OMISSAO]
-    : await Promise.all([obterTextos(), obterDefinicoes()]);
+  const [txt, def, disponiveis]: [
+    MapaTextos,
+    typeof DEFINICOES_OMISSAO,
+    Awaited<ReturnType<typeof listarObras>>,
+  ] = semBase
+    ? [{}, DEFINICOES_OMISSAO, []]
+    : await Promise.all([
+        obterTextos(),
+        obterDefinicoes(),
+        listarObras({ soDisponiveis: true, comFotografia: true }),
+      ]);
+  const paraOPrego: ObraPrego[] = disponiveis.map((o) => ({
+    slug: o.slug,
+    titulo: texto(o.titulo, idioma) || t("obra.sem_titulo", idioma),
+    fotografia: o.fotografia,
+  }));
 
   const titulo = texto(txt["404.titulo"], idioma) || t("404.titulo", idioma);
   const corpo = texto(txt["404.texto"], idioma) || t("404.texto", idioma);
@@ -38,30 +57,32 @@ export async function Pagina404({
   ];
 
   return (
-    <div className="flex min-h-[80dvh] flex-col justify-center gap-8 px-margem pt-[140px] pb-16">
-      <span className="etiqueta text-claro-55">{t("404.etiqueta", idioma)}</span>
+    <div className="grid min-h-[80dvh] items-center gap-12 px-margem pt-[140px] pb-16 md:grid-cols-[1fr_auto]">
+      <div className="flex flex-col gap-8">
+        <span className="etiqueta text-claro-55">
+          {t("404.etiqueta", idioma)}
+        </span>
 
-      <h1 className="titulo max-w-[16ch] d-heroi">
-        {titulo}
-      </h1>
+        <h1 className="titulo max-w-[16ch] d-heroi">{titulo}</h1>
 
-      <p className="lead max-w-[46ch] text-claro-80">
-        {corpo}
-      </p>
+        <p className="lead max-w-[46ch] text-claro-80">{corpo}</p>
 
-      <div className="flex flex-wrap gap-3.5">
-        <Botao href={caminho(idioma, "/")}>{rotulos[0]}</Botao>
-        <Botao variante="linha" href={caminho(idioma, "/exposicoes")}>
-          {rotulos[1]}
-        </Botao>
-        <Botao
-          variante="linha"
-          externo
-          href={linkWhatsApp(def.whatsapp, mensagem)}
-        >
-          {rotulos[2]}
-        </Botao>
+        <div className="flex flex-wrap gap-3.5">
+          <Botao href={caminho(idioma, "/")}>{rotulos[0]}</Botao>
+          <Botao variante="linha" href={caminho(idioma, "/exposicoes")}>
+            {rotulos[1]}
+          </Botao>
+          <Botao
+            variante="linha"
+            externo
+            href={linkWhatsApp(def.whatsapp, mensagem)}
+          >
+            {rotulos[2]}
+          </Botao>
+        </div>
       </div>
+
+      <Prego obras={paraOPrego} idioma={idioma} />
     </div>
   );
 }

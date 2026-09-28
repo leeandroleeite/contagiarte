@@ -499,6 +499,28 @@ export const DICIONARIO = {
     es: "Esta sí está.",
   },
 
+  // Segredos: para quem repara ---------------------------------------
+  "segredo.consola": {
+    pt: "Olá, curioso. Quem abre a consola também vira os quadros para ler o verso.\nSe quer ver o resto do ateliê, escreva-nos: galeria@contagiarte.pt",
+    en: "Hello, curious one. People who open the console also turn paintings round to read the back.\nIf you want to see the rest of the studio, write to us: galeria@contagiarte.pt",
+    es: "Hola, curioso. Quien abre la consola también da la vuelta a los cuadros para leer el reverso.\nSi quiere ver el resto del taller, escríbanos: galeria@contagiarte.pt",
+  },
+  "segredo.separador": {
+    pt: "A obra fica à sua espera · Contagiarte",
+    en: "The work will wait for you · Contagiarte",
+    es: "La obra le espera · Contagiarte",
+  },
+  "segredo.torto": {
+    pt: "Alguém mexeu nos quadros.",
+    en: "Someone touched the pictures.",
+    es: "Alguien ha tocado los cuadros.",
+  },
+  "segredo.direito": {
+    pt: "Tudo a direito.",
+    en: "All straight again.",
+    es: "Todo derecho.",
+  },
+
   // Erro ------------------------------------------------------------
   "erro.etiqueta": { pt: "Erro", en: "Error", es: "Error" },
   "erro.titulo": {

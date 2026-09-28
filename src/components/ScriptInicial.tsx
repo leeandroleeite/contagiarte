@@ -1,4 +1,5 @@
 import { headers } from "next/headers";
+import Script from "next/script";
 import { CABECALHO_NONCE } from "@/lib/politica-seguranca";
 
 /**
@@ -22,5 +23,15 @@ export async function ScriptInicial() {
 
   const codigo = `(function(){var h=document.documentElement;h.classList.add("js");try{if(sessionStorage.getItem("contagiarte-cortina")==="1")h.setAttribute("data-cortina-vista","")}catch(e){}setTimeout(function(){if(!window.__movimento)h.classList.remove("js")},6000)})();`;
 
-  return <script nonce={nonce} dangerouslySetInnerHTML={{ __html: codigo }} />;
+  // Pelo next/script e não por um <script> escrito à mão: o React
+  // avisa (e não corre) scripts que desenha do lado do cliente, o que
+  // acontece quando uma página de erro é desenhada no browser.
+  return (
+    <Script
+      id="script-inicial"
+      nonce={nonce}
+      strategy="beforeInteractive"
+      dangerouslySetInnerHTML={{ __html: codigo }}
+    />
+  );
 }

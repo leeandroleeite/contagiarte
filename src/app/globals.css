@@ -308,6 +308,59 @@
   display: none;
 }
 
+/* O nível de bolha do segredo Konami: um fio de ouro com a bolha ao
+   meio, que atravessa o ecrã e endireita as obras. */
+.segredo-nivel {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 140;
+  height: 1px;
+  background: var(--color-ouro);
+  pointer-events: none;
+}
+
+.segredo-nivel::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: -4px;
+  width: 36px;
+  height: 9px;
+  margin-left: -18px;
+  border: 1px solid var(--color-ouro);
+  background: var(--color-tinta);
+}
+
+/* A obra pendurada no prego do 404 balança até assentar. */
+.prego-obra {
+  transform-origin: 50% -18px;
+  animation: balancar 1.8s var(--ease-chegar) both;
+}
+
+@keyframes balancar {
+  0% {
+    rotate: -9deg;
+    opacity: 0;
+  }
+  15% {
+    opacity: 1;
+  }
+  35% {
+    rotate: 6deg;
+  }
+  60% {
+    rotate: -3deg;
+  }
+  80% {
+    rotate: 1deg;
+  }
+  100% {
+    rotate: 0deg;
+  }
+}
+
 /* A cortina já vista nesta sessão não chega a ser pintada. */
 [data-cortina-vista] [data-cortina] {
   display: none;

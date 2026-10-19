@@ -414,6 +414,57 @@ Os ficheiros em si (fotografias, PDFs) vivem no R2, que tem a sua
 própria durabilidade. Active versionamento no bucket se quiser
 protecção contra apagar por engano.
 
+## Refrescar a staging com o conteúdo de produção
+
+A staging e a produção correm o mesmo código mas têm cada uma a sua
+base e o seu bucket, e nada as sincroniza. O que a galeria muda no
+backoffice de produção não aparece na staging, e a staging vai ficando
+com o conteúdo do dia em que foi montada. Para a pôr igual:
+
+```bash
+npm run staging:refrescar -- --ensaio   # confere tudo, não muda nada
+npm run staging:refrescar
+```
+
+O `scripts/refrescar-staging.mjs` corre dentro da máquina da staging:
+
+1. restaura o último backup Litestream de produção para um ficheiro à
+   parte, sem tocar em nenhuma das duas bases;
+2. tira-lhe os pedidos e os anexos, os subscritores e o registo, e
+   troca os utilizadores de produção pelos da staging: os acessos à
+   staging não mudam, e nem os dados de quem escreveu à galeria nem os
+   hashes de produção chegam cá;
+3. copia para o bucket da staging as fotografias que lá faltam, com as
+   mesmas chaves (`producao/...`, que a staging nunca usa para escrever);
+4. guarda a base actual em `contagiarte.db.antes` e deixa a nova em
+   `contagiarte.db.novo`.
+
+Depois a máquina reinicia, e é o `entrypoint.sh` que faz a troca,
+antes de a aplicação e o Litestream abrirem o ficheiro. O Litestream
+começa uma geração nova; as anteriores ficam no bucket.
+
+Tudo o que se tiver mudado só na staging perde-se, por isso convém
+correr primeiro o `--ensaio`. O script recusa correr fora da staging, e
+se alguma fotografia não se copiar pára antes de mexer em nada.
+
+Se a chave R2 da staging não puder ler o bucket `contagiarte`, o ensaio
+diz que deu `AccessDenied`. Cria-se na Cloudflare uma chave só de
+leitura para esse bucket, e dá-se à staging:
+
+```bash
+fly secrets set --app contagiarte-staging \
+  R2_ORIGEM_ACCESS_KEY_ID=... R2_ORIGEM_SECRET_ACCESS_KEY=...
+```
+
+Para voltar atrás, a base anterior está em `/dados/contagiarte.db.antes`.
+O `chown` importa: o SSH entra como root, e a aplicação não abria um
+ficheiro que não fosse dela:
+
+```bash
+fly ssh console -a contagiarte-staging -C "sh -c 'cp /dados/contagiarte.db.antes /dados/contagiarte.db.novo && chown nextjs:nodejs /dados/contagiarte.db.novo'"
+fly apps restart contagiarte-staging
+```
+
 ## Formulários
 
 Newsletter, orçamento de moldura, interesse numa obra e contacto geral

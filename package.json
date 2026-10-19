@@ -27,7 +27,8 @@
     "traduzir": "tsx --env-file-if-exists=.env.local scripts/traduzir-descricoes.ts",
     "legibilidade": "node scripts/legibilidade.mjs",
     "capas": "node scripts/capas.mjs",
-    "varrer": "node scripts/varrer.mjs"
+    "varrer": "node scripts/varrer.mjs",
+    "staging:refrescar": "bash scripts/refrescar-staging.sh"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.1114.0",

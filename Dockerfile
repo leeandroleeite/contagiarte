@@ -76,6 +76,10 @@ COPY --from=build --chown=nextjs:nodejs /app/.next/static ./.next/static
 # Migrações e o script que as aplica, para o release_command da Fly.
 COPY --from=build --chown=nextjs:nodejs /app/drizzle ./drizzle
 COPY --from=build --chown=nextjs:nodejs /app/scripts/migrar.mjs ./scripts/migrar.mjs
+# O refresco da staging com o conteúdo de produção, que corre à mão por
+# SSH. Usa o better-sqlite3 daqui de baixo e o cliente do R2 que o
+# próprio Next já leva no standalone.
+COPY --from=build --chown=nextjs:nodejs /app/scripts/refrescar-staging.mjs ./scripts/refrescar-staging.mjs
 
 # O migrador corre fora do bundle do Next, por isso precisa dos módulos
 # a sério. São dois, e nenhum deles tem dependências próprias.

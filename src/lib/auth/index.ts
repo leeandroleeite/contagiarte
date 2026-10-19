@@ -1,10 +1,12 @@
 import "server-only";
 
+import { randomBytes } from "node:crypto";
 import bcrypt from "bcryptjs";
 import { eq } from "drizzle-orm";
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import { db } from "@/lib/db";
+import { env } from "@/lib/env";
 import { registo, utilizadores } from "@/lib/db/schema";
 import {
   assinarSessao,
@@ -79,6 +81,12 @@ export async function entrar(
     return { ok: false, erro: "Credenciais inválidas." };
   }
 
+  return { ok: true, sessao: await abrirSessao(utilizador) };
+}
+
+type Utilizador = typeof utilizadores.$inferSelect;
+
+async function abrirSessao(utilizador: Utilizador): Promise<Sessao> {
   const sessao: Sessao = {
     id: utilizador.id,
     email: utilizador.email,
@@ -94,7 +102,54 @@ export async function entrar(
     .set({ ultimoAcesso: new Date() })
     .where(eq(utilizadores.id, utilizador.id));
 
-  return { ok: true, sessao };
+  return sessao;
+}
+
+/**
+ * Hash de uma palavra-passe que ninguém sabe. A coluna é obrigatória,
+ * e quem entra com o Google não tem palavra-passe nenhuma.
+ */
+export async function palavraPasseInutil(): Promise<string> {
+  return baralhar(randomBytes(32).toString("hex"));
+}
+
+/**
+ * Entrada de quem a Google já confirmou.
+ *
+ * Só entra quem estiver em Utilizadores e activo. A excepção são os
+ * emails de ADMINISTRADORES, que à primeira vez ficam registados como
+ * administradores: sem isso, um backoffice novo não tinha por onde
+ * começar.
+ */
+export async function entrarComGoogle(pessoa: {
+  email: string;
+  nome: string;
+}): Promise<ResultadoEntrada> {
+  let [utilizador] = await db
+    .select()
+    .from(utilizadores)
+    .where(eq(utilizadores.email, pessoa.email))
+    .limit(1);
+
+  if (!utilizador && env.administradoresIniciais.includes(pessoa.email)) {
+    [utilizador] = await db
+      .insert(utilizadores)
+      .values({
+        email: pessoa.email,
+        nome: pessoa.nome || pessoa.email,
+        papel: "administrador",
+        activo: true,
+        palavraPasseHash: await palavraPasseInutil(),
+      })
+      .returning();
+    await registar(null, "criou", "utilizador", utilizador.id, pessoa.email);
+  }
+
+  if (!utilizador || !utilizador.activo) {
+    return { ok: false, erro: "sem-acesso" };
+  }
+
+  return { ok: true, sessao: await abrirSessao(utilizador) };
 }
 
 export async function sair(): Promise<void> {

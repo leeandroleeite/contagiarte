@@ -155,20 +155,54 @@ visível só serve para convidar tentativas de entrada. Escreve-se o
 endereço à mão:
 
 - local: <http://localhost:3000/admin>
-- staging: `https://staging.contagiarte.pt/admin`
-- produção: `https://www.contagiarte.pt/admin`
+- staging: <https://contagiarte-staging.fly.dev/admin>
+- produção: <https://novo.contagiarte.pt/admin>
 
-O utilizador inicial é criado pelo `npm run semear`, que imprime a
-palavra-passe uma única vez. Para criar mais acessos ou repor uma
-palavra-passe:
+**Na staging e em produção entra-se com o Google**, e só quem estiver
+em Utilizadores. Não há palavras-passe para esquecer nem para guardar.
+O servidor confere com as chaves públicas da Google o token que ela
+devolve, sem Firebase nem segredo de cliente
+(`src/lib/auth/google.ts` e `src/app/api/auth/google/route.ts`).
+
+Para ligar num ambiente, três coisas:
+
+1. Na [Google Cloud Console](https://console.cloud.google.com/apis/credentials),
+   um "ID do cliente OAuth" do tipo **aplicação Web**, com estes URIs
+   de redireccionamento autorizados:
+   - `https://contagiarte-staging.fly.dev/api/auth/google`
+   - `https://novo.contagiarte.pt/api/auth/google`
+
+   Quando o domínio mudar para `www.contagiarte.pt`, acrescenta-se esse
+   também. O endereço tem de ser o do `PUBLIC_URL` do ambiente.
+2. Os segredos, em cada app. O Client ID não é secreto, mas o email
+   não vai para o `fly.toml` porque o repositório é público:
+
+   ```bash
+   fly secrets set --app contagiarte-staging \
+     GOOGLE_CLIENT_ID=....apps.googleusercontent.com \
+     ADMINISTRADORES=pessoa@gmail.com
+   fly secrets set --app contagiarte \
+     GOOGLE_CLIENT_ID=....apps.googleusercontent.com \
+     ADMINISTRADORES=pessoa@gmail.com
+   ```
+
+3. Entrar. Quem estiver em `ADMINISTRADORES` fica administrador à
+   primeira vez. Os outros acrescentam-se em **Utilizadores**, com o
+   email da conta Google com que vão entrar; a página deixa de pedir
+   palavra-passe.
+
+Com `GOOGLE_CLIENT_ID` definido, o backoffice recusa palavras-passe,
+mesmo as que já existiam. Sem ele, que é o caso local e dos testes,
+continua com email e palavra-passe: o `npm run semear` cria o
+utilizador inicial e imprime a palavra-passe uma única vez, e o
+`npm run admin:criar` cria mais:
 
 ```bash
 npm run admin:criar -- pessoa@contagiarte.pt "Nome" editor
 ```
 
-Dentro do painel, Utilizadores faz o mesmo pela interface. Há dois
-papéis: **editor** mexe em conteúdo, **administrador** mexe também em
-utilizadores.
+Há dois papéis: **editor** mexe em conteúdo, **administrador** mexe
+também em utilizadores.
 
 ### Estados do conteúdo
 

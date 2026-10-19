@@ -5,6 +5,7 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { exigirAdministrador, exigirSessao, registar } from "@/lib/auth";
 import { db } from "@/lib/db";
+import { env } from "@/lib/env";
 import {
   artistas,
   definicoes,
@@ -19,7 +20,7 @@ import {
   utilizadores,
   type Definicoes,
 } from "@/lib/db/schema";
-import { baralhar } from "@/lib/auth";
+import { baralhar, palavraPasseInutil } from "@/lib/auth";
 import { DEFINICOES_OMISSAO } from "@/lib/db/omissoes";
 import {
   lerBool,
@@ -488,7 +489,9 @@ export async function guardarUtilizador(id: string | null, dados: FormData) {
       .where(eq(utilizadores.id, id));
     await registar(sessao, "editou", "utilizador", id, email);
   } else {
-    if (palavraPasse.length < 12) {
+    // Com o Google ligado ninguém entra com palavra-passe, e a conta
+    // leva uma que ninguém sabe só porque a coluna é obrigatória.
+    if (!env.google.configurado && palavraPasse.length < 12) {
       redirect("/admin/utilizadores?erro=palavra-passe-curta");
     }
     const [novo] = await db
@@ -498,7 +501,9 @@ export async function guardarUtilizador(id: string | null, dados: FormData) {
         nome,
         papel,
         activo,
-        palavraPasseHash: await baralhar(palavraPasse),
+        palavraPasseHash: env.google.configurado
+          ? await palavraPasseInutil()
+          : await baralhar(palavraPasse),
       })
       .returning();
     await registar(sessao, "criou", "utilizador", novo.id, email);

@@ -18,6 +18,7 @@ import {
 import { apagarUtilizador, guardarUtilizador } from "@/lib/admin/accoes";
 import { exigirAdministrador } from "@/lib/auth";
 import { db } from "@/lib/db";
+import { env } from "@/lib/env";
 import { utilizadores } from "@/lib/db/schema";
 
 export const dynamic = "force-dynamic";
@@ -93,14 +94,26 @@ export default async function PaginaUtilizadores({
       <form action={criar}>
         <Grelha>
           <CampoTexto nome="nome" rotulo="Nome" obrigatorio />
-          <CampoTexto nome="email" rotulo="Email" tipo="email" obrigatorio />
           <CampoTexto
-            nome="palavraPasse"
-            rotulo="Palavra-passe"
-            tipo="password"
+            nome="email"
+            rotulo="Email"
+            tipo="email"
             obrigatorio
-            nota="Pelo menos 12 caracteres. Combine-a por um canal seguro."
+            nota={
+              env.google.configurado
+                ? "O da conta Google com que a pessoa vai entrar."
+                : undefined
+            }
           />
+          {!env.google.configurado && (
+            <CampoTexto
+              nome="palavraPasse"
+              rotulo="Palavra-passe"
+              tipo="password"
+              obrigatorio
+              nota="Pelo menos 12 caracteres. Combine-a por um canal seguro."
+            />
+          )}
           <CampoSelect
             nome="papel"
             rotulo="Papel"

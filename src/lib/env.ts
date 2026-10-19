@@ -108,6 +108,34 @@ export const env = {
     return opcional("PALAVRA_PASSE_ENTRADA") || opcional("STAGING_PASSWORD");
   },
 
+  /**
+   * Entrar no backoffice com o Google. Com o Client ID definido, o
+   * backoffice deixa de aceitar palavras-passe; sem ele (localmente e
+   * nos testes) continua com email e palavra-passe.
+   */
+  google: {
+    get clienteId(): string {
+      return opcional("GOOGLE_CLIENT_ID");
+    },
+    get configurado(): boolean {
+      return Boolean(process.env.GOOGLE_CLIENT_ID);
+    },
+  },
+
+  /**
+   * Emails que ficam administradores à primeira entrada com o Google,
+   * mesmo sem estarem ainda em Utilizadores. É o que deixa entrar a
+   * primeira pessoa num backoffice vazio; daí em diante acrescenta-se
+   * gente pela página Utilizadores. Vem de um segredo e não do
+   * `fly.toml`, porque o repositório é público.
+   */
+  get administradoresIniciais(): string[] {
+    return opcional("ADMINISTRADORES")
+      .split(",")
+      .map((e) => e.trim().toLowerCase())
+      .filter(Boolean);
+  },
+
   get analiticaId(): string {
     return opcional("PLAUSIBLE_DOMAIN");
   },

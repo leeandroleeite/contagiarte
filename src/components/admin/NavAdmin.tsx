@@ -6,7 +6,7 @@ import { cx } from "@/lib/utils";
 
 export type ContagensAdmin = Partial<Record<string, number>>;
 
-const SECCOES = [
+export const SECCOES = [
   { id: "painel", href: "/admin", rotulo: "Painel", exacto: true },
   { id: "obras", href: "/admin/obras", rotulo: "Obras" },
   { id: "artistas", href: "/admin/artistas", rotulo: "Artistas" },
@@ -19,6 +19,12 @@ const SECCOES = [
   { id: "pedidos", href: "/admin/pedidos", rotulo: "Pedidos" },
   { id: "definicoes", href: "/admin/definicoes", rotulo: "Definições" },
 ];
+
+/** O nome de cada secção pelo endereço, para a barra do telemóvel. */
+export const ROTULOS_SECCOES: Record<string, string> = Object.fromEntries([
+  ...SECCOES.map((s) => [s.href, s.rotulo]),
+  ["/admin/utilizadores", "Utilizadores"],
+]);
 
 /**
  * Navegação do backoffice, com a contagem de registos ao lado de cada

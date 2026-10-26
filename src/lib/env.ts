@@ -123,13 +123,15 @@ export const env = {
   },
 
   /**
-   * Emails que ficam administradores à primeira entrada com o Google,
-   * mesmo sem estarem ainda em Utilizadores. É o que deixa entrar a
-   * primeira pessoa num backoffice vazio; daí em diante acrescenta-se
-   * gente pela página Utilizadores. Vem de um segredo e não do
-   * `fly.toml`, porque o repositório é público.
+   * Os proprietários do site: os emails de ADMINISTRADORES. Ficam
+   * administradores à primeira entrada com o Google, mesmo sem estarem
+   * ainda em Utilizadores, e é o que deixa entrar a primeira pessoa num
+   * backoffice vazio. Depois disso continuam protegidos: ninguém os
+   * apaga, desactiva ou baixa a editor pela página Utilizadores, nem um
+   * administrador da galeria. Vem de um segredo e não do `fly.toml`,
+   * porque o repositório é público.
    */
-  get administradoresIniciais(): string[] {
+  get proprietarios(): string[] {
     return opcional("ADMINISTRADORES")
       .split(",")
       .map((e) => e.trim().toLowerCase())

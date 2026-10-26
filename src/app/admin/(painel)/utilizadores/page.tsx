@@ -16,7 +16,7 @@ import {
   Linha,
 } from "@/components/admin/Pecas";
 import { apagarUtilizador, guardarUtilizador } from "@/lib/admin/accoes";
-import { exigirAdministrador } from "@/lib/auth";
+import { eProprietario, exigirAdministrador } from "@/lib/auth";
 import { db } from "@/lib/db";
 import { env } from "@/lib/env";
 import { utilizadores } from "@/lib/db/schema";
@@ -27,6 +27,7 @@ const ERROS: Record<string, string> = {
   email: "Falta o email.",
   "palavra-passe-curta": "A palavra-passe precisa de pelo menos 12 caracteres.",
   proprio: "Não pode apagar a sua própria conta.",
+  proprietario: "O proprietário do site não pode ser apagado.",
 };
 
 export default async function PaginaUtilizadores({
@@ -55,6 +56,7 @@ export default async function PaginaUtilizadores({
       <div className="flex flex-col gap-3 overflow-x-auto">
         {lista.map((u) => {
           const apagar = apagarUtilizador.bind(null, u.id);
+          const proprietario = eProprietario(u.email);
           return (
             <Linha
               key={u.id}
@@ -63,7 +65,11 @@ export default async function PaginaUtilizadores({
               <span className="text-[16px]">{u.nome}</span>
               <span className="text-[14px] text-adm-suave">{u.email}</span>
               <span className="text-[14px]">
-                {u.papel === "administrador" ? "Administrador" : "Editor"}
+                {proprietario
+                  ? "Proprietário"
+                  : u.papel === "administrador"
+                    ? "Administrador"
+                    : "Editor"}
               </span>
               <Estado valor={u.activo ? "activo" : "removido"} />
               <span className="text-[13px] text-adm-suave">
@@ -75,7 +81,7 @@ export default async function PaginaUtilizadores({
                   : "nunca"}
               </span>
               <div className="flex justify-end">
-                {u.id !== sessao.id && (
+                {u.id !== sessao.id && !proprietario && (
                   <BotaoApagar
                     accao={apagar}
                     rotulo="Apagar"

@@ -579,6 +579,19 @@ test.describe("Utilizadores e permissões", () => {
   });
 });
 
+test.describe("Proprietário do site", () => {
+  test("aparece como proprietário e não se pode apagar", async ({ page }) => {
+    await entrarNoBackoffice(page);
+    await page.goto("/admin/utilizadores");
+
+    const linha = page
+      .locator("main [data-linha]")
+      .filter({ hasText: "galeria@contagiarte.pt" });
+    await expect(linha).toContainText("Proprietário");
+    await expect(linha.getByRole("button", { name: "Apagar" })).toHaveCount(0);
+  });
+});
+
 test.describe("Segurança do conteúdo", () => {
   test("um título com HTML lá dentro não corre como código no site", async ({
     page,

@@ -174,8 +174,12 @@ export function Linha({
 }) {
   return (
     <div
-      className="grid min-w-max items-center gap-4 border border-adm-fio bg-adm-cartao px-4 py-3.5"
-      style={{ gridTemplateColumns: colunas }}
+      data-linha=""
+      // No telemóvel não há largura para as colunas: a linha passa a
+      // cartão e o conteúdo quebra, em vez de fugir para a direita num
+      // scroll que ninguém vê. As colunas voltam a partir do `md`.
+      className="flex flex-wrap items-center gap-x-4 gap-y-2 border border-adm-fio bg-adm-cartao px-4 py-3.5 md:grid md:min-w-max md:[grid-template-columns:var(--colunas)]"
+      style={{ "--colunas": colunas } as React.CSSProperties}
     >
       {children}
     </div>
@@ -192,8 +196,9 @@ export function TituloColunas({
 }) {
   return (
     <div
-      className="grid min-w-max gap-4 px-4 pb-3 text-[11px] tracking-[0.08em] whitespace-nowrap text-adm-suave"
-      style={{ gridTemplateColumns: colunas }}
+      // Sem colunas no telemóvel, os títulos delas não apontam para nada.
+      className="hidden min-w-max gap-4 px-4 pb-3 text-[11px] tracking-[0.08em] whitespace-nowrap text-adm-suave md:grid md:[grid-template-columns:var(--colunas)]"
+      style={{ "--colunas": colunas } as React.CSSProperties}
     >
       {rotulos.map((r, i) => (
         <span key={`${r}-${i}`}>{r}</span>

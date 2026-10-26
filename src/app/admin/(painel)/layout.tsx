@@ -1,6 +1,11 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
-import { NavAdmin, type ContagensAdmin } from "@/components/admin/NavAdmin";
+import { BarraAdmin } from "@/components/admin/BarraAdmin";
+import {
+  NavAdmin,
+  ROTULOS_SECCOES,
+  type ContagensAdmin,
+} from "@/components/admin/NavAdmin";
 import { exigirSessao, sair } from "@/lib/auth";
 import { db } from "@/lib/db";
 import {
@@ -71,20 +76,8 @@ export default async function LayoutPainel({
     <div className="flex min-h-dvh flex-col lg:flex-row">
       {/* Barra lateral escura, como no desenho: contrasta com a área de
           trabalho clara e mantém a marca presente. */}
-      <aside className="flex flex-none flex-col gap-7 bg-tinta p-5 text-papel lg:sticky lg:top-0 lg:h-dvh lg:w-[246px] lg:px-[18px] lg:py-6">
-        <div className="flex flex-col gap-1 px-1.5">
-          <Link
-            href="/admin"
-            className="titulo text-[13px] tracking-[0.2em] text-papel no-underline hover:text-ouro"
-            style={{ lineHeight: 1.2 }}
-          >
-            CONTAGIARTE®
-          </Link>
-          <span className="text-[11px] tracking-[0.16em] text-[rgba(242,237,228,0.55)]">
-            GESTÃO DE CONTEÚDO
-          </span>
-        </div>
-
+      {/* Lateral em ecrã largo, de topo no telemóvel: ver BarraAdmin. */}
+      <BarraAdmin seccaoActual={ROTULOS_SECCOES}>
         <NavAdmin papel={sessao.papel} contagens={contagens} />
 
         <div className="mt-auto flex flex-col gap-2.5 border border-[rgba(242,237,228,0.18)] p-4">
@@ -112,7 +105,7 @@ export default async function LayoutPainel({
             </button>
           </form>
         </div>
-      </aside>
+      </BarraAdmin>
 
       <main className="min-w-0 flex-1">{children}</main>
     </div>

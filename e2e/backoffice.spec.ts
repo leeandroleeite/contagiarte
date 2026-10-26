@@ -571,7 +571,7 @@ test.describe("Utilizadores e permissões", () => {
     await page.goto("/admin/utilizadores");
     page.once("dialog", (d) => d.accept());
     await page
-      .locator("main .grid")
+      .locator("main [data-linha]")
       .filter({ hasText: email })
       .getByRole("button", { name: "Apagar" })
       .click();

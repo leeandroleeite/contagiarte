@@ -36,8 +36,9 @@ export function normalizarNome(nome: string): string {
 }
 
 /**
- * Caminho do objecto no bucket. O prefixo separa ambientes para o
- * staging nunca escrever por cima dos ficheiros de produção.
+ * Caminho do objecto no bucket. O prefixo separa ambientes para um
+ * servidor local com credenciais R2 nunca escrever por cima dos
+ * ficheiros de produção.
  */
 export function chaveParaFicheiro(pasta: string, nome: string): string {
   const carimbo = Date.now().toString(36);

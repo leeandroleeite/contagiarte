@@ -14,12 +14,12 @@ function opcional(nome: string, omissao = ""): string {
 }
 
 export const env = {
-  get ambiente(): "producao" | "staging" | "local" {
+  get ambiente(): "producao" | "local" {
     // Um APP_ENV explícito manda sempre, "local" incluído. Sem isto,
     // correr a saída de produção contra a base local guardava os
     // ficheiros na pasta de produção, que é onde eles não devem estar.
     const a = process.env.APP_ENV;
-    if (a === "producao" || a === "staging" || a === "local") return a;
+    if (a === "producao" || a === "local") return a;
     return process.env.NODE_ENV === "production" ? "producao" : "local";
   },
 
@@ -36,8 +36,8 @@ export const env = {
   /**
    * O commit que construiu esta imagem, fixado na compilação.
    *
-   * Existe para o deploy de produção poder perguntar à staging o que é
-   * que ela está mesmo a correr, em vez de o assumir. Vazio fora de uma
+   * Existe para o deploy poder perguntar à produção que versão é que
+   * ela está mesmo a correr, em vez de o assumir. Vazio fora de uma
    * imagem construída pela esteira.
    */
   get versao(): string {
@@ -100,12 +100,11 @@ export const env = {
   },
 
   /**
-   * Password única à entrada do ambiente. Vazio significa aberto ao
-   * público. Serve a staging, e serve a uma produção que ainda não abriu
-   * portas.
+   * Password única à entrada do site. Vazio significa aberto ao
+   * público. Serve a uma produção que ainda não abriu portas.
    */
   get muroDeEntrada(): string {
-    return opcional("PALAVRA_PASSE_ENTRADA") || opcional("STAGING_PASSWORD");
+    return opcional("PALAVRA_PASSE_ENTRADA");
   },
 
   /**

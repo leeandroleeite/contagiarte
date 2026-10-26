@@ -53,7 +53,10 @@ export async function GET(
   const caminho = chave.map(decodeURIComponent).join("/");
 
   // O prefixo do ambiente é obrigatório: impede que um caminho
-  // construído à mão saia da área desta instalação.
+  // construído à mão saia da área desta instalação. O `staging/` já não
+  // é de ambiente nenhum, mas fica aceite: houve uma staging, e uma
+  // fotografia que tenha nascido lá e passado para produção guarda a
+  // chave com que nasceu.
   if (caminho.includes("..") || !/^(local|staging|producao)\//.test(caminho)) {
     return new NextResponse("Caminho inválido.", { status: 400 });
   }

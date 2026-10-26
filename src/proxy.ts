@@ -141,15 +141,14 @@ export default async function proxy(pedido: NextRequest) {
 
   // --- Muro de entrada -------------------------------------------------
   //
-  // Não é uma coisa de staging: é um muro. Serve a um staging com uma
-  // cópia do conteúdo real, e serve a uma produção que ainda não abriu
-  // portas. Havendo password definida, nada passa sem ela.
+  // Serve a uma produção que ainda não abriu portas. Havendo password
+  // definida, nada passa sem ela.
   //
   // Vem antes da lista de caminhos que não são páginas, e é essa a
   // ordem que interessa: ao contrário, as fotografias e o sitemap
   // saíam por baixo dele.
   const palavraPasse =
-    process.env.PALAVRA_PASSE_ENTRADA ?? process.env.STAGING_PASSWORD;
+    process.env.PALAVRA_PASSE_ENTRADA;
   if (palavraPasse && !SEM_MURO.some((p) => pathname.startsWith(p))) {
     const cabecalho = pedido.headers.get("authorization");
     if (!cabecalho?.startsWith("Basic ")) return pedirPalavraPasse(politica);

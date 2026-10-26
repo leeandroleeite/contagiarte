@@ -10,7 +10,7 @@ set -e
 export DADOS_DIR="${DADOS_DIR:-/dados}"
 export LITESTREAM_REGION="${LITESTREAM_REGION:-auto}"
 # Cada ambiente escreve na sua pasta dentro do bucket, para um restauro
-# de staging nunca poder ir buscar a base de produção.
+# local nunca poder ir buscar a base de produção.
 export LITESTREAM_CAMINHO="${LITESTREAM_CAMINHO:-${APP_ENV:-local}}"
 
 mkdir -p "$DADOS_DIR"
@@ -27,26 +27,6 @@ CACHE="$DADOS_DIR/cache-next"
 mkdir -p "$CACHE"
 rm -rf /app/.next/cache
 ln -sfn "$CACHE" /app/.next/cache
-
-# Um refresco da staging (scripts/refrescar-staging.mjs) deixa a base
-# nova ao lado da actual, e a troca faz-se aqui, antes de a aplicação e
-# o Litestream abrirem o ficheiro. Sai também a memória local do
-# Litestream: com ela, ele tentava continuar a geração da base antiga;
-# sem ela, começa uma geração nova a partir desta. As antigas ficam no
-# bucket, e a base anterior em contagiarte.db.antes.
-NOVA="$DADOS_DIR/contagiarte.db.novo"
-if [ -f "$NOVA" ]; then
-  if [ "$APP_ENV" = "staging" ]; then
-    echo "staging: a trocar a base pela cópia de produção"
-    rm -f "$DADOS_DIR/contagiarte.db" "$DADOS_DIR/contagiarte.db-wal" "$DADOS_DIR/contagiarte.db-shm"
-    rm -rf "$DADOS_DIR/.contagiarte.db-litestream"
-    mv "$NOVA" "$DADOS_DIR/contagiarte.db"
-    # O que o Next guardou em cache foi lido da base antiga.
-    rm -rf "$CACHE/fetch-cache"
-  else
-    echo "há uma $NOVA fora da staging: fica onde está, não se troca nada"
-  fi
-fi
 
 if [ -n "$LITESTREAM_BUCKET" ]; then
   if [ ! -f "$DADOS_DIR/contagiarte.db" ]; then

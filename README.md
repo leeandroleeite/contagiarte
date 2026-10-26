@@ -131,7 +131,7 @@ src/
     admin/           acções de escrita do backoffice
     dados.ts         todas as leituras do site público
     media/           R2 e construção de endereços
-  proxy.ts           idioma, muro do staging e guarda do /admin
+  proxy.ts           idioma, muro de entrada e guarda do /admin
 drizzle/             migrações SQL versionadas
 scripts/             semear, migrar, cópias, criar utilizador
 ```
@@ -155,32 +155,27 @@ visível só serve para convidar tentativas de entrada. Escreve-se o
 endereço à mão:
 
 - local: <http://localhost:3000/admin>
-- staging: <https://contagiarte-staging.fly.dev/admin>
 - produção: <https://novo.contagiarte.pt/admin>
 
-**Na staging e em produção entra-se com o Google**, e só quem estiver
+**Em produção entra-se com o Google**, e só quem estiver
 em Utilizadores. Não há palavras-passe para esquecer nem para guardar.
 O servidor confere com as chaves públicas da Google o token que ela
 devolve, sem Firebase nem segredo de cliente
 (`src/lib/auth/google.ts` e `src/app/api/auth/google/route.ts`).
 
-Para ligar num ambiente, três coisas:
+Para o ligar, três coisas:
 
 1. Na [Google Cloud Console](https://console.cloud.google.com/apis/credentials),
-   um "ID do cliente OAuth" do tipo **aplicação Web**, com estes URIs
-   de redireccionamento autorizados:
-   - `https://contagiarte-staging.fly.dev/api/auth/google`
+   um "ID do cliente OAuth" do tipo **aplicação Web** (está no projecto
+   `contagiarte`), com este URI de redireccionamento autorizado:
    - `https://novo.contagiarte.pt/api/auth/google`
 
    Quando o domínio mudar para `www.contagiarte.pt`, acrescenta-se esse
-   também. O endereço tem de ser o do `PUBLIC_URL` do ambiente.
-2. Os segredos, em cada app. O Client ID não é secreto, mas o email
-   não vai para o `fly.toml` porque o repositório é público:
+   também. O endereço tem de ser o do `PUBLIC_URL`.
+2. Os segredos. O Client ID não é secreto, mas o email não vai para o
+   `fly.toml` porque o repositório é público:
 
    ```bash
-   fly secrets set --app contagiarte-staging \
-     GOOGLE_CLIENT_ID=....apps.googleusercontent.com \
-     ADMINISTRADORES=pessoa@gmail.com
    fly secrets set --app contagiarte \
      GOOGLE_CLIENT_ID=....apps.googleusercontent.com \
      ADMINISTRADORES=pessoa@gmail.com
@@ -190,9 +185,9 @@ Para ligar num ambiente, três coisas:
    administrador à primeira vez, aparece como Proprietário em
    Utilizadores, e ninguém o apaga, desactiva ou baixa a editor pelo
    backoffice, nem um administrador da galeria. Se isso acontecer
-   directamente na base, a entrada seguinte desfaz. Os outros acrescentam-se em **Utilizadores**, com o
-   email da conta Google com que vão entrar; a página deixa de pedir
-   palavra-passe.
+   directamente na base, a entrada seguinte desfaz. Os outros
+   acrescentam-se em **Utilizadores**, com o email da conta Google com
+   que vão entrar; a página deixa de pedir palavra-passe.
 
 Com `GOOGLE_CLIENT_ID` definido, o backoffice recusa palavras-passe,
 mesmo as que já existiam. Sem ele, que é o caso local e dos testes,
@@ -220,20 +215,15 @@ Tudo o que é conteúdo tem `estado`: `rascunho`, `publicado` ou
 ```bash
 fly auth login
 
-# Produção
 fly apps create contagiarte
 fly volumes create contagiarte_dados -a contagiarte -r cdg -n 1 -s 3
-
-# Staging
-fly apps create contagiarte-staging
-fly volumes create contagiarte_dados_staging -a contagiarte-staging -r cdg -n 1 -s 1
 ```
 
-Um volume por app, e um só. A base de dados é um ficheiro lá dentro, o
-que prende cada app a uma máquina: em troca, as leituras não atravessam
+Um volume, e um só. A base de dados é um ficheiro lá dentro, o
+que prende a app a uma máquina: em troca, as leituras não atravessam
 a rede e a cópia é contínua.
 
-Segredos de produção:
+Segredos:
 
 ```bash
 fly secrets set --app contagiarte \
@@ -247,28 +237,16 @@ fly secrets set --app contagiarte \
   EMAIL_DE="Galeria Contagiarte <site@contagiarte.pt>"
 ```
 
-O muro de password não é uma coisa de staging: havendo
-`PALAVRA_PASSE_ENTRADA` definida, o ambiente pede-a antes de qualquer
-página, e o `robots.txt` passa a proibir tudo. Serve a staging, que tem
-uma cópia do conteúdo real, e serve a uma produção que já está de pé mas
-ainda não abriu portas. Abrir é tirar o segredo e apontar o DNS.
-
-Segredos de staging:
-
-```bash
-fly secrets set --app contagiarte-staging \
-  SESSION_SECRET="$(openssl rand -base64 48)" \
-  STAGING_PASSWORD="uma-password-combinada" \
-  R2_BUCKET=contagiarte-staging \
-  R2_ACCOUNT_ID=... R2_ACCESS_KEY_ID=... R2_SECRET_ACCESS_KEY=...
-```
+Há um muro de password à entrada, opcional: havendo
+`PALAVRA_PASSE_ENTRADA` definida, o site pede-a antes de qualquer
+página, e o `robots.txt` passa a proibir tudo. Serve a uma produção que
+já está de pé mas ainda não abriu portas. Hoje está desligado.
 
 Domínios:
 
 ```bash
 fly certs add www.contagiarte.pt --app contagiarte
 fly certs add contagiarte.pt --app contagiarte
-fly certs add staging.contagiarte.pt --app contagiarte-staging
 ```
 
 No registar do domínio, aponte os registos que a Fly indicar em
@@ -277,18 +255,33 @@ No registar do domínio, aponte os registos que a Fly indicar em
 
 ### Deploys seguintes
 
-Cada merge em `main` publica em staging automaticamente. Produção só sai
-de um `workflow_dispatch` deliberado, no separador Actions do GitHub,
-escolhendo `producao`. Localmente:
+Cada push corre a Verificação. A produção só sai quando alguém a manda
+sair, no separador Actions do GitHub (**Publicar em produção**) ou:
 
 ```bash
-fly deploy --config fly.staging.toml
-fly deploy --config fly.toml
+gh workflow run producao.yml                  # a ponta da main
+gh workflow run producao.yml -f commit=<sha>  # outro, para voltar atrás
 ```
 
-O `release_command` corre as migrações antes de a versão nova receber
-tráfego. Se a migração falhar, o deploy pára e a versão anterior fica
-no ar.
+Antes de tocar na produção, a esteira confirma que o commit tem a
+Verificação verde, constrói uma imagem, arranca-a no runner numa base
+vazia e exige que responda com a versão certa e desenhe a entrada e o
+login, e tira uma cópia da base de produção para
+`/dados/antes-da-publicacao.db`. Só então publica essa mesma imagem, e
+no fim pergunta à produção que versão é ela. As migrações correm no
+arranque, no `entrypoint.sh`: se falharem, a máquina nova não abre e a
+anterior fica no ar.
+
+Não há staging. Houve, até 26 de Outubro de 2026, e saiu como saiu a do
+inna: pagava-se, tinha conteúdo próprio e desactualizado, obrigava a
+segredos e logins a dobrar, e travou duas publicações sem apanhar nada
+que a Verificação não apanhasse. Se voltar a fazer falta, o
+`fly.staging.toml` e o `publicar.yml` estão no histórico do git, no
+commit anterior ao que os tirou.
+
+**Nunca `fly deploy` a partir da pasta onde se trabalha.** Embala o que
+lá estiver, versionado ou não; foi assim que o CSP foi parar a produção
+a 22 de Setembro sem passar pela Verificação.
 
 ### Quando o site dá 502 e a máquina parece bem
 
@@ -297,14 +290,14 @@ pena ter isto à mão, porque todos os sinais habituais diziam que estava
 tudo bem:
 
 - a aplicação respondia 200 em `127.0.0.1:3000`, dentro da máquina
-- respondia 200 pela rede privada, chamada a partir do staging
+- respondia 200 pela rede privada, chamada a partir da staging que havia
 - a verificação de saúde da Fly passava, com o corpo certo
 - os IPs estavam atribuídos e o certificado emitido
 - só havia uma máquina, no grupo certo, na região certa
 
 E o proxy devolvia `502` com `could not find a good candidate within
 40 attempts at load balancing`. Duas causas, encontradas por comparação
-com o staging, que nunca falhou:
+com a staging que havia, que nunca falhou:
 
 1. **Os limites de concorrência.** O `[http_service.concurrency]` com
    `type = "requests"` levava o proxy a recusar a única máquina por
@@ -362,19 +355,18 @@ APP_ENV=producao R2_BUCKET=contagiarte \
 
 Sem R2 configurado, os ficheiros ficam em `public/media` e são servidos
 por `/api/media/...`. É o que permite ver e editar o site localmente
-sem abrir conta na Cloudflare. Em staging e em produção, o R2 toma
+sem abrir conta na Cloudflare. Em produção, o R2 toma
 conta: os endereços não mudam, e passam pela CDN assim que
 `NEXT_PUBLIC_R2_PUBLIC_URL` estiver definido.
 
 
-Crie três buckets: `contagiarte`, `contagiarte-staging` e
-`contagiarte-backups`. O terceiro está à parte de propósito, porque o de
-produção há-de ficar público por trás de `media.contagiarte.pt`, e a
-base de dados tem hashes de palavras-passe, telefones e endereços de
-quem fez pedidos. Nos dois primeiros, dentro de cada
-um, os objectos ficam com prefixo do ambiente (`producao/`, `staging/`,
-`local/`), por isso um ambiente nunca escreve por cima do outro mesmo que
-partilhem bucket.
+Dois buckets: `contagiarte` e `contagiarte-backups`. O segundo está à
+parte de propósito, porque o primeiro há-de ficar público por trás de
+`media.contagiarte.pt`, e a base de dados tem hashes de palavras-passe,
+telefones e endereços de quem fez pedidos. Os objectos levam o prefixo
+do ambiente (`producao/`, `local/`), por isso um servidor local com
+credenciais nunca escreve por cima da produção. Há chaves antigas com
+`staging/`, do tempo em que havia staging, e continuam a servir-se.
 
 Ligue um domínio próprio ao bucket de produção (por exemplo
 `media.contagiarte.pt`) e coloque-o em `NEXT_PUBLIC_R2_PUBLIC_URL`, no
@@ -400,8 +392,8 @@ Duas linhas, e fazem coisas diferentes.
    fly ssh console -a contagiarte -C "node -e \"const D=require('/app/node_modules/better-sqlite3');const d=new D('/dados/prova.db',{readonly:true});for(const t of ['obras','artistas','media','textos'])console.log(t,d.prepare('select count(*) as n from '+t).get().n)\""
    ```
 
-   Um backup que nunca foi restaurado ainda não é um backup. Ensaiado em
-   staging a 20 de agosto de 2026: a base voltou do bucket com as 13
+   Um backup que nunca foi restaurado ainda não é um backup. Ensaiado na
+   staging que havia, a 20 de agosto de 2026: a base voltou do bucket com as 13
    obras, os 4 artistas, os 95 ficheiros de media e as 388 linhas de
    registo todas lá.
 
@@ -416,57 +408,6 @@ Duas linhas, e fazem coisas diferentes.
 Os ficheiros em si (fotografias, PDFs) vivem no R2, que tem a sua
 própria durabilidade. Active versionamento no bucket se quiser
 protecção contra apagar por engano.
-
-## Refrescar a staging com o conteúdo de produção
-
-A staging e a produção correm o mesmo código mas têm cada uma a sua
-base e o seu bucket, e nada as sincroniza. O que a galeria muda no
-backoffice de produção não aparece na staging, e a staging vai ficando
-com o conteúdo do dia em que foi montada. Para a pôr igual:
-
-```bash
-npm run staging:refrescar -- --ensaio   # confere tudo, não muda nada
-npm run staging:refrescar
-```
-
-O `scripts/refrescar-staging.mjs` corre dentro da máquina da staging:
-
-1. restaura o último backup Litestream de produção para um ficheiro à
-   parte, sem tocar em nenhuma das duas bases;
-2. tira-lhe os pedidos e os anexos, os subscritores e o registo, e
-   troca os utilizadores de produção pelos da staging: os acessos à
-   staging não mudam, e nem os dados de quem escreveu à galeria nem os
-   hashes de produção chegam cá;
-3. copia para o bucket da staging as fotografias que lá faltam, com as
-   mesmas chaves (`producao/...`, que a staging nunca usa para escrever);
-4. guarda a base actual em `contagiarte.db.antes` e deixa a nova em
-   `contagiarte.db.novo`.
-
-Depois a máquina reinicia, e é o `entrypoint.sh` que faz a troca,
-antes de a aplicação e o Litestream abrirem o ficheiro. O Litestream
-começa uma geração nova; as anteriores ficam no bucket.
-
-Tudo o que se tiver mudado só na staging perde-se, por isso convém
-correr primeiro o `--ensaio`. O script recusa correr fora da staging, e
-se alguma fotografia não se copiar pára antes de mexer em nada.
-
-Se a chave R2 da staging não puder ler o bucket `contagiarte`, o ensaio
-diz que deu `AccessDenied`. Cria-se na Cloudflare uma chave só de
-leitura para esse bucket, e dá-se à staging:
-
-```bash
-fly secrets set --app contagiarte-staging \
-  R2_ORIGEM_ACCESS_KEY_ID=... R2_ORIGEM_SECRET_ACCESS_KEY=...
-```
-
-Para voltar atrás, a base anterior está em `/dados/contagiarte.db.antes`.
-O `chown` importa: o SSH entra como root, e a aplicação não abria um
-ficheiro que não fosse dela:
-
-```bash
-fly ssh console -a contagiarte-staging -C "sh -c 'cp /dados/contagiarte.db.antes /dados/contagiarte.db.novo && chown nextjs:nodejs /dados/contagiarte.db.novo'"
-fly apps restart contagiarte-staging
-```
 
 ## Formulários
 

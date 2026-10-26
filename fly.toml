@@ -60,8 +60,8 @@ kill_timeout = 30
   # não poupa nada, e o caminho da suspensão deixou o proxy da Fly com
   # uma entrada de encaminhamento velha. A máquina respondia 200 na
   # porta interna, a verificação de saúde passava, e o mundo lá fora
-  # via 502 com "could not find a good candidate". O staging, que usa
-  # "stop", nunca teve o problema.
+  # via 502 com "could not find a good candidate". A staging que havia,
+  # com "stop", nunca o teve.
   auto_stop_machines = "stop"
   auto_start_machines = true
   # Uma máquina sempre acordada: a galeria não quer o primeiro
@@ -73,8 +73,8 @@ kill_timeout = 30
   # tecto de 200, o proxy da Fly passou a recusar a única máquina com
   # "could not find a good candidate within 40 attempts", mesmo sem
   # tráfego nenhum: a máquina respondia 200 por dentro e pela rede
-  # privada, a verificação de saúde passava, e o mundo via 502. O
-  # staging, que nunca declarou concorrência, nunca teve o problema.
+  # privada, a verificação de saúde passava, e o mundo via 502. A
+  # staging que havia, sem concorrência declarada, nunca o teve.
   # Reavaliar quando houver tráfego a sério e mais de uma máquina.
 
 [[http_service.checks]]

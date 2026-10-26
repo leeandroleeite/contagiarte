@@ -11,8 +11,8 @@ export const dynamic = "force-dynamic";
  * base de dados não serve de nada e não deve receber tráfego.
  *
  * Diz também que commit é que está a correr. É isso que deixa a
- * esteira promover para produção a imagem que a staging provou, em vez
- * de reconstruir uma nova e esperar que calhe ser igual.
+ * esteira confirmar, no fim de cada publicação, que quem atende é mesmo
+ * a versão que acabou de ir, e não a máquina antiga.
  */
 export async function GET() {
   try {

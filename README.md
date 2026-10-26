@@ -186,8 +186,11 @@ Para ligar num ambiente, três coisas:
      ADMINISTRADORES=pessoa@gmail.com
    ```
 
-3. Entrar. Quem estiver em `ADMINISTRADORES` fica administrador à
-   primeira vez. Os outros acrescentam-se em **Utilizadores**, com o
+3. Entrar. Quem estiver em `ADMINISTRADORES` é **proprietário**: fica
+   administrador à primeira vez, aparece como Proprietário em
+   Utilizadores, e ninguém o apaga, desactiva ou baixa a editor pelo
+   backoffice, nem um administrador da galeria. Se isso acontecer
+   directamente na base, a entrada seguinte desfaz. Os outros acrescentam-se em **Utilizadores**, com o
    email da conta Google com que vão entrar; a página deixa de pedir
    palavra-passe.
 

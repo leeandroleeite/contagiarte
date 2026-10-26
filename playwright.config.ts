@@ -91,6 +91,9 @@ export default defineConfig({
       // anterior. Apanhou-se com quinze fotografias de teste já
       // apagadas a dar 404 no backoffice.
       DADOS_DIR: path.resolve("var"),
+      // O administrador dos testes é também o proprietário do site, como
+      // em produção: é o que prova que ninguém o apaga pelo backoffice.
+      ADMINISTRADORES: "galeria@contagiarte.pt",
     },
   },
 });

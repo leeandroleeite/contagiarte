@@ -20,7 +20,7 @@ import {
   utilizadores,
   type Definicoes,
 } from "@/lib/db/schema";
-import { baralhar, palavraPasseInutil } from "@/lib/auth";
+import { baralhar, eProprietario, palavraPasseInutil } from "@/lib/auth";
 import { DEFINICOES_OMISSAO } from "@/lib/db/omissoes";
 import {
   lerBool,
@@ -477,7 +477,17 @@ export async function guardarUtilizador(id: string | null, dados: FormData) {
   if (!email) redirect("/admin/utilizadores?erro=email");
 
   if (id) {
-    const base = { email, nome, papel, activo } as const;
+    // Um proprietário só muda de nome: o email é o que o identifica, e o
+    // papel e o acesso não lhos tira ninguém pelo backoffice.
+    const [actual] = await db
+      .select({ email: utilizadores.email })
+      .from(utilizadores)
+      .where(eq(utilizadores.id, id))
+      .limit(1);
+    const base =
+      actual && eProprietario(actual.email)
+        ? ({ email: actual.email, nome, papel: "administrador", activo: true } as const)
+        : ({ email, nome, papel, activo } as const);
     // A palavra-passe só muda quando o campo vem preenchido.
     await db
       .update(utilizadores)
@@ -516,6 +526,14 @@ export async function apagarUtilizador(id: string) {
   const sessao = await exigirAdministrador();
   // Ninguém se apaga a si próprio: ficaria sem quem administra.
   if (sessao.id === id) redirect("/admin/utilizadores?erro=proprio");
+  const [alvo] = await db
+    .select({ email: utilizadores.email })
+    .from(utilizadores)
+    .where(eq(utilizadores.id, id))
+    .limit(1);
+  if (alvo && eProprietario(alvo.email)) {
+    redirect("/admin/utilizadores?erro=proprietario");
+  }
   await db.delete(utilizadores).where(eq(utilizadores.id, id));
   await registar(sessao, "apagou", "utilizador", id);
   redirect("/admin/utilizadores");

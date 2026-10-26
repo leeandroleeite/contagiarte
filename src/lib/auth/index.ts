@@ -113,13 +113,19 @@ export async function palavraPasseInutil(): Promise<string> {
   return baralhar(randomBytes(32).toString("hex"));
 }
 
+/** Se este email é de um proprietário do site (ver `env.proprietarios`). */
+export function eProprietario(email: string): boolean {
+  return env.proprietarios.includes(email.trim().toLowerCase());
+}
+
 /**
  * Entrada de quem a Google já confirmou.
  *
  * Só entra quem estiver em Utilizadores e activo. A excepção são os
- * emails de ADMINISTRADORES, que à primeira vez ficam registados como
- * administradores: sem isso, um backoffice novo não tinha por onde
- * começar.
+ * proprietários, que à primeira vez ficam registados como
+ * administradores, sem isso um backoffice novo não tinha por onde
+ * começar, e que a cada entrada voltam a sê-lo: se alguém os tiver
+ * desactivado ou baixado a editor directamente na base, isto desfaz.
  */
 export async function entrarComGoogle(pessoa: {
   email: string;
@@ -131,18 +137,26 @@ export async function entrarComGoogle(pessoa: {
     .where(eq(utilizadores.email, pessoa.email))
     .limit(1);
 
-  if (!utilizador && env.administradoresIniciais.includes(pessoa.email)) {
-    [utilizador] = await db
-      .insert(utilizadores)
-      .values({
-        email: pessoa.email,
-        nome: pessoa.nome || pessoa.email,
-        papel: "administrador",
-        activo: true,
-        palavraPasseHash: await palavraPasseInutil(),
-      })
-      .returning();
-    await registar(null, "criou", "utilizador", utilizador.id, pessoa.email);
+  if (eProprietario(pessoa.email)) {
+    if (!utilizador) {
+      [utilizador] = await db
+        .insert(utilizadores)
+        .values({
+          email: pessoa.email,
+          nome: pessoa.nome || pessoa.email,
+          papel: "administrador",
+          activo: true,
+          palavraPasseHash: await palavraPasseInutil(),
+        })
+        .returning();
+      await registar(null, "criou", "utilizador", utilizador.id, pessoa.email);
+    } else if (!utilizador.activo || utilizador.papel !== "administrador") {
+      [utilizador] = await db
+        .update(utilizadores)
+        .set({ activo: true, papel: "administrador" })
+        .where(eq(utilizadores.id, utilizador.id))
+        .returning();
+    }
   }
 
   if (!utilizador || !utilizador.activo) {

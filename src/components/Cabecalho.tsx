@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { caminho, IDIOMAS, semPrefixo, type Idioma } from "@/lib/i18n/config";
 import { t } from "@/lib/i18n";
 import { cx } from "@/lib/utils";
@@ -52,7 +52,12 @@ export function Cabecalho({ idioma }: { idioma: Idioma }) {
   // Com o menu compacto aberto: o scroll trava, e o resto da página
   // fica inerte. Sem o inert, o Tab saía do menu e ia andar por baixo
   // dele, em links que não se viam.
-  useEffect(() => {
+  //
+  // `useLayoutEffect` e não `useEffect`: tem de acontecer no mesmo
+  // commit em que o menu sai do ecrã. Com o `useEffect`, a navegação
+  // podia pintar a página nova sem menu e ainda com o scroll travado, e
+  // o teste do logótipo apanhava esse intervalo uma vez em cada trinta.
+  useLayoutEffect(() => {
     const raiz = document.documentElement;
     const resto = document.querySelectorAll("main, footer, aside");
     document.body.style.overflow = aberto ? "hidden" : "";

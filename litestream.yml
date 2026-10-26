@@ -1,7 +1,7 @@
 # O Litestream vai atrás do WAL do SQLite e envia cada alteração para o
 # R2. O pior caso passa de um dia de edições perdidas para cerca de um
 # segundo. Os valores vêm do ambiente, para o mesmo ficheiro servir
-# staging e produção.
+# produção e um servidor local.
 dbs:
   - path: ${DADOS_DIR}/contagiarte.db
     replicas:

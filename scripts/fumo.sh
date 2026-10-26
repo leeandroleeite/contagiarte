@@ -2,7 +2,7 @@
 #
 # Teste de fumo de um ambiente já publicado.
 #
-#   ./scripts/fumo.sh https://contagiarte-staging.fly.dev <commit>
+#   ./scripts/fumo.sh https://novo.contagiarte.pt <commit>
 #
 # Responde a três perguntas, por esta ordem, porque é a ordem em que as
 # coisas costumam partir:
@@ -30,7 +30,7 @@
 # ter sinal nenhum.
 set -euo pipefail
 
-BASE="${1:?falta o endereço, ex. https://contagiarte-staging.fly.dev}"
+BASE="${1:?falta o endereço, ex. https://novo.contagiarte.pt}"
 ESPERADO="${2:-}"
 
 # Quanto tempo se dá à troca de máquinas antes de desistir.

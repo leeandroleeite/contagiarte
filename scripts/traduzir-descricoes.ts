@@ -302,7 +302,7 @@ const EXACTOS: Record<string, Trio> = {
     en: "Work with wings, not yet identified",
     es: "Obra con alas, por identificar",
   },
-  // Do protótipo, que ainda vive no staging.
+  // Do protótipo.
   "Café da Praça, em Matosinhos": {
     en: "Café da Praça, in Matosinhos",
     es: "Café da Praça, en Matosinhos",

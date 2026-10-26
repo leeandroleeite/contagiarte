@@ -1,90 +1,167 @@
-# A produção abre-se à mão, e é essa a ideia.
+# A produção abre-se à mão, e é essa a ideia: nada chega ao site sem
+# uma pessoa ter decidido que sim. Arranca-se nas Actions, ou com
 #
-# O plano era um trinco de aprovação no ambiente `producao` do GitHub, e
-# o comentário a pedi-lo esteve aqui meses sem ninguém o ligar: fui ver
-# e o ambiente tinha zero protection rules. Não é esquecimento, é que
-# reviewers obrigatórios em repositórios privados são de plano pago. Em
-# vez de pagar por um botão, a produção é um workflow que só arranca
-# quando alguém o manda arrancar. Dá o mesmo: nada chega ao site sem uma
-# pessoa ter decidido que sim.
+#   gh workflow run producao.yml                 # a ponta da main
+#   gh workflow run producao.yml -f commit=<sha>  # outro, para voltar atrás
 #
-# E não reconstrói nada. Vai buscar o que a staging está mesmo a correr,
-# pergunta à staging qual é esse commit em vez de o assumir, e publica
-# essa mesma imagem. O que foi visto é o que vai.
+# Houve uma staging no meio, e saiu a 26/10/2026, como saiu a do inna:
+# pagava-se, tinha conteúdo seu e desactualizado, obrigava a segredos e
+# logins a dobrar, e travou duas publicações sem apanhar nada que a
+# Verificação não apanhasse. No lugar dela fica um portão aqui dentro,
+# antes de tocar na produção:
 #
-# Antes daqui, um arranque à mão publicava a ponta da main à hora em que
-# fosse carregado, que podia já estar à frente do que a staging tinha
-# provado, e era uma compilação nova por cima.
+#   1. O commit tem de ter a Verificação verde. Os testes já correram
+#      lá, com o Playwright todo; não se repetem aqui.
+#   2. Constrói-se UMA imagem desse commit, e é essa que vai.
+#   3. A imagem arranca aqui, numa base vazia, e tem de responder com a
+#      versão certa e desenhar a entrada e o login do backoffice. Uma
+#      imagem que não arranca pára aqui, e não na única máquina da
+#      produção.
+#   4. Tira-se uma cópia da base de produção para o volume, ao lado da
+#      verdadeira. O Litestream já replica ao segundo, mas uma cópia
+#      tirada no instante antes do deploy é o que se quer à mão se uma
+#      migração correr mal.
+#   5. Publica-se a imagem e pergunta-se à produção que versão é ela.
+#
+# Se um dia fizer falta outra vez uma staging, o histórico do git tem o
+# fly.staging.toml e o publicar.yml de antes do commit que os tirou.
 name: Publicar em produção
 
 on:
   workflow_dispatch:
     inputs:
       commit:
-        description: 'Commit a publicar. Vazio = o que a staging está a correr agora.'
+        description: "Commit a publicar. Vazio = a ponta da main."
         required: false
-        default: ''
+        default: ""
 
 concurrency:
+  # Dois deploys ao mesmo tempo põem duas versões a discutir quem ficou
+  # por cima. Este espera pelo anterior em vez de o cancelar.
   group: publicar
   cancel-in-progress: false
+
+permissions:
+  contents: read
+  checks: read
 
 jobs:
   producao:
     runs-on: ubuntu-latest
     environment: producao
+    env:
+      COMMIT: ${{ inputs.commit || github.sha }}
+      URL: https://novo.contagiarte.pt
     steps:
       - uses: actions/checkout@v4
-      - uses: superfly/flyctl-actions/setup-flyctl@master
+        with:
+          ref: ${{ inputs.commit || github.sha }}
 
       - name: Qual é o commit que vai
-        id: qual
         run: |
           set -e
-          commit="${{ inputs.commit }}"
-          if [ -z "$commit" ]; then
-            commit=$(curl -fsS --max-time 15 https://contagiarte-staging.fly.dev/api/saude \
-              | node -e "let d='';process.stdin.on('data',c=>d+=c).on('end',()=>{try{console.log(JSON.parse(d).versao||'')}catch{console.log('')}})")
-            echo "a staging está a correr $commit, e é esse que vai"
-          else
-            echo "pedido à mão: $commit"
-          fi
-          if [ -z "$commit" ]; then
-            echo "a staging não diz que versão é. Foi publicada por fora da esteira?"
+          # Um sha curto, à mão, passa a inteiro: é o inteiro que a
+          # imagem leva e que a produção responde no fim.
+          COMMIT=$(git rev-parse HEAD)
+          echo "COMMIT=$COMMIT" >> "$GITHUB_ENV"
+          echo "vai $COMMIT"
+          echo "TAG=registry.fly.io/contagiarte:$COMMIT" >> "$GITHUB_ENV"
+
+      - name: "Portão 1: a Verificação deste commit está verde"
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -e
+          estado=$(gh api "repos/${{ github.repository }}/commits/$COMMIT/check-runs?check_name=verificar" \
+            --jq '[.check_runs[] | .conclusion] | if length == 0 then "nenhuma" elif any(. == "success") then "success" else .[0] end')
+          echo "Verificação: $estado"
+          if [ "$estado" != "success" ]; then
+            echo "Este commit não tem a Verificação verde. Primeiro os testes, depois a produção."
             exit 1
           fi
-          echo "commit=$commit" >> "$GITHUB_OUTPUT"
 
-      # A base de dados não leva cópia explícita antes do deploy, e é de
-      # propósito: o Litestream segue o WAL e replica para o R2 sem
-      # parar, portanto já existe restauro ao minuto. Uma cópia aqui
-      # dava uma falsa sensação de rede e atrasava o deploy. O que vale
-      # a pena é confirmar que essa replicação está mesmo viva, e isso
-      # vê-se na saúde da máquina que está de pé antes de mexer.
       - name: Ver como está a produção antes de mexer
-        run: ./scripts/fumo.sh https://novo.contagiarte.pt
+        run: ./scripts/fumo.sh "$URL"
 
-      # A etiqueta é a da produção, mas os bits são os mesmos que a
-      # staging correu: o publicar.yml constrói uma vez, empurra a mesma
-      # imagem para os dois registos e compara os digests antes de
-      # seguir.
-      - name: Publicar a imagem que a staging provou
+      # Constrói-se aqui no runner e não no construtor remoto do Fly: o
+      # remoto falha a partir de máquinas de fora com "tls: failed to
+      # verify certificate", e aqui passa-se pelo .dockerignore deste
+      # repositório, que é o que impede a base de desenvolvimento de
+      # entrar na imagem.
+      - name: Construir a imagem, uma vez só
+        run: docker build --build-arg COMMIT_SHA="$COMMIT" -t "$TAG" .
+
+      - name: Confirmar que a base local não entrou na imagem
+        run: |
+          set -e
+          if docker run --rm --entrypoint sh "$TAG" -c 'test -e /app/var'; then
+            echo "a pasta var/ foi para dentro da imagem. Ver o .dockerignore."
+            exit 1
+          fi
+          echo "a imagem está limpa"
+
+      # Sem LITESTREAM_BUCKET e sem R2, que vêm do fly.toml e dos
+      # segredos e não da imagem: arranca numa base vazia, corre as
+      # migrações todas desde o zero, e não toca em nada de fora.
+      - name: "Portão 2: a imagem arranca e desenha"
+        run: |
+          set -e
+          docker run -d --name portao -p 3000:3000 \
+            -e SESSION_SECRET="portao-$(openssl rand -hex 24)" \
+            -e APP_ENV=local \
+            -e PUBLIC_URL=http://127.0.0.1:3000 \
+            "$TAG"
+          if ! FUMO_TENTATIVAS=20 FUMO_INTERVALO=3 ./scripts/fumo.sh http://127.0.0.1:3000 "$COMMIT"; then
+            docker logs portao
+            exit 1
+          fi
+          for caminho in / /admin/entrar; do
+            codigo=$(curl -s -o /dev/null -w "%{http_code}" "http://127.0.0.1:3000$caminho")
+            echo "$caminho: $codigo"
+            if [ "$codigo" != "200" ]; then
+              docker logs portao
+              exit 1
+            fi
+          done
+          docker rm -f portao
+
+      - name: Empurrar a imagem para o registo da Fly
+        run: |
+          echo "${{ secrets.FLY_TOKEN_PROD || secrets.FLY_API_TOKEN }}" \
+            | docker login registry.fly.io -u x --password-stdin
+          docker push "$TAG"
+
+      - uses: superfly/flyctl-actions/setup-flyctl@master
+
+      # `machine exec` e não `ssh`: o ssh precisa do túnel WireGuard, que
+      # num runner novo demora e às vezes não abre. A cópia é com a API
+      # de backup do SQLite, que apanha o que ainda está no WAL, e fica
+      # no volume ao lado da base, a substituir a da publicação anterior.
+      - name: Tirar uma cópia da base de produção
         env:
           FLY_API_TOKEN: ${{ secrets.FLY_TOKEN_PROD || secrets.FLY_API_TOKEN }}
         run: |
-          flyctl deploy -c fly.toml -a contagiarte --now \
-            --image registry.fly.io/contagiarte:${{ steps.qual.outputs.commit }}
+          set -e
+          maquina=$(flyctl machine list -a contagiarte --json | jq -r '[.[] | select(.state == "started")][0].id')
+          echo "máquina: $maquina"
+          flyctl machine exec "$maquina" -a contagiarte \
+            "node -e \"require('/app/node_modules/better-sqlite3')('/dados/contagiarte.db',{readonly:true}).backup('/dados/antes-da-publicacao.db').then(()=>console.log('cópia feita'))\""
+
+      - name: Publicar
+        env:
+          FLY_API_TOKEN: ${{ secrets.FLY_TOKEN_PROD || secrets.FLY_API_TOKEN }}
+        run: flyctl deploy -c fly.toml -a contagiarte --now --image "$TAG"
 
       - name: Provar que ficou de pé, e que é esta versão
-        run: ./scripts/fumo.sh https://novo.contagiarte.pt "${{ steps.qual.outputs.commit }}"
+        run: ./scripts/fumo.sh "$URL" "$COMMIT"
 
       - name: Deixar dito o que foi
         run: |
           {
             echo "### Está em produção"
             echo ""
-            echo "<https://novo.contagiarte.pt>, no commit \`${{ steps.qual.outputs.commit }}\`."
+            echo "<$URL>, no commit \`$COMMIT\`."
             echo ""
-            echo "Para voltar atrás, correr este mesmo workflow com o commit anterior:"
-            echo "a imagem já está no registo e não é reconstruída."
+            echo "A base de antes ficou em \`/dados/antes-da-publicacao.db\`."
+            echo "Para voltar atrás no código, correr este workflow com o commit anterior."
           } >> "$GITHUB_STEP_SUMMARY"

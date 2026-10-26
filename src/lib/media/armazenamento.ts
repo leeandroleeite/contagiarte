@@ -7,7 +7,7 @@ import { apagar as apagarR2, guardar as guardarR2 } from "./r2";
  * Onde os ficheiros ficam guardados.
  *
  * Com R2 configurado, vão para o bucket, que é o que acontece em
- * staging e em produção. Sem R2, ficam em `public/media`, para o site
+ * produção. Sem R2, ficam em `public/media`, para o site
  * poder ser visto e editado localmente sem depender de uma conta na
  * Cloudflare. Os endereços não mudam: em qualquer dos casos passam por
  * `/api/media/...` ou pelo domínio da CDN.

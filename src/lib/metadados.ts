@@ -10,7 +10,7 @@ type Entrada = {
   titulo: string;
   descricao?: string;
   tipo?: "website" | "article";
-  /** Impede a indexação (rascunhos, staging, páginas de sistema). */
+  /** Impede a indexação (rascunhos, páginas de sistema). */
   semIndice?: boolean;
 };
 
@@ -114,7 +114,7 @@ export function metadados({
     description: descricao,
     alternates: { canonical: canonico, languages: alternativos },
     robots:
-      semIndice || env.ambiente === "staging"
+      semIndice || env.ambiente !== "producao"
         ? { index: false, follow: false }
         : { index: true, follow: true },
     openGraph: {

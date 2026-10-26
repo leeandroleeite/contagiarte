@@ -104,6 +104,31 @@
     padding-bottom: 84px;
   }
 
+  /* Texto corrido justificado, em todo o site e em todos os ecrãs.
+     Justificar sem partir palavras abre rios entre elas, sobretudo no
+     telemóvel, onde cabem trinta letras por linha. A hifenização segue
+     o `lang` da página, por isso parte em português, inglês ou
+     espanhol conforme o que lá está, e só parte palavras de seis letras
+     ou mais, com três antes do hífen e duas depois: "ca-sa" seria pior
+     do que um espaço largo, e com sete letras ainda ficavam linhas
+     abertas no telemóvel. O `pretty` evita que a última linha fique com
+     uma palavra sozinha. Fica na camada base para qualquer
+     `text-center` ou `text-left` de uma página continuar a mandar.
+     O `meta` fica de fora: são fichas e legendas em letra miúda e
+     espaçada, onde esticar uma linha de cinco palavras abre buracos. */
+  main p:not(.meta) {
+    text-align: justify;
+    hyphens: auto;
+    hyphenate-limit-chars: 6 3 2;
+    text-wrap: pretty;
+  }
+
+  /* No backoffice são notas e avisos curtos, não prosa. */
+  .admin main p {
+    text-align: start;
+    hyphens: manual;
+  }
+
   body {
     color: var(--color-papel);
     font-family: var(--font-texto);

@@ -21,10 +21,15 @@ export const dynamic = "force-dynamic";
 
 export default async function EditarDescarregavel({
   params,
+  searchParams,
 }: {
   params: Promise<{ id: string }>;
+  /** `?exposicao=<id>`: vem da ficha da exposição, para o catálogo
+   *  nascer já ligado a ela. */
+  searchParams: Promise<{ exposicao?: string }>;
 }) {
   const { id } = await params;
+  const { exposicao } = await searchParams;
   const novo = id === "novo";
 
   const [doc, biblioteca, listaExpo] = await Promise.all([
@@ -42,6 +47,12 @@ export default async function EditarDescarregavel({
   ]);
 
   if (!novo && !doc) notFound();
+
+  // Só se aceita uma exposição que exista: um id inventado no endereço
+  // ficava escolhido num select que não o mostra.
+  const exposicaoInicial =
+    doc?.exposicaoId ??
+    (listaExpo.some((e) => e.id === exposicao) ? exposicao! : "");
 
   const guardar = guardarDescarregavel.bind(null, novo ? null : id);
   const apagar = apagarDescarregavel.bind(null, id);
@@ -92,7 +103,7 @@ export default async function EditarDescarregavel({
           <CampoSelect
             nome="exposicaoId"
             rotulo="Catálogo da exposição"
-            valor={doc?.exposicaoId ?? ""}
+            valor={exposicaoInicial}
             opcoes={[
               { valor: "", rotulo: "Nenhuma" },
               ...listaExpo.map((e) => ({ valor: e.id, rotulo: e.titulo.pt })),

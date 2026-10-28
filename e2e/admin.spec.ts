@@ -1,6 +1,7 @@
 import { expect, test } from "@playwright/test";
 import {
   ADMIN_EMAIL,
+  abrirMaisOpcoes,
   entrarNoBackoffice,
   maisOpcoesDaObra,
 } from "./ajudas";
@@ -37,10 +38,27 @@ test.describe("Acesso", () => {
 
   test("entrar leva ao painel com o estado do site", async ({ page }) => {
     await entrarNoBackoffice(page);
+    // A saudação muda com a hora de Lisboa; o nome vem da sessão.
     await expect(
-      page.getByRole("heading", { name: "Painel", level: 1 }),
+      page.getByRole("heading", {
+        name: /^(Bom dia|Boa tarde|Boa noite), \S+\.$/,
+        level: 1,
+      }),
     ).toBeVisible();
-    await expect(page.getByText("Obras publicadas")).toBeVisible();
+
+    // O destaque é o mesmo que a entrada do site mostra.
+    const site = page.getByRole("region", { name: "O que o visitante vê agora" });
+    await expect(site).toBeVisible();
+    await expect(site.getByText(/A Pele da Terra/i)).toBeVisible();
+    await expect(
+      site.getByRole("link", { name: "Editar destaque" }),
+    ).toHaveAttribute("href", /^\/admin\/exposicoes\/[^/]+$/);
+    await expect(site.getByText("Pedidos novos")).toBeVisible();
+    await expect(site.getByText("Subscritores da newsletter")).toBeVisible();
+
+    await expect(
+      page.getByRole("link", { name: "Acrescentar obra" }),
+    ).toHaveAttribute("href", "/admin/obras/novo");
   });
 
   test("terminar sessão fecha o acesso", async ({ page }) => {
@@ -203,6 +221,84 @@ test.describe("Gerir conteúdo", () => {
     await expect(page).toHaveURL(/\/admin\/obras$/);
   });
 
+  test("o painel diz o que falta em cartões, a começar pelo que mais se nota", async ({
+    page,
+  }) => {
+    await entrarNoBackoffice(page);
+
+    // Uma obra no site e sem fotografia: é a falta que mais se vê.
+    const marca = Date.now().toString(36);
+    const titulo = `Sem foto ${marca}`;
+    await page.goto("/admin/obras/novo");
+    await page.locator('input[name="titulo.pt"]').fill(titulo);
+    await page.getByRole("button", { name: "Guardar e publicar" }).click();
+    await expect(page.getByText("Obra guardada.")).toBeVisible();
+
+    try {
+      await page.goto("/admin");
+      const cartoes = page.locator("[data-tarefa]");
+      expect(await cartoes.count()).toBeGreaterThan(0);
+      expect(await cartoes.count()).toBeLessThanOrEqual(3);
+
+      const primeiro = cartoes.first();
+      await expect(primeiro).toHaveAttribute("data-tarefa", "obras-fotografia");
+      await expect(primeiro.getByText("Mais visível")).toBeVisible();
+      await expect(
+        primeiro.getByRole("heading", { name: /^\d+ obras? sem fotografia$/ }),
+      ).toBeVisible();
+
+      // A lista completa continua lá, e tem a obra pelo nome.
+      await page.getByText("Ver tudo o que falta").click();
+      await expect(
+        page.locator("#tudo-o-que-falta").getByRole("link", { name: titulo }),
+      ).toBeVisible();
+
+      // O botão do cartão abre a grelha já filtrada.
+      await primeiro.getByRole("link", { name: /Pôr fotografias/ }).click();
+      await expect(page).toHaveURL(/\/admin\/obras\?filtro=sem-fotografia$/);
+      await expect(page.getByRole("link", { name: titulo })).toBeVisible();
+    } finally {
+      await page.goto("/admin/obras");
+      await page.getByRole("link", { name: titulo }).click();
+      page.once("dialog", (d) => d.accept());
+      await page.getByRole("button", { name: /Apagar obra/i }).click();
+      await expect(page).toHaveURL(/\/admin\/obras$/);
+    }
+  });
+
+  test("o filtro Sem fotografia só mostra obras sem fotografia", async ({
+    page,
+  }) => {
+    await entrarNoBackoffice(page);
+    await page.goto("/admin/obras");
+
+    const cartoes = page.locator("li[data-obra]");
+    const total = await cartoes.count();
+    const comMarcador = await cartoes.filter({ hasText: "Pôr fotografia" }).count();
+    expect(comMarcador, "a semente tem obras sem fotografia").toBeGreaterThan(0);
+    expect(comMarcador).toBeLessThan(total);
+
+    const botao = page.getByRole("link", { name: /^Sem fotografia/ });
+    await expect(botao).toContainText(String(comMarcador));
+    await botao.click();
+    await page.waitForURL(/filtro=sem-fotografia/);
+    await expect(botao).toHaveAttribute("aria-current", "true");
+
+    // Todas as que ficam têm o marcador, e nenhuma tem imagem.
+    await expect(cartoes).toHaveCount(comMarcador);
+    await expect(cartoes.filter({ hasText: "Pôr fotografia" })).toHaveCount(
+      comMarcador,
+    );
+    await expect(cartoes.locator("img")).toHaveCount(0);
+
+    // A pesquisa junta-se ao filtro, e não o perde.
+    const primeiro = (await cartoes.first().getByRole("link").innerText()).trim();
+    await page.getByRole("searchbox", { name: "Procurar obra" }).fill(primeiro);
+    await page.keyboard.press("Enter");
+    await page.waitForURL(/filtro=sem-fotografia&q=/);
+    await expect(page.getByRole("link", { name: primeiro }).first()).toBeVisible();
+  });
+
   test("os filtros das obras funcionam", async ({ page }) => {
     await entrarNoBackoffice(page);
     await page.goto("/admin/obras");
@@ -229,10 +325,11 @@ test.describe("Definições e textos", () => {
 
     const definir = async (nivel: string) => {
       await page.goto("/admin/definicoes");
+      await abrirMaisOpcoes(page);
       await page
         .locator('input[name="inversaoHeroi"]')
         .fill(nivel);
-      await page.getByRole("button", { name: /^Guardar$/ }).click();
+      await page.getByRole("button", { name: /^Guardar e publicar$/ }).click();
       await expect(page.getByText("Definições guardadas.")).toBeVisible();
     };
 
@@ -274,7 +371,7 @@ test.describe("Definições e textos", () => {
     const definir = async (numero: string) => {
       await page.goto("/admin/definicoes");
       await page.locator('input[name="whatsapp"]').fill(numero);
-      await page.getByRole("button", { name: /^Guardar$/ }).click();
+      await page.getByRole("button", { name: /^Guardar e publicar$/ }).click();
       await expect(page.getByText("Definições guardadas.")).toBeVisible();
     };
 
@@ -300,6 +397,44 @@ test.describe("Definições e textos", () => {
       .first()
       .getAttribute("href");
     expect(reposto).toContain(original);
+  });
+
+  test("escrever no email muda o rodapé na pré-visualização e a barra conta a alteração", async ({
+    page,
+  }) => {
+    await entrarNoBackoffice(page);
+    await page.goto("/admin/definicoes");
+
+    const previa = page.getByRole("complementary", {
+      name: "Pré-visualização do rodapé",
+    });
+    const campo = page.locator('input[name="email"]');
+    const original = await campo.inputValue();
+    const novo = `teste-${Date.now().toString(36)}@contagiarte.pt`;
+
+    // Antes de escrever: o rodapé mostra o email guardado, e não há
+    // nada por guardar.
+    await expect(previa.getByText(original)).toBeVisible();
+    await expect(page.getByText(/por guardar/)).toHaveCount(0);
+
+    await campo.fill(novo);
+
+    // O rodapé muda sem guardar, e o email em edição fica marcado.
+    const linha = previa.locator(`a[href="mailto:${novo}"]`);
+    await expect(linha).toBeVisible();
+    await expect(linha).toHaveClass(/outline-ouro/);
+    await expect(previa.getByText(original)).toHaveCount(0);
+
+    // A barra conta a alteração e diz qual é.
+    await expect(
+      page.getByRole("status").filter({ hasText: "1 alteração por guardar" }),
+    ).toContainText("Email");
+
+    // Desfazer volta ao que estava, no campo, no rodapé e na barra.
+    await page.getByRole("button", { name: "Desfazer" }).click();
+    await expect(page.locator('input[name="email"]')).toHaveValue(original);
+    await expect(previa.getByText(original)).toBeVisible();
+    await expect(page.getByText(/por guardar/)).toHaveCount(0);
   });
 
   test("editar um texto do site muda a página", async ({ page }) => {

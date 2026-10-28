@@ -39,6 +39,7 @@ export const exposicoesRel = relations(exposicoes, ({ one, many }) => ({
   artistas: many(exposicoesArtistas),
   obras: many(obras),
   salas: many(salas),
+  descarregaveis: many(descarregaveis),
 }));
 
 export const exposicoesArtistasRel = relations(
@@ -98,6 +99,10 @@ export const descarregaveisRel = relations(descarregaveis, ({ one }) => ({
   ficheiro: one(media, {
     fields: [descarregaveis.ficheiroId],
     references: [media.id],
+  }),
+  exposicao: one(exposicoes, {
+    fields: [descarregaveis.exposicaoId],
+    references: [exposicoes.id],
   }),
 }));
 

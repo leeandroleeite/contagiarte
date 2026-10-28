@@ -2,10 +2,12 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Botao } from "@/components/Botao";
+import { BotoesCatalogo } from "@/components/BotoesCatalogo";
 import { CartaoObra } from "@/components/CartaoObra";
 import { Imagem } from "@/components/Imagem";
 import { Seccao } from "@/components/Seccao";
 import {
+  catalogosDaExposicao,
   descarregavelPorSlug,
   exposicaoPorSlug,
   listarObras,
@@ -50,11 +52,16 @@ export default async function PaginaExposicao({
   const expo = await exposicaoPorSlug(slug);
   if (!expo) notFound();
 
-  const [def, obras, dossier] = await Promise.all([
+  const [def, obras, dossier, ligados] = await Promise.all([
     obterDefinicoes(),
     listarObras({ exposicaoId: expo.id }),
     descarregavelPorSlug(`dossier-${slug}`),
+    catalogosDaExposicao(expo.id),
   ]);
+
+  // O dossier encontrado pelo slug pode ser também o documento ligado
+  // no backoffice: nesse caso fica só o botão do dossier.
+  const catalogos = ligados.filter((c) => c.id !== dossier?.id);
 
   const titulo = texto(expo.titulo, idioma);
   const estado = situacao(expo);
@@ -232,6 +239,12 @@ export default async function PaginaExposicao({
                       : "Dosier ↓"}
                 </Botao>
               )}
+
+              <BotoesCatalogo
+                catalogos={catalogos}
+                idioma={idioma}
+                className="px-6 py-[15px]"
+              />
             </div>
           </aside>
         </div>

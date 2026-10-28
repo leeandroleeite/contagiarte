@@ -117,6 +117,11 @@ export const DICIONARIO = {
     en: "Download ↓",
     es: "Descargar ↓",
   },
+  "acao.descarregar_catalogo": {
+    pt: "Descarregar o catálogo (PDF) ↓",
+    en: "Download the catalogue (PDF) ↓",
+    es: "Descargar el catálogo (PDF) ↓",
+  },
   "acao.subscrever": { pt: "Subscrever", en: "Subscribe", es: "Suscribirse" },
   "acao.enviar": {
     pt: "Enviar pedido",

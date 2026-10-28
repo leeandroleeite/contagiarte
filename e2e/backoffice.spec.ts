@@ -451,6 +451,10 @@ test.describe("Descarregáveis", () => {
     await page.locator('[name="nome.pt"]').fill(nome);
     await page.locator('input[name="slug"]').fill(slug);
     await page.locator('[name="descricao.pt"]').fill("PDF de teste");
+    // Fica como catálogo de A Pele da Terra, a exposição da Quanta Terra.
+    await page
+      .locator('select[name="exposicaoId"]')
+      .selectOption({ label: "A Pele da Terra" });
     await page.locator('select[name="estado"]').selectOption("publicado");
 
     const ficheiro = `teste-${m}.pdf`;
@@ -480,11 +484,34 @@ test.describe("Descarregáveis", () => {
     });
     expect([302, 307]).toContain(resposta.status());
 
+    // --- na página da exposição e no fim do percurso, o botão do catálogo ---
+    const botaoCatalogo = (p: Page) =>
+      p.getByRole("link", { name: /Descarregar o catálogo \(PDF\)/ });
+    await page.goto("/exposicoes/a-pele-da-terra");
+    await expect(botaoCatalogo(page)).toHaveAttribute(
+      "href",
+      `/api/descarregar/${slug}`,
+    );
+    await page.goto("/en/exposicoes/a-pele-da-terra");
+    await expect(
+      page.getByRole("link", { name: /Download the catalogue \(PDF\)/ }),
+    ).toBeVisible();
+    await page.goto("/exposicoes/a-pele-da-terra/percurso");
+    await expect(botaoCatalogo(page)).toHaveAttribute(
+      "href",
+      `/api/descarregar/${slug}`,
+    );
+
     // Limpar.
     await page.goto("/admin/descarregaveis");
     await page.getByRole("link", { name: nome }).click();
     page.once("dialog", (d) => d.accept());
     await page.getByRole("button", { name: /Apagar documento/i }).click();
+    await expect(page).toHaveURL(/\/admin\/descarregaveis$/);
+
+    // Sem documento ligado, o botão desaparece.
+    await page.goto("/exposicoes/a-pele-da-terra");
+    await expect(botaoCatalogo(page)).toHaveCount(0);
   });
 });
 

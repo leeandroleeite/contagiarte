@@ -411,6 +411,12 @@ export const descarregaveis = sqliteTable(
     ficheiroId: text("ficheiro_id").references(() => media.id, {
       onDelete: "set null",
     }),
+    // Exposição de que este documento é o catálogo. Opcional: um dossier
+    // geral da galeria não pertence a nenhuma. Com ela preenchida, a
+    // página da exposição mostra o botão de descarregar.
+    exposicaoId: text("exposicao_id").references(() => exposicoes.id, {
+      onDelete: "set null",
+    }),
     data: text("data"),
     descargas: integer("descargas").notNull().default(0),
     estado: text("estado", { enum: ESTADOS }).notNull().default("rascunho"),

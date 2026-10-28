@@ -319,6 +319,24 @@ export async function descarregavelPorSlug(slug: string) {
   return linha ?? null;
 }
 
+/**
+ * Catálogos de uma exposição: os descarregáveis publicados que o
+ * backoffice ligou a ela. Só contam os que já têm PDF, para a página
+ * não mostrar um botão que dá 404.
+ */
+export async function catalogosDaExposicao(exposicaoId: string) {
+  const linhas = await db.query.descarregaveis.findMany({
+    where: and(
+      eq(descarregaveis.exposicaoId, exposicaoId),
+      eq(descarregaveis.estado, PUBLICADO),
+      sql`${descarregaveis.ficheiroId} is not null`,
+    ),
+    with: { ficheiro: true },
+    orderBy: [asc(descarregaveis.ordem), desc(descarregaveis.data)],
+  });
+  return linhas.filter((d) => d.ficheiro);
+}
+
 /** Conta uma descarga sem bloquear a resposta do ficheiro. */
 export async function contarDescarga(id: string) {
   await db

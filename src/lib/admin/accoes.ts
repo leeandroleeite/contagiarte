@@ -324,6 +324,7 @@ export async function guardarDescarregavel(
     nome,
     descricao: lerLocalizado(dados, "descricao"),
     ficheiroId: lerRelacao(dados, "ficheiroId"),
+    exposicaoId: lerRelacao(dados, "exposicaoId"),
     data: lerData(dados, "data"),
     estado: lerEstado(dados),
     ordem: lerInteiro(dados, "ordem"),

@@ -14,7 +14,7 @@ export const dynamic = "force-dynamic";
 
 export default async function ListaDescarregaveis() {
   const lista = await db.query.descarregaveis.findMany({
-    with: { ficheiro: true },
+    with: { ficheiro: true, exposicao: { columns: { titulo: true } } },
     orderBy: [asc(descarregaveis.ordem)],
   });
 
@@ -55,6 +55,11 @@ export default async function ListaDescarregaveis() {
                       ? `${d.ficheiro.nomeOriginal} · ${(d.ficheiro.tamanho / 1024 / 1024).toFixed(1)} MB · ${d.descargas} descargas`
                       : "Sem PDF associado: não aparece no site."}
                   </span>
+                  {d.exposicao && (
+                    <span className="text-[13px] text-adm-suave">
+                      Catálogo de {d.exposicao.titulo.pt}
+                    </span>
+                  )}
                 </div>
 
                 <div className="flex items-center gap-3">

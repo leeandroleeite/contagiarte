@@ -32,7 +32,10 @@ function deveMostrar(): boolean {
     // Sessão sem storage: mostra a cortina, sem memória entre páginas.
   }
 
-  mostrarNestaPagina = !semMovimento && !jaViu;
+  // Na moldura do editor de textos a cortina só atrapalhava: tapava a
+  // página que se está a editar sempre que ela recarrega.
+  const emMoldura = window.self !== window.top;
+  mostrarNestaPagina = !semMovimento && !jaViu && !emMoldura;
   return mostrarNestaPagina;
 }
 

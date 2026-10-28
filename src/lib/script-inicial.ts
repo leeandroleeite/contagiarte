@@ -13,13 +13,14 @@ import { CABECALHO_NONCE } from "@/lib/politica-seguranca";
  * 2. Se a cortina da entrada já foi vista nesta sessão. A decisão
  *    vivia num efeito do React, que corre depois de pintar: num
  *    telemóvel lento a cortina voltava a tapar o ecrã a quem regressava
- *    à página inicial.
+ *    à página inicial. Dentro de uma moldura, que é o editor de textos
+ *    do backoffice, conta como vista desde o início.
  *
  * Leva o nonce do pedido, como os blocos de dados estruturados. O
  * <Script> em si vive no layout de raiz, que é onde o Next aceita a
  * estratégia beforeInteractive.
  */
-export const CODIGO_INICIAL = `(function(){var h=document.documentElement;h.classList.add("js");try{if(sessionStorage.getItem("contagiarte-cortina")==="1")h.setAttribute("data-cortina-vista","")}catch(e){}setTimeout(function(){if(!window.__movimento)h.classList.remove("js")},6000)})();`;
+export const CODIGO_INICIAL = `(function(){var h=document.documentElement;h.classList.add("js");try{if(window.self!==window.top||sessionStorage.getItem("contagiarte-cortina")==="1")h.setAttribute("data-cortina-vista","")}catch(e){}setTimeout(function(){if(!window.__movimento)h.classList.remove("js")},6000)})();`;
 
 export async function nonceDoPedido(): Promise<string | undefined> {
   return (await headers()).get(CABECALHO_NONCE) ?? undefined;

@@ -45,6 +45,9 @@ export function novoNonce(): string {
  *   por causa dos desfoques que o Next põe debaixo das imagens
  *   enquanto elas carregam. O domínio do R2 entra quando existe um
  *   configurado, que é quando as imagens deixam de passar por aqui.
+ * - `frame-src` fecha a porta a qualquer moldura, com uma excepção: o
+ *   backoffice, que mostra a página pública verdadeira ao lado do
+ *   editor de textos. Aí abre só para o próprio site, nunca para fora.
  * - `frame-ancestors 'self'` diz o mesmo que o `X-Frame-Options` que
  *   já lá estava, na linguagem que os browsers de hoje lêem. O
  *   `base-uri` e o `form-action` estão aqui porque são as duas regras
@@ -61,7 +64,11 @@ export function novoNonce(): string {
  *   Safari leva a regra à letra, tenta subir também o que é local, e
  *   todas as páginas ficavam com dezenas de erros de TLS na consola.
  */
-export function politicaSeguranca(nonce: string, seguro: boolean): string {
+export function politicaSeguranca(
+  nonce: string,
+  seguro: boolean,
+  backoffice = false,
+): string {
   // O `'unsafe-eval'` é só do `next dev`, que recompila no browser; a
   // compilação que vai para o ar não precisa dele.
   const desenvolvimento = process.env.NODE_ENV !== "production";
@@ -90,7 +97,7 @@ export function politicaSeguranca(nonce: string, seguro: boolean): string {
     "object-src 'none'",
     "base-uri 'self'",
     "form-action 'self'",
-    "frame-src 'none'",
+    backoffice ? "frame-src 'self'" : "frame-src 'none'",
     "frame-ancestors 'self'",
     seguro ? "upgrade-insecure-requests" : null,
   ]

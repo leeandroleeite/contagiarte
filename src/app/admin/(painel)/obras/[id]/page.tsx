@@ -1,21 +1,18 @@
 import { asc, eq } from "drizzle-orm";
 import { notFound } from "next/navigation";
-import { BarraGuardar } from "@/components/admin/BarraGuardar";
-import { BotaoApagar } from "@/components/admin/BotaoApagar";
-import { CampoMedia } from "@/components/admin/CampoMedia";
-import {
-  CampoInterruptor,
-  CampoLocalizado,
-  CampoSelect,
-  CampoTexto,
-} from "@/components/admin/Campos";
-import { Grelha, CabecalhoSeccao, Conteudo } from "@/components/admin/Pecas";
+import { EditorObra, type DadosObra } from "@/components/admin/EditorObra";
 import { apagarObra, guardarObra } from "@/lib/admin/accoes";
 import { listarMedia } from "@/lib/admin/media";
+import { obterDefinicoes, obterTextos } from "@/lib/dados";
 import { db } from "@/lib/db";
-import { artistas, exposicoes, obras } from "@/lib/db/schema";
+import { artistas, exposicoes, obras, type Localizado } from "@/lib/db/schema";
 
 export const dynamic = "force-dynamic";
+
+/** Os três idiomas de um campo traduzível, sempre como texto. */
+function emTexto(valor: Localizado | null | undefined) {
+  return { pt: valor?.pt ?? "", en: valor?.en ?? "", es: valor?.es ?? "" };
+}
 
 export default async function EditarObra({
   params,
@@ -25,174 +22,74 @@ export default async function EditarObra({
   const { id } = await params;
   const nova = id === "novo";
 
-  const [obra, listaArtistas, listaExpo, biblioteca] = await Promise.all([
-    nova
-      ? null
-      : db.query.obras.findFirst({
-          where: eq(obras.id, id),
-          with: { fotografia: true },
-        }),
-    db.select().from(artistas).orderBy(asc(artistas.nome)),
-    db.select().from(exposicoes).orderBy(asc(exposicoes.slug)),
-    listarMedia("imagem"),
-  ]);
+  const [obra, listaArtistas, listaExpo, biblioteca, def, txt] =
+    await Promise.all([
+      nova
+        ? null
+        : db.query.obras.findFirst({
+            where: eq(obras.id, id),
+            with: { fotografia: true },
+          }),
+      db.select().from(artistas).orderBy(asc(artistas.nome)),
+      db.select().from(exposicoes).orderBy(asc(exposicoes.slug)),
+      listarMedia("imagem"),
+      // A pré-visualização é a ficha do site, com os mesmos contactos e
+      // a mesma nota por baixo dos botões.
+      obterDefinicoes(),
+      obterTextos(),
+    ]);
 
   if (!nova && !obra) notFound();
 
-  const guardar = guardarObra.bind(null, nova ? null : id);
-  const apagar = apagarObra.bind(null, id);
+  // Tudo em texto, como fica nos campos: é assim que se compara o que
+  // mudou e se desfaz.
+  const inicial: DadosObra = {
+    fotografia: obra?.fotografia
+      ? {
+          id: obra.fotografia.id,
+          chave: obra.fotografia.chave,
+          nomeOriginal: obra.fotografia.nomeOriginal,
+          tipoMime: obra.fotografia.tipoMime,
+        }
+      : null,
+    titulo: emTexto(obra?.titulo),
+    artistaId: obra?.artistaId ?? "",
+    tecnica: emTexto(obra?.tecnica),
+    dimensoes: obra?.dimensoes ?? "",
+    ano: obra?.ano != null ? String(obra.ano) : "",
+    descricao: emTexto(obra?.descricao),
+    exposicaoId: obra?.exposicaoId ?? "",
+    disponibilidade: obra?.disponibilidade ?? "disponivel",
+    preco: emTexto(obra?.preco),
+    slug: obra?.slug ?? "",
+    ordem: String(obra?.ordem ?? 0),
+    larguraCm: obra?.larguraCm != null ? String(obra.larguraCm) : "",
+    alturaCm: obra?.alturaCm != null ? String(obra.alturaCm) : "",
+    destaque: obra?.destaque ?? false,
+    estado: obra?.estado ?? "rascunho",
+  };
 
   return (
-    <>
-      <CabecalhoSeccao descricao={obra ? `/obras/${obra.slug}` : undefined}>
-        {nova ? "Nova obra" : obra!.titulo.pt}
-      </CabecalhoSeccao>
-
-      <Conteudo>
-      <form action={guardar}>
-        <Grelha>
-          <CampoLocalizado
-            nome="titulo"
-            rotulo="Título"
-            valor={obra?.titulo}
-            obrigatorio
-            largo
-          />
-
-          <CampoTexto
-            nome="slug"
-            rotulo="Endereço (slug)"
-            valor={obra?.slug}
-            nota="Deixe vazio para gerar a partir do título. Mudar isto parte links já divulgados."
-          />
-
-          <CampoSelect
-            nome="artistaId"
-            rotulo="Artista"
-            valor={obra?.artistaId}
-            opcoes={[
-              { valor: "", rotulo: "Sem artista" },
-              ...listaArtistas.map((a) => ({ valor: a.id, rotulo: a.nome })),
-            ]}
-          />
-
-          <CampoLocalizado
-            nome="tecnica"
-            rotulo="Técnica"
-            valor={obra?.tecnica}
-            nota="Ex. grés e pigmentos, técnica mista, colagem e spray."
-          />
-
-          <CampoTexto
-            nome="dimensoes"
-            rotulo="Dimensões"
-            valor={obra?.dimensoes}
-            placeholder="70 × 50 cm"
-          />
-
-          <CampoTexto
-            nome="ano"
-            rotulo="Ano"
-            tipo="number"
-            valor={obra?.ano}
-          />
-
-          <CampoSelect
-            nome="exposicaoId"
-            rotulo="Exposição"
-            valor={obra?.exposicaoId}
-            opcoes={[
-              { valor: "", rotulo: "Sem exposição" },
-              ...listaExpo.map((e) => ({
-                valor: e.id,
-                rotulo: e.titulo.pt,
-              })),
-            ]}
-          />
-
-          <CampoMedia
-            nome="fotografiaId"
-            rotulo="Fotografia"
-            valor={obra?.fotografia ?? null}
-            biblioteca={biblioteca}
-            nota="Sem fotografia, o site mostra um marcador com o título."
-            largo
-          />
-
-          <CampoLocalizado
-            nome="descricao"
-            rotulo="Descrição"
-            valor={obra?.descricao}
-            linhas={5}
-            largo
-          />
-
-          <CampoLocalizado
-            nome="preco"
-            rotulo="Preço"
-            valor={obra?.preco}
-            nota="Texto livre. Vazio mostra Sob consulta."
-          />
-
-          <CampoSelect
-            nome="disponibilidade"
-            rotulo="Disponibilidade"
-            valor={obra?.disponibilidade ?? "disponivel"}
-            opcoes={[
-              { valor: "disponivel", rotulo: "Disponível" },
-              { valor: "reservada", rotulo: "Reservada" },
-              { valor: "vendida", rotulo: "Vendida" },
-              { valor: "nao_venal", rotulo: "Não está à venda" },
-            ]}
-          />
-
-          <CampoTexto
-            nome="larguraCm"
-            rotulo="Largura real (cm)"
-            tipo="number"
-            valor={obra?.larguraCm}
-            nota="Usada pelo simulador Ver na parede para acertar a escala."
-          />
-
-          <CampoTexto
-            nome="alturaCm"
-            rotulo="Altura real (cm)"
-            tipo="number"
-            valor={obra?.alturaCm}
-          />
-
-          <CampoSelect
-            nome="estado"
-            rotulo="Estado"
-            valor={obra?.estado ?? "rascunho"}
-            opcoes={[
-              { valor: "rascunho", rotulo: "Rascunho (não aparece no site)" },
-              { valor: "publicado", rotulo: "Publicado" },
-              { valor: "arquivado", rotulo: "Arquivado" },
-            ]}
-          />
-
-          <CampoTexto
-            nome="ordem"
-            rotulo="Ordem"
-            tipo="number"
-            valor={obra?.ordem ?? 0}
-            nota="Número mais baixo aparece primeiro."
-          />
-
-          <CampoInterruptor
-            nome="destaque"
-            rotulo="Mostrar no carrossel da homepage"
-            valor={obra?.destaque}
-          />
-        </Grelha>
-
-        <BarraGuardar
-          voltarPara="/admin/obras"
-          extra={!nova && <BotaoApagar accao={apagar} rotulo="Apagar obra" />}
-        />
-      </form>
-      </Conteudo>
-    </>
+    <EditorObra
+      key={id}
+      nova={nova}
+      inicial={inicial}
+      artistas={listaArtistas.map((a) => ({
+        id: a.id,
+        nome: a.nome,
+        slug: a.slug,
+      }))}
+      exposicoes={listaExpo.map((e) => ({
+        id: e.id,
+        slug: e.slug,
+        titulo: e.titulo,
+      }))}
+      biblioteca={biblioteca}
+      whatsapp={def.whatsapp}
+      email={def.email}
+      nota={txt["obra.nota.servico"] ?? null}
+      guardar={guardarObra.bind(null, nova ? null : id)}
+      apagar={nova ? null : apagarObra.bind(null, id)}
+    />
   );
 }

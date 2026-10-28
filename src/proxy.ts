@@ -114,7 +114,13 @@ export default async function proxy(pedido: NextRequest) {
   const seguro =
     (pedido.headers.get("x-forwarded-proto") ??
       pedido.nextUrl.protocol.replace(":", "")) === "https";
-  const politica = politicaSeguranca(nonce, seguro);
+  // O backoffice é o único sítio que mostra páginas do site dentro de
+  // uma moldura, as do próprio site e mais nenhumas.
+  const politica = politicaSeguranca(
+    nonce,
+    seguro,
+    pathname.startsWith("/admin"),
+  );
 
   /**
    * Deixa passar, com o nonce à vista dos dois lados.

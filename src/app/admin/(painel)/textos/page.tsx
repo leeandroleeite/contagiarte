@@ -1,79 +1,94 @@
-import { asc } from "drizzle-orm";
-import { BarraGuardar } from "@/components/admin/BarraGuardar";
-import { CampoLocalizado } from "@/components/admin/Campos";
-import { Aviso, CabecalhoSeccao, Conteudo } from "@/components/admin/Pecas";
-import { guardarTextos } from "@/lib/admin/accoes";
+import { and, asc, eq, inArray } from "drizzle-orm";
+import { Aviso, CabecalhoSeccao } from "@/components/admin/Pecas";
 import { db } from "@/lib/db";
-import { textos } from "@/lib/db/schema";
+import { exposicoes, obras, salas, textos } from "@/lib/db/schema";
+import { EditorTextos, type TextoDoSite } from "./EditorTextos";
+import { nomeDoTexto, paginaDoTexto, paginasDoSite } from "./paginas";
 
 export const dynamic = "force-dynamic";
 
-const NOME_GRUPO: Record<string, string> = {
-  homepage: "Homepage",
-  lugares: "Lugares",
-  molduras: "Molduras",
-  newsletter: "Newsletter",
-  arquivo: "Arquivo",
-  artistas: "Artistas",
-  legal: "Textos legais",
-  geral: "Geral",
-};
-
+/**
+ * Textos do site, editados em cima da página onde aparecem.
+ *
+ * Antes era uma parede de cem campos com a chave técnica por rótulo, e
+ * quem editava não sabia o que estava a mudar. Agora escolhe-se a
+ * página, vê-se a página verdadeira ao lado e clica-se na frase. A
+ * chave continua a existir, mas fica num pormenor discreto do painel.
+ */
 export default async function PaginaTextos({
   searchParams,
 }: {
-  searchParams: Promise<{ guardado?: string }>;
+  searchParams: Promise<{ guardado?: string; pagina?: string; texto?: string }>;
 }) {
-  const { guardado } = await searchParams;
-  const lista = await db
-    .select()
-    .from(textos)
-    .orderBy(asc(textos.grupo), asc(textos.chave));
+  const { guardado, pagina, texto } = await searchParams;
 
-  const grupos = new Map<string, typeof lista>();
-  for (const t of lista) {
-    const g = grupos.get(t.grupo) ?? [];
-    g.push(t);
-    grupos.set(t.grupo, g);
-  }
+  const [lista, [obra], [percurso]] = await Promise.all([
+    db.select().from(textos).orderBy(asc(textos.chave)),
+    // Os textos de uma ficha são os mesmos em todas; basta um exemplo
+    // que o visitante também consiga abrir.
+    db
+      .select({ slug: obras.slug })
+      .from(obras)
+      .where(eq(obras.estado, "publicado"))
+      .orderBy(asc(obras.ordem))
+      .limit(1),
+    db
+      .select({ slug: exposicoes.slug })
+      .from(exposicoes)
+      .where(
+        and(
+          eq(exposicoes.estado, "publicado"),
+          inArray(
+            exposicoes.id,
+            db.select({ id: salas.exposicaoId }).from(salas),
+          ),
+        ),
+      )
+      .limit(1),
+  ]);
+
+  const paginas = paginasDoSite({
+    obra: obra?.slug ?? null,
+    percurso: percurso?.slug ?? null,
+  });
+
+  const lidos: TextoDoSite[] = lista.map((t) => ({
+    chave: t.chave,
+    nome: nomeDoTexto(t.chave),
+    nota: t.nota ?? "",
+    pagina: paginaDoTexto(t.chave, t.grupo),
+    valor: { pt: t.valor.pt, en: t.valor.en ?? "", es: t.valor.es ?? "" },
+  }));
+
+  // Só aparecem as páginas que têm textos; o "Outros" fica escondido
+  // enquanto todos os grupos tiverem casa.
+  const comTextos = paginas.filter((p) =>
+    lidos.some((t) => t.pagina === p.id),
+  );
+
+  // Muda sempre que alguém guarda. O editor nasce de novo com ela, e
+  // com ele a página ao lado, que assim mostra já o texto guardado.
+  const versao = String(
+    Math.max(0, ...lista.map((t) => t.actualizadoEm.getTime())),
+  );
 
   return (
     <>
-      <CabecalhoSeccao descricao="As frases fixas do site. O que estiver vazio em EN ou ES mostra o português.">
+      <CabecalhoSeccao descricao="Escolha a página e clique no texto que quer mudar.">
         Textos do site
       </CabecalhoSeccao>
 
-      <Conteudo>
-      {guardado && <Aviso tom="bom">Textos guardados.</Aviso>}
+      <div className="px-6 pt-6 pb-16 lg:px-8">
+        {guardado && <Aviso tom="bom">Textos guardados.</Aviso>}
 
-      <form action={guardarTextos}>
-        {[...grupos.entries()].map(([grupo, entradas]) => (
-          <section key={grupo} className="mb-12">
-            <h2 className="titulo-med mb-5 border-b border-adm-fio pb-2 text-[20px]">
-              {NOME_GRUPO[grupo] ?? grupo}
-            </h2>
-
-            <div className="flex flex-col gap-7">
-              {entradas.map((t) => (
-                <div key={t.chave}>
-                  <input type="hidden" name="chaves" value={t.chave} />
-                  <CampoLocalizado
-                    nome={`t.${t.chave}`}
-                    rotulo={t.chave}
-                    valor={t.valor}
-                    nota={t.nota ?? undefined}
-                    linhas={t.valor.pt.length > 90 ? 6 : 0}
-                    largo
-                  />
-                </div>
-              ))}
-            </div>
-          </section>
-        ))}
-
-        <BarraGuardar voltarPara="/admin" />
-      </form>
-      </Conteudo>
+        <EditorTextos
+          key={versao}
+          paginas={comTextos}
+          textos={lidos}
+          paginaInicial={pagina}
+          textoInicial={texto}
+        />
+      </div>
     </>
   );
 }

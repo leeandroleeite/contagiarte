@@ -947,6 +947,21 @@ body:has(.admin)::after {
     color: #fff;
   }
 
+  /* A pré-visualização da ficha da obra é um pedaço do site dentro do
+     painel. Devolve-lhe as regras do site que o painel muda: links
+     dourados sem sublinhado e texto corrido justificado. */
+  .admin main .previa-site a {
+    color: var(--color-ouro);
+    text-decoration: none;
+  }
+
+  .admin main .previa-site p:not(.meta) {
+    text-align: justify;
+    hyphens: auto;
+    hyphenate-limit-chars: 6 3 2;
+    text-wrap: pretty;
+  }
+
   .adm-rotulo {
     display: block;
     margin-bottom: 6px;

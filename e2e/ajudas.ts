@@ -51,3 +51,12 @@ export async function esperarCortina(page: Page) {
     .catch(() => {});
   await page.waitForTimeout(2800);
 }
+
+/**
+ * Abre o "Mais opções" da ficha da obra, onde vivem o endereço, a
+ * ordem, as medidas reais e o estado. Fechado, os campos não se
+ * preenchem.
+ */
+export async function maisOpcoesDaObra(page: Page) {
+  await page.locator("summary", { hasText: "Mais opções" }).click();
+}

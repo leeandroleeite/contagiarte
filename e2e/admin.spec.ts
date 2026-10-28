@@ -2,6 +2,7 @@ import { expect, test } from "@playwright/test";
 import {
   ADMIN_EMAIL,
   entrarNoBackoffice,
+  maisOpcoesDaObra,
 } from "./ajudas";
 
 /**
@@ -65,10 +66,10 @@ test.describe("Gerir conteúdo", () => {
     // --- criar ---
     await page.goto("/admin/obras/novo");
     await page.locator('input[name="titulo.pt"]').fill(titulo);
-    await page.locator('input[name="slug"]').fill(slug);
     await page.locator('input[name="dimensoes"]').fill("40 × 30 cm");
-    await page.locator('select[name="estado"]').selectOption("publicado");
-    await page.getByRole("button", { name: /^Guardar$/ }).click();
+    await maisOpcoesDaObra(page);
+    await page.locator('input[name="slug"]').fill(slug);
+    await page.getByRole("button", { name: "Guardar e publicar" }).click();
 
     await expect(page).toHaveURL(/\/admin\/obras\?guardado=/);
     await expect(page.getByText("Obra guardada.")).toBeVisible();
@@ -86,7 +87,7 @@ test.describe("Gerir conteúdo", () => {
     await page.goto("/admin/obras");
     await page.getByRole("link", { name: titulo }).click();
     await page.locator('input[name="dimensoes"]').fill("80 × 60 cm");
-    await page.getByRole("button", { name: /^Guardar$/ }).click();
+    await page.getByRole("button", { name: "Guardar e publicar" }).click();
     await expect(page.getByText("Obra guardada.")).toBeVisible();
 
     await page.goto(`/obras/${slug}`);
@@ -112,9 +113,10 @@ test.describe("Gerir conteúdo", () => {
 
     await page.goto("/admin/obras/novo");
     await page.locator('input[name="titulo.pt"]').fill(`Rascunho ${marca}`);
+    await maisOpcoesDaObra(page);
     await page.locator('input[name="slug"]').fill(slug);
-    // O estado por omissão é rascunho: não se toca.
-    await page.getByRole("button", { name: /^Guardar$/ }).click();
+    // O estado por omissão é rascunho, e há um botão que o mantém.
+    await page.getByRole("button", { name: "Guardar sem publicar" }).click();
     await expect(page.getByText("Obra guardada.")).toBeVisible();
 
     const resposta = await page.goto(`/obras/${slug}`);
@@ -125,6 +127,80 @@ test.describe("Gerir conteúdo", () => {
     await page.getByRole("link", { name: `Rascunho ${marca}` }).click();
     page.once("dialog", (d) => d.accept());
     await page.getByRole("button", { name: /Apagar obra/i }).click();
+  });
+
+  test("escrever no título muda a pré-visualização, a barra conta a alteração, e guardar publica", async ({
+    page,
+  }) => {
+    await entrarNoBackoffice(page);
+
+    const marca = Date.now().toString(36);
+    const titulo = `Obra de teste ${marca}`;
+    const novoTitulo = `Obra revista ${marca}`;
+    const slug = `obra-de-teste-${marca}`;
+
+    await page.goto("/admin/obras/novo");
+    await page.locator('input[name="titulo.pt"]').fill(titulo);
+    await maisOpcoesDaObra(page);
+    await page.locator('input[name="slug"]').fill(slug);
+    await page.getByRole("button", { name: "Guardar e publicar" }).click();
+    await expect(page.getByText("Obra guardada.")).toBeVisible();
+
+    await page.getByRole("link", { name: titulo }).click();
+    const previa = page.getByRole("complementary", {
+      name: "Pré-visualização da página da obra",
+    });
+    const barra = page.getByRole("status").filter({ hasText: /guardad|guardar/ });
+
+    // Sem nada mexido, a barra sossega e a ficha é a do site.
+    await expect(previa).toContainText(titulo);
+    await expect(barra).toContainText("Tudo guardado");
+
+    // Enquanto se escreve, a ficha muda e a barra diz o quê.
+    await page.locator('input[name="titulo.pt"]').fill(novoTitulo);
+    await expect(previa).toContainText(novoTitulo);
+    await expect(barra).toContainText("1 alteração por guardar: Título");
+
+    // Desfazer volta ao que estava.
+    await page.getByRole("button", { name: "Desfazer" }).click();
+    await expect(previa).toContainText(titulo);
+    await expect(barra).toContainText("Tudo guardado");
+
+    // A língua escolhe-se uma vez, e a ficha passa a ela.
+    await page
+      .getByRole("group", { name: "Língua a editar" })
+      .getByRole("button", { name: /^en/i })
+      .click();
+    await expect(page.getByText(/Ainda sem tradução/)).toBeVisible();
+    await expect(previa).toContainText(`/en/obras/${slug}`);
+    await page.locator('input[name="titulo.en"]').fill(`${novoTitulo} EN`);
+    await expect(previa).toContainText(`${novoTitulo} EN`);
+    await expect(barra).toContainText("Título (EN)");
+    await page
+      .getByRole("group", { name: "Língua a editar" })
+      .getByRole("button", { name: /^pt/i })
+      .click();
+
+    await page.locator('input[name="titulo.pt"]').fill(novoTitulo);
+    await expect(barra).toContainText("2 alterações por guardar: Título, Título (EN)");
+    await page.getByRole("button", { name: "Guardar e publicar" }).click();
+    await expect(page.getByText("Obra guardada.")).toBeVisible();
+
+    await page.goto(`/obras/${slug}`);
+    await expect(
+      page.getByRole("heading", { name: novoTitulo, level: 1 }),
+    ).toBeVisible();
+    await page.goto(`/en/obras/${slug}`);
+    await expect(
+      page.getByRole("heading", { name: `${novoTitulo} EN`, level: 1 }),
+    ).toBeVisible();
+
+    // Limpar.
+    await page.goto("/admin/obras");
+    await page.getByRole("link", { name: novoTitulo }).click();
+    page.once("dialog", (d) => d.accept());
+    await page.getByRole("button", { name: /Apagar obra/i }).click();
+    await expect(page).toHaveURL(/\/admin\/obras$/);
   });
 
   test("os filtros das obras funcionam", async ({ page }) => {
@@ -228,16 +304,18 @@ test.describe("Definições e textos", () => {
 
   test("editar um texto do site muda a página", async ({ page }) => {
     await entrarNoBackoffice(page);
-    await page.goto("/admin/textos");
+    // A morada abre a página e o texto, como faz a procura do editor.
+    const editor = "/admin/textos?pagina=lugares&texto=lugares.intro";
+    await page.goto(editor);
 
     const campo = page.locator('[name="t.lugares.intro.pt"]').first();
     const original = await campo.inputValue();
     const novo = `Texto de teste ${Date.now().toString(36)}`;
 
     const definir = async (valor: string) => {
-      await page.goto("/admin/textos");
+      await page.goto(editor);
       await page.locator('[name="t.lugares.intro.pt"]').first().fill(valor);
-      await page.getByRole("button", { name: /^Guardar$/ }).click();
+      await page.getByRole("button", { name: /^Guardar e publicar$/ }).click();
       await expect(page.getByText("Textos guardados.")).toBeVisible();
     };
 
@@ -248,6 +326,42 @@ test.describe("Definições e textos", () => {
     } finally {
       await definir(original);
     }
+  });
+
+  test("clicar num texto dentro da página abre-o no painel", async ({
+    page,
+  }) => {
+    await entrarNoBackoffice(page);
+    await page.goto("/admin/textos?pagina=lugares");
+
+    const painel = page.getByRole("complementary", {
+      name: "Editar o texto escolhido",
+    });
+    const site = page.frameLocator('iframe[title^="Página Lugares"]');
+    const marcado = site.locator('[data-texto-chave="lugares.intro"]');
+
+    // A frase está na página, com o contorno de quem se pode editar.
+    await expect(marcado).toBeVisible();
+    const original = (await marcado.innerText()).trim();
+    await marcado.click();
+
+    // O painel diz o nome em linguagem de gente, não a chave.
+    await expect(
+      painel.getByText("Frase de abertura", { exact: true }),
+    ).toBeVisible();
+    const campo = painel.locator('[name="t.lugares.intro.pt"]');
+    await expect(campo).toHaveValue(original);
+    await expect(marcado).toHaveAttribute("data-texto-escolhido", "");
+
+    // Escrever muda a página ao lado antes de guardar...
+    const novo = `Ainda por guardar ${Date.now().toString(36)}`;
+    await campo.fill(novo);
+    await expect(marcado).toHaveText(novo);
+
+    // ...e voltar ao original desfaz, sem nada ter ido para o site.
+    await painel.getByRole("button", { name: "Voltar ao original" }).click();
+    await expect(campo).toHaveValue(original);
+    await expect(marcado).toHaveText(original);
   });
 });
 

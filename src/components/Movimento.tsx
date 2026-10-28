@@ -14,7 +14,8 @@ declare global {
  * revelação das imagens, cursor, barra de progresso, paralaxe e faixa.
  *
  * Regras:
- *  - `prefers-reduced-motion` desliga tudo e mostra o conteúdo já visível;
+ *  - `prefers-reduced-motion` desliga tudo e mostra o conteúdo já visível,
+ *    e o mesmo acontece quando a página está dentro de uma moldura;
  *  - o cursor só existe em ponteiros finos com hover;
  *  - cada lote de elementos a revelar tem uma rede de segurança de 5s;
  *  - um loop só, e que dorme: só corre enquanto há scroll, rato ou uma
@@ -26,9 +27,14 @@ export function Movimento({ cursor = true }: { cursor?: boolean }) {
     window.__movimento = true;
     document.documentElement.classList.add("js");
 
-    const semMovimento = window.matchMedia(
-      "(prefers-reduced-motion: reduce)",
-    ).matches;
+    // Dentro de uma moldura, que só pode ser o editor de textos do
+    // backoffice a mostrar a página ao lado, tudo fica parado e já à
+    // vista: quem edita quer ler a frase, não vê-la chegar, e o cursor
+    // da galeria tapava o do rato com que se escolhe o texto.
+    const emMoldura = window.self !== window.top;
+    const semMovimento =
+      emMoldura ||
+      window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
     const SELECTOR = "[data-surge],[data-revelar]";
     const revelar = (n: Element) => {

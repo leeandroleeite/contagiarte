@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Botao } from "@/components/Botao";
 import { FormularioNewsletter } from "@/components/FormularioNewsletter";
 import { FormularioPedido } from "@/components/FormularioPedido";
+import { Icone } from "@/components/Icones";
 import { Seccao } from "@/components/Seccao";
 import { obterDefinicoes, obterTextos } from "@/lib/dados";
 import { t, texto, type Idioma } from "@/lib/i18n";
@@ -50,16 +51,24 @@ export default async function PaginaContactos({
               {T("contactos.intro")}
             </p>
 
-            <div className="flex flex-col gap-3 text-[18px]">
+            {/* Cada contacto leva o ícone da sua marca à frente, pedido
+                da galeria para quem reconhece o logótipo mais depressa do
+                que lê a palavra. */}
+            <div className="flex flex-col gap-3 text-[18px] [&_a]:flex [&_a]:items-center [&_a]:gap-3">
               <a
                 href={linkWhatsApp(def.whatsapp, T("whatsapp.site"))}
                 target="_blank"
                 rel="noopener noreferrer"
               >
+                <Icone nome="whatsapp" />
                 WhatsApp →
               </a>
-              <a href={`mailto:${def.email}`}>{def.email}</a>
+              <a href={`mailto:${def.email}`}>
+                <Icone nome="email" />
+                {def.email}
+              </a>
               <a href={`tel:${def.telefone.replace(/\s/g, "")}`}>
+                <Icone nome="telefone" />
                 {def.telefone}
               </a>
               <a
@@ -67,12 +76,19 @@ export default async function PaginaContactos({
                 target="_blank"
                 rel="noopener noreferrer"
               >
-                @{def.instagram}
+                <Icone nome="instagram" />@{def.instagram}
               </a>
             </div>
 
             {def.morada && (
-              <p className="corpo text-claro-55">{def.morada}</p>
+              <p className="corpo flex gap-3 text-claro-55">
+                {/* Da altura de uma linha, para o pino ficar alinhado
+                    com a primeira, mesmo que a morada ocupe duas. */}
+                <span className="flex h-[1lh] items-center">
+                  <Icone nome="morada" />
+                </span>
+                <span>{def.morada}</span>
+              </p>
             )}
 
             <Botao

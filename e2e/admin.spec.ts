@@ -304,16 +304,18 @@ test.describe("Definições e textos", () => {
 
   test("editar um texto do site muda a página", async ({ page }) => {
     await entrarNoBackoffice(page);
-    await page.goto("/admin/textos");
+    // A morada abre a página e o texto, como faz a procura do editor.
+    const editor = "/admin/textos?pagina=lugares&texto=lugares.intro";
+    await page.goto(editor);
 
     const campo = page.locator('[name="t.lugares.intro.pt"]').first();
     const original = await campo.inputValue();
     const novo = `Texto de teste ${Date.now().toString(36)}`;
 
     const definir = async (valor: string) => {
-      await page.goto("/admin/textos");
+      await page.goto(editor);
       await page.locator('[name="t.lugares.intro.pt"]').first().fill(valor);
-      await page.getByRole("button", { name: /^Guardar$/ }).click();
+      await page.getByRole("button", { name: /^Guardar e publicar$/ }).click();
       await expect(page.getByText("Textos guardados.")).toBeVisible();
     };
 
@@ -324,6 +326,42 @@ test.describe("Definições e textos", () => {
     } finally {
       await definir(original);
     }
+  });
+
+  test("clicar num texto dentro da página abre-o no painel", async ({
+    page,
+  }) => {
+    await entrarNoBackoffice(page);
+    await page.goto("/admin/textos?pagina=lugares");
+
+    const painel = page.getByRole("complementary", {
+      name: "Editar o texto escolhido",
+    });
+    const site = page.frameLocator('iframe[title^="Página Lugares"]');
+    const marcado = site.locator('[data-texto-chave="lugares.intro"]');
+
+    // A frase está na página, com o contorno de quem se pode editar.
+    await expect(marcado).toBeVisible();
+    const original = (await marcado.innerText()).trim();
+    await marcado.click();
+
+    // O painel diz o nome em linguagem de gente, não a chave.
+    await expect(
+      painel.getByText("Frase de abertura", { exact: true }),
+    ).toBeVisible();
+    const campo = painel.locator('[name="t.lugares.intro.pt"]');
+    await expect(campo).toHaveValue(original);
+    await expect(marcado).toHaveAttribute("data-texto-escolhido", "");
+
+    // Escrever muda a página ao lado antes de guardar...
+    const novo = `Ainda por guardar ${Date.now().toString(36)}`;
+    await campo.fill(novo);
+    await expect(marcado).toHaveText(novo);
+
+    // ...e voltar ao original desfaz, sem nada ter ido para o site.
+    await painel.getByRole("button", { name: "Voltar ao original" }).click();
+    await expect(campo).toHaveValue(original);
+    await expect(marcado).toHaveText(original);
   });
 });
 

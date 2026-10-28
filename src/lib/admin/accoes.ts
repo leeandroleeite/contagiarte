@@ -422,13 +422,17 @@ export async function guardarTextos(dados: FormData) {
   const sessao = await exigirSessao();
 
   const chaves = dados.getAll("chaves").map(String);
+  const revistas: string[] = [];
   for (const chave of chaves) {
     const valor = lerLocalizado(dados, `t.${chave}`);
-    if (!valor) continue;
+    // O português é obrigatório: é para ele que o inglês e o espanhol
+    // caem quando estão vazios. Um texto sem ele fica como estava.
+    if (!valor?.pt) continue;
     await db
       .update(textos)
       .set({ valor, actualizadoEm: new Date() })
       .where(eq(textos.chave, chave));
+    revistas.push(chave);
   }
 
   await registar(
@@ -436,10 +440,21 @@ export async function guardarTextos(dados: FormData) {
     "editou",
     "textos",
     null,
-    `${chaves.length} chaves revistas`,
+    revistas.length === 1
+      ? revistas[0]
+      : `${revistas.length} chaves revistas`,
   );
   limparCache();
-  redirect("/admin/textos?guardado=1");
+
+  // O editor volta à página e ao texto onde se estava. Os dois vão
+  // como parâmetros de uma morada fixa, por isso não abrem caminho para
+  // mandar ninguém para fora do backoffice.
+  const volta = new URLSearchParams({ guardado: "1" });
+  const pagina = lerTexto(dados, "pagina");
+  const escolhido = lerTexto(dados, "texto");
+  if (pagina) volta.set("pagina", pagina);
+  if (escolhido) volta.set("texto", escolhido);
+  redirect(`/admin/textos?${volta}`);
 }
 
 // --------------------------------------------------------------------

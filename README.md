@@ -150,6 +150,16 @@ ficha da obra é diferente: a língua escolhe-se uma vez no topo, e a
 pré-visualização ao lado mostra a obra nessa língua, desenhada pelo
 mesmo componente da página pública (`src/components/FichaObra.tsx`).
 
+As frases fixas das páginas (tabela `textos`) editam-se em Backoffice →
+Textos do site, em cima da própria página: o editor mostra a página
+pública numa moldura do mesmo domínio, procura lá cada frase pelo valor
+guardado e torna-a clicável. É a única moldura do site, e por isso o
+`frame-src` só abre para `'self'` nas páginas de `/admin`. Dentro dela
+o Movimento e a cortina ficam parados. Os textos que a página não
+mostra (descrições para o Google, mensagens do WhatsApp, descrições de
+fotografias) ficam numa lista por baixo. Ver
+`src/app/admin/(painel)/textos/`.
+
 ### Entrar no backoffice
 
 O backoffice vive em `/admin`. **Não há botão de login no site**, e é
@@ -488,7 +498,8 @@ lê o repositório e não tem a chave do backoffice.
    vinda do catálogo, e foi retirada.
 8. **Revisão jurídica da política de privacidade.** O texto actual é um
    rascunho sério mas não revisto por advogado. Está em Backoffice →
-   Textos do site, chave `privacidade.conteudo`.
+   Textos do site → Privacidade, "Texto da política de privacidade"
+   (chave `privacidade.conteudo`).
 9. **Datas e títulos das exposições anteriores** (edições 2021 a 2023
    da Quanta Terra, Off Padel, Café da Praça).
 

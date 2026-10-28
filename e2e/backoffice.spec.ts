@@ -622,17 +622,21 @@ test.describe("Textos e traduções", () => {
     page,
   }) => {
     await entrarNoBackoffice(page);
-    await page.goto("/admin/textos");
+    const editor = "/admin/textos?pagina=lugares&texto=lugares.intro";
+    const guardarTextos = async () => {
+      await page.getByRole("button", { name: /^Guardar e publicar$/ }).click();
+      await expect(page.getByText("Textos guardados.")).toBeVisible();
+    };
+    await page.goto(editor);
 
     const campoPt = page.locator('[name="t.lugares.intro.pt"]').first();
     const originalPt = await campoPt.inputValue();
     const novoEn = `Test intro ${marca()}`;
 
     try {
-      await idiomaDoCampo(page, "t.lugares.intro", "en");
+      // As três línguas estão à vista no painel, lado a lado.
       await page.locator('[name="t.lugares.intro.en"]').first().fill(novoEn);
-      await guardar(page);
-      await expect(page.getByText("Textos guardados.")).toBeVisible();
+      await guardarTextos();
 
       await page.goto("/en/lugares");
       await expect(page.getByText(novoEn)).toBeVisible();
@@ -641,11 +645,12 @@ test.describe("Textos e traduções", () => {
       await page.goto("/lugares");
       await expect(page.getByText(originalPt)).toBeVisible();
     } finally {
-      await page.goto("/admin/textos");
-      await idiomaDoCampo(page, "t.lugares.intro", "en");
+      await page.goto(editor);
       await page.locator('[name="t.lugares.intro.en"]').first().fill("");
-      await guardar(page);
-      await expect(page.getByText("Textos guardados.")).toBeVisible();
+      // Se o teste caiu antes de guardar, não há nada a repor e o botão
+      // fica desligado.
+      const botao = page.getByRole("button", { name: /^Guardar e publicar$/ });
+      if (await botao.isEnabled()) await guardarTextos();
     }
   });
 });

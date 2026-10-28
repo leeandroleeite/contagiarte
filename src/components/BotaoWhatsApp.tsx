@@ -2,7 +2,17 @@
 
 import { usePathname } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
-import { linkWhatsApp } from "@/lib/utils";
+import { cx, linkWhatsApp } from "@/lib/utils";
+
+/**
+ * O aspecto do botão, sem o sítio onde fica. Partilhado com a
+ * pré-visualização dos Contactos da galeria, no backoffice, que o
+ * desenha parado no canto do rodapé.
+ */
+export const ASPECTO_BOTAO_WHATSAPP =
+  "etiqueta inline-flex min-h-12 items-center bg-ouro px-[22px] py-4 text-tinta";
+/** A única sombra do site, por decisão de design. */
+export const SOMBRA_BOTAO_WHATSAPP = "0 14px 44px rgba(0,0,0,0.5)";
 
 /**
  * Botão flutuante permanente. É o canal preferido da galeria.
@@ -101,9 +111,12 @@ export function BotaoWhatsApp({
         aria-hidden={fora || undefined}
         target="_blank"
         rel="noopener noreferrer"
-        className="botao-whatsapp etiqueta fixed right-4 bottom-4 z-[110] inline-flex min-h-12 items-center bg-ouro px-[22px] py-4 text-tinta transition-[background-color,transform,opacity] duration-300 hover:bg-papel"
+        className={cx(
+          "botao-whatsapp fixed right-4 bottom-4 z-[110] transition-[background-color,transform,opacity] duration-300 hover:bg-papel",
+          ASPECTO_BOTAO_WHATSAPP,
+        )}
         style={{
-          boxShadow: "0 14px 44px rgba(0,0,0,0.5)",
+          boxShadow: SOMBRA_BOTAO_WHATSAPP,
           transform: fora ? "translateY(calc(100% + 1rem))" : "none",
           opacity: fora ? 0 : 1,
           pointerEvents: fora ? "none" : "auto",

@@ -3,7 +3,29 @@ import { Icone } from "@/components/Icones";
 import type { Definicoes } from "@/lib/db/schema";
 import { t, type Idioma } from "@/lib/i18n";
 import { caminho } from "@/lib/i18n/config";
-import { colunas, linkWhatsApp } from "@/lib/utils";
+import { colunas, cx, linkWhatsApp } from "@/lib/utils";
+
+/** As partes do rodapé que o backoffice pode marcar enquanto se escreve. */
+export type ParteRodape =
+  | "whatsapp"
+  | "email"
+  | "telefone"
+  | "instagram"
+  | "morada"
+  | "responsavel"
+  | "parceiros";
+
+/** Os campos das definições que o rodapé mostra. */
+export type ContactosRodape = Pick<
+  Definicoes,
+  | "whatsapp"
+  | "email"
+  | "telefone"
+  | "instagram"
+  | "morada"
+  | "responsavel"
+  | "parceiros"
+>;
 
 /**
  * Rodapé comum a todas as páginas. Repete o bloco "Fale connosco" do
@@ -17,21 +39,68 @@ import { colunas, linkWhatsApp } from "@/lib/utils";
  */
 export function Rodape({
   idioma,
-  definicoes: d,
+  definicoes,
   mensagemWhatsApp,
 }: {
   idioma: Idioma;
-  definicoes: Definicoes;
+  definicoes: ContactosRodape;
   /** Vem do layout, que é quem lê a base. Editável no backoffice. */
   mensagemWhatsApp: string;
 }) {
-  const ano = new Date().getFullYear();
-
   return (
     <footer id="contactos" className="px-margem pt-[140px] pb-[76px]">
-      <h2 className="titulo d-seccao" data-surge="">
+      <CorpoRodape
+        idioma={idioma}
+        definicoes={definicoes}
+        mensagemWhatsApp={mensagemWhatsApp}
+      />
+    </footer>
+  );
+}
+
+/**
+ * O que está dentro do rodapé, sem a margem à volta.
+ *
+ * Vive à parte para os Contactos da galeria, no backoffice, o
+ * desenharem ao lado do formulário com este mesmo código, como a
+ * `FichaObra`: uma cópia acabava por mostrar uma coisa e o site outra.
+ */
+export function CorpoRodape({
+  idioma,
+  definicoes: d,
+  mensagemWhatsApp,
+  marcado = null,
+  nivelTitulo = "h2",
+  classeTitulo = "d-seccao",
+  surge = true,
+}: {
+  idioma: Idioma;
+  definicoes: ContactosRodape;
+  mensagemWhatsApp: string;
+  /** Contacto a contornar a dourado: o que se está a editar. */
+  marcado?: ParteRodape | null;
+  /** Na pré-visualização não é um título da página. */
+  nivelTitulo?: "h2" | "p";
+  /** O corpo do título mede-se pela janela; a pré-visualização mede-o
+   *  pela caixa onde está. */
+  classeTitulo?: string;
+  /** Chega a subir quando entra no ecrã. No backoffice não há quem o
+   *  revele, e ficava invisível. */
+  surge?: boolean;
+}) {
+  const ano = new Date().getFullYear();
+  const Titulo = nivelTitulo;
+  const marca = (parte: ParteRodape) =>
+    marcado === parte ? "outline-2 outline-offset-4 outline-ouro" : undefined;
+
+  return (
+    <>
+      <Titulo
+        className={cx("titulo", classeTitulo)}
+        data-surge={surge ? "" : undefined}
+      >
         {t("rodape.fale", idioma)}
-      </h2>
+      </Titulo>
 
       <div
         className="mt-10 grid gap-10 border-b border-fio pb-14"
@@ -42,15 +111,19 @@ export function Rodape({
             href={linkWhatsApp(d.whatsapp, mensagemWhatsApp)}
             target="_blank"
             rel="noopener noreferrer"
+            className={marca("whatsapp")}
           >
             <Icone nome="whatsapp" />
             WhatsApp →
           </a>
-          <a href={`mailto:${d.email}`}>
+          <a href={`mailto:${d.email}`} className={marca("email")}>
             <Icone nome="email" />
             {d.email}
           </a>
-          <a href={`tel:${d.telefone.replace(/\s/g, "")}`}>
+          <a
+            href={`tel:${d.telefone.replace(/\s/g, "")}`}
+            className={marca("telefone")}
+          >
             <Icone nome="telefone" />
             {d.telefone}
           </a>
@@ -61,6 +134,7 @@ export function Rodape({
             href={`https://instagram.com/${d.instagram}`}
             target="_blank"
             rel="noopener noreferrer"
+            className={marca("instagram")}
           >
             <Icone nome="instagram" />@{d.instagram}
           </a>
@@ -68,13 +142,15 @@ export function Rodape({
             {t("nav.newsletter", idioma)} →
           </Link>
           {d.morada && (
-            <span className="text-claro-55">
+            <span className={cx("text-claro-55", marca("morada"))}>
               <Icone nome="morada" />
               {d.morada}
             </span>
           )}
           {d.responsavel && (
-            <span className="text-claro-55">{d.responsavel}</span>
+            <span className={cx("text-claro-55", marca("responsavel"))}>
+              {d.responsavel}
+            </span>
           )}
         </Coluna>
 
@@ -116,9 +192,9 @@ export function Rodape({
             {t("rodape.privacidade", idioma)}
           </Link>
         </span>
-        <span>{d.parceiros.join(" · ")}</span>
+        <span className={marca("parceiros")}>{d.parceiros.join(" · ")}</span>
       </div>
-    </footer>
+    </>
   );
 }
 

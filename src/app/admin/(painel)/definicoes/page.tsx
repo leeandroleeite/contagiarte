@@ -1,15 +1,11 @@
-import { BarraGuardar } from "@/components/admin/BarraGuardar";
-import {
-  CampoEscala,
-  CampoLocalizado,
-  CampoTexto,
-} from "@/components/admin/Campos";
-import { Aviso, Grelha, CabecalhoSeccao, Conteudo } from "@/components/admin/Pecas";
-import { CampoMedia } from "@/components/admin/CampoMedia";
+import { EditorDefinicoes } from "@/components/admin/EditorDefinicoes";
+import type { MediaEscolhivel } from "@/components/admin/CampoMedia";
 import { guardarDefinicoes } from "@/lib/admin/accoes";
 import { listarMedia } from "@/lib/admin/media";
-import { obterDefinicoes } from "@/lib/dados";
+import { exposicaoEmDestaque, obterDefinicoes, obterTextos } from "@/lib/dados";
+import { DEFINICOES_OMISSAO } from "@/lib/db/omissoes";
 import { env } from "@/lib/env";
+import { texto } from "@/lib/i18n";
 
 export const dynamic = "force-dynamic";
 
@@ -19,140 +15,48 @@ export default async function PaginaDefinicoes({
   searchParams: Promise<{ guardado?: string }>;
 }) {
   const { guardado } = await searchParams;
-  const [d, biblioteca] = await Promise.all([
+  const [d, linhas, txt, expo] = await Promise.all([
     obterDefinicoes(),
     listarMedia("imagem"),
+    // A pré-visualização é o rodapé do site, com a mesma frase no
+    // WhatsApp, e o cartão de partilha leva a mesma fotografia.
+    obterTextos(),
+    exposicaoEmDestaque(),
   ]);
+
+  const biblioteca: MediaEscolhivel[] = linhas.map((m) => ({
+    id: m.id,
+    chave: m.chave,
+    nomeOriginal: m.nomeOriginal,
+    tipoMime: m.tipoMime,
+  }));
   const imagem = (id?: string | null) =>
     biblioteca.find((m) => m.id === id) ?? null;
 
   return (
-    <>
-      <CabecalhoSeccao descricao="Contactos, redes, cartão de partilha e as fotografias das páginas fixas.">
-        Definições
-      </CabecalhoSeccao>
-
-      <Conteudo>
-      {guardado && <Aviso tom="bom">Definições guardadas.</Aviso>}
-
-      <Aviso>
-        Ambiente actual: <strong>{env.ambiente}</strong>. Endereço público:{" "}
-        <strong>{env.urlPublico}</strong>.
-      </Aviso>
-
-      <form action={guardarDefinicoes}>
-        <Grelha>
-          <CampoTexto
-            nome="email"
-            rotulo="Email"
-            tipo="email"
-            valor={d.email}
-          />
-          <CampoTexto
-            nome="telefone"
-            rotulo="Telefone"
-            valor={d.telefone}
-            nota="Como aparece escrito no site."
-          />
-          <CampoTexto
-            nome="whatsapp"
-            rotulo="Número de WhatsApp"
-            valor={d.whatsapp}
-            nota="Só dígitos, com indicativo. Ex. 351914152451."
-          />
-          <CampoTexto
-            nome="instagram"
-            rotulo="Instagram"
-            valor={d.instagram}
-            nota="Só o nome de utilizador, sem @."
-          />
-          <CampoTexto nome="morada" rotulo="Morada" valor={d.morada} />
-          <CampoTexto
-            nome="responsavel"
-            rotulo="Responsável"
-            valor={d.responsavel}
-          />
-
-          <div className="sm:col-span-2">
-            <label className="adm-rotulo" htmlFor="parceiros">
-              Parceiros
-            </label>
-            <textarea
-              id="parceiros"
-              name="parceiros"
-              rows={3}
-              defaultValue={d.parceiros.join("\n")}
-            />
-            <span className="mt-1.5 block text-[13px] text-adm-suave">
-              Um por linha. Aparecem na última linha do rodapé.
-            </span>
-          </div>
-
-          <CampoLocalizado
-            nome="ogTitulo"
-            rotulo="Título de partilha"
-            valor={d.ogTitulo}
-            nota="O que aparece quando alguém partilha o site."
-            largo
-          />
-
-          <CampoLocalizado
-            nome="ogDescricao"
-            rotulo="Descrição de partilha"
-            valor={d.ogDescricao}
-            linhas={3}
-            nota="Até 155 caracteres, para não ficar cortada."
-            largo
-          />
-
-          <CampoMedia
-            nome="ogImagemId"
-            rotulo="Imagem de partilha"
-            valor={imagem(d.ogImagemId)}
-            biblioteca={biblioteca}
-            nota="O que aparece na miniatura quando alguém manda o link do site. Sem esta, cada página usa a fotografia que tiver."
-            largo
-          />
-
-          <CampoMedia
-            nome="molduraImagemId"
-            rotulo="Fotografia das molduras"
-            valor={imagem(d.molduraImagemId)}
-            biblioteca={biblioteca}
-            nota="Aparece na entrada e na página das molduras. Sem ela, fica um marcador vazio nos dois sítios."
-            largo
-          />
-
-          <CampoMedia
-            nome="galeriaImagemId"
-            rotulo="Retrato dos art dealers"
-            valor={imagem(d.galeriaImagemId)}
-            biblioteca={biblioteca}
-            nota="Aparece na entrada e na página A galeria. Sem ele, fica um marcador vazio nos dois sítios."
-            largo
-          />
-
-          <CampoEscala
-            nome="inversaoHeroi"
-            rotulo="Destaque do título na entrada"
-            valor={d.inversaoHeroi ?? 0}
-            legendas={["fundido na fotografia", "destacado"]}
-            nota="O título da entrada é desenhado com o inverso da fotografia que tem por baixo, e por isso funde-se com ela. Em zero fica o desenho original. Subir escurece e satura a fotografia só na faixa do título, o que separa as letras sem lhes tirar a cor. Sobre capas claras e movimentadas, 70 costuma chegar."
-            largo
-          />
-
-          <CampoLocalizado
-            nome="avisoTopo"
-            rotulo="Aviso no topo do site"
-            valor={d.avisoTopo}
-            nota="Deixe vazio para não mostrar nada. Ex. inauguração, encerramento temporário."
-            largo
-          />
-        </Grelha>
-
-        <BarraGuardar voltarPara="/admin" />
-      </form>
-      </Conteudo>
-    </>
+    <EditorDefinicoes
+      // Guardar volta a esta página: com outras definições, os campos
+      // desenham-se de novo e o que estava por guardar passa a guardado.
+      key={JSON.stringify(d)}
+      definicoes={d}
+      omissoes={{
+        email: DEFINICOES_OMISSAO.email,
+        telefone: DEFINICOES_OMISSAO.telefone,
+        whatsapp: DEFINICOES_OMISSAO.whatsapp,
+        instagram: DEFINICOES_OMISSAO.instagram,
+      }}
+      imagens={{
+        og: imagem(d.ogImagemId),
+        moldura: imagem(d.molduraImagemId),
+        galeria: imagem(d.galeriaImagemId),
+      }}
+      biblioteca={biblioteca}
+      mensagemWhatsApp={texto(txt["whatsapp.site"], "pt")}
+      capaPartilha={expo?.imagem?.chave ?? null}
+      endereco={env.urlPublico.replace(/^https?:\/\//, "")}
+      ambiente={env.ambiente}
+      guardado={Boolean(guardado)}
+      guardar={guardarDefinicoes}
+    />
   );
 }

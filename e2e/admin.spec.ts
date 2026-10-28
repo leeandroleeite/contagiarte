@@ -1,6 +1,7 @@
 import { expect, test } from "@playwright/test";
 import {
   ADMIN_EMAIL,
+  abrirMaisOpcoes,
   entrarNoBackoffice,
   maisOpcoesDaObra,
 } from "./ajudas";
@@ -324,10 +325,11 @@ test.describe("Definições e textos", () => {
 
     const definir = async (nivel: string) => {
       await page.goto("/admin/definicoes");
+      await abrirMaisOpcoes(page);
       await page
         .locator('input[name="inversaoHeroi"]')
         .fill(nivel);
-      await page.getByRole("button", { name: /^Guardar$/ }).click();
+      await page.getByRole("button", { name: /^Guardar e publicar$/ }).click();
       await expect(page.getByText("Definições guardadas.")).toBeVisible();
     };
 
@@ -369,7 +371,7 @@ test.describe("Definições e textos", () => {
     const definir = async (numero: string) => {
       await page.goto("/admin/definicoes");
       await page.locator('input[name="whatsapp"]').fill(numero);
-      await page.getByRole("button", { name: /^Guardar$/ }).click();
+      await page.getByRole("button", { name: /^Guardar e publicar$/ }).click();
       await expect(page.getByText("Definições guardadas.")).toBeVisible();
     };
 
@@ -395,6 +397,44 @@ test.describe("Definições e textos", () => {
       .first()
       .getAttribute("href");
     expect(reposto).toContain(original);
+  });
+
+  test("escrever no email muda o rodapé na pré-visualização e a barra conta a alteração", async ({
+    page,
+  }) => {
+    await entrarNoBackoffice(page);
+    await page.goto("/admin/definicoes");
+
+    const previa = page.getByRole("complementary", {
+      name: "Pré-visualização do rodapé",
+    });
+    const campo = page.locator('input[name="email"]');
+    const original = await campo.inputValue();
+    const novo = `teste-${Date.now().toString(36)}@contagiarte.pt`;
+
+    // Antes de escrever: o rodapé mostra o email guardado, e não há
+    // nada por guardar.
+    await expect(previa.getByText(original)).toBeVisible();
+    await expect(page.getByText(/por guardar/)).toHaveCount(0);
+
+    await campo.fill(novo);
+
+    // O rodapé muda sem guardar, e o email em edição fica marcado.
+    const linha = previa.locator(`a[href="mailto:${novo}"]`);
+    await expect(linha).toBeVisible();
+    await expect(linha).toHaveClass(/outline-ouro/);
+    await expect(previa.getByText(original)).toHaveCount(0);
+
+    // A barra conta a alteração e diz qual é.
+    await expect(
+      page.getByRole("status").filter({ hasText: "1 alteração por guardar" }),
+    ).toContainText("Email");
+
+    // Desfazer volta ao que estava, no campo, no rodapé e na barra.
+    await page.getByRole("button", { name: "Desfazer" }).click();
+    await expect(page.locator('input[name="email"]')).toHaveValue(original);
+    await expect(previa.getByText(original)).toBeVisible();
+    await expect(page.getByText(/por guardar/)).toHaveCount(0);
   });
 
   test("editar um texto do site muda a página", async ({ page }) => {

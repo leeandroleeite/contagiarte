@@ -60,3 +60,11 @@ export async function esperarCortina(page: Page) {
 export async function maisOpcoesDaObra(page: Page) {
   await page.locator("summary", { hasText: "Mais opções" }).click();
 }
+
+/**
+ * Abre o "Mais opções" de uma página do backoffice que o tenha, como
+ * os Contactos da galeria. Fechado, os campos não se preenchem.
+ */
+export async function abrirMaisOpcoes(page: Page) {
+  await page.locator("summary", { hasText: "Mais opções" }).click();
+}

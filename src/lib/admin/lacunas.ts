@@ -32,6 +32,8 @@ export type Lacuna = {
   falta: string[];
   /** Porque é que isto importa, quando não é evidente. */
   porque?: string;
+  /** A imagem que a ficha já tem, para o painel mostrar de que se trata. */
+  imagemId?: string | null;
 };
 
 const temPt = (v: Localizado | null | undefined) =>
@@ -70,6 +72,28 @@ export type Traducoes = {
   /** Onde faltam, para se poder ir lá. */
   onde: Array<{ grupo: string; nome: string; href: string; campos: string[] }>;
 };
+
+/**
+ * O que falta a uma obra, com os nomes que o painel mostra. Sai daqui
+ * para a lista das obras dizer o mesmo, com as mesmas palavras, que o
+ * painel diz.
+ */
+export function faltaNaObra(o: {
+  fotografiaId: string | null;
+  descricao: Localizado | null;
+  larguraCm: number | null;
+  alturaCm: number | null;
+  ano: number | null;
+  tecnica: Localizado | null;
+}): string[] {
+  return [
+    !o.fotografiaId && "fotografia",
+    !temPt(o.descricao) && "descrição",
+    (!o.larguraCm || !o.alturaCm) && "medidas em cm",
+    !o.ano && "ano",
+    !temPt(o.tecnica) && "técnica",
+  ].filter((x): x is string => Boolean(x));
+}
 
 export async function levantarLacunas(): Promise<{
   lista: Lacuna[];
@@ -111,13 +135,8 @@ export async function levantarLacunas(): Promise<{
       porque: !o.larguraCm || !o.alturaCm
         ? "Sem medidas, a simulação na parede mostra a obra pela forma da fotografia e não pelo tamanho real."
         : undefined,
-      falta: [
-        !o.fotografiaId && "fotografia",
-        !temPt(o.descricao) && "descrição",
-        (!o.larguraCm || !o.alturaCm) && "medidas em cm",
-        !o.ano && "ano",
-        !temPt(o.tecnica) && "técnica",
-      ].filter((x): x is string => Boolean(x)),
+      falta: faltaNaObra(o),
+      imagemId: o.fotografiaId,
     });
   }
 
@@ -130,6 +149,7 @@ export async function levantarLacunas(): Promise<{
         !a.retratoId && "retrato",
         !temPt(a.biografia) && "biografia",
       ].filter((x): x is string => Boolean(x)),
+      imagemId: a.retratoId,
     });
   }
 
@@ -145,6 +165,7 @@ export async function levantarLacunas(): Promise<{
         !e.imagemId && "capa",
         !temPt(e.texto) && "texto de curadoria",
       ].filter((x): x is string => Boolean(x)),
+      imagemId: e.imagemId,
     });
   }
 
@@ -159,6 +180,7 @@ export async function levantarLacunas(): Promise<{
         !l.morada && "morada",
         !l.mapa && "link do mapa",
       ].filter((x): x is string => Boolean(x)),
+      imagemId: l.fotografiaId,
     });
   }
 
@@ -171,6 +193,7 @@ export async function levantarLacunas(): Promise<{
         !s.fotografiaId && "fotografia",
         !temPt(s.texto) && "texto",
       ].filter((x): x is string => Boolean(x)),
+      imagemId: s.fotografiaId,
     });
   }
 

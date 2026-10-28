@@ -57,6 +57,13 @@
       "when": 1793203402318,
       "tag": "0007_tipologias_editaveis",
       "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "6",
+      "when": 1793204051317,
+      "tag": "0008_textos_da_newsletter",
+      "breakpoints": true
     }
   ]
 }

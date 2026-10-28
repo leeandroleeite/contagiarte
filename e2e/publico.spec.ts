@@ -259,7 +259,7 @@ test.describe("Artistas e exposições", () => {
     ).toBeVisible();
     await expect(page.getByText(/Quarta a domingo/)).toBeVisible();
     await expect(page.getByText(/prova de vinhos/)).toBeVisible();
-    await expect(page.getByText(/\(\+351\) 914 152 451/)).toBeVisible();
+    await expect(page.getByText(/\(\+351\) 914 152 451 · info@quantaterradouro/)).toBeVisible();
 
     // Os três artistas convidados estão listados.
     for (const nome of ["Mário Ferreira", "Ana+Betânia", "Pant."]) {

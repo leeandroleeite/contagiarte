@@ -66,7 +66,7 @@ Isto não se resolve no código; está no backoffice.
 
 - Medidas em cm de 22 das 25 obras (o simulador usa-as).
 - Capa de três exposições; morada de três lugares.
-- Retrato de Pant. e Vanessa Teodoro; fotografia da "Sem título".
+- Retrato de Pant.; fotografia da "Sem título".
 - Logótipo em vector.
 - Revisão jurídica da política de privacidade, e a data de revisão.
 - Os quatro textos provisórios da entrada.

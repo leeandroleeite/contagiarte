@@ -481,9 +481,8 @@ lê o repositório e não tem a chave do backoffice.
    registo de reserva anterior às seis obras reais dele.
 6. **Logótipo em vetor.** O ícone actual é provisório
    (`public/icone.svg`).
-7. **Retrato de dois artistas**, Pant. e Vanessa Teodoro. Os que
-   estavam eram fotografias de outras pessoas, vindas do catálogo, e
-   foram retiradas.
+7. **Retrato do Pant.** O que estava era a fotografia de outra pessoa,
+   vinda do catálogo, e foi retirada.
 8. **Revisão jurídica da política de privacidade.** O texto actual é um
    rascunho sério mas não revisto por advogado. Está em Backoffice →
    Textos do site, chave `privacidade.conteudo`.

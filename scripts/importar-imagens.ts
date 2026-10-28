@@ -77,11 +77,6 @@ const LIGACOES: Record<
     slug: "mario-ferreira",
     alt: "Retrato de Mário Ferreira",
   },
-  "artista-3.png": {
-    tipo: "artista",
-    slug: "vanessa-teodoro",
-    alt: "Retrato de Vanessa Teodoro",
-  },
   "artista-4.png": {
     tipo: "artista",
     slug: "pant",

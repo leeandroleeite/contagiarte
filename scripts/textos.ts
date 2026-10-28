@@ -263,9 +263,9 @@ export const TEXTOS: Array<{
     grupo: "molduras",
     nota: "O que acontece no passo 3.",
     valor: L(
-      "A MOLDARTPÓVOA produz a moldura à medida na fábrica.",
-      "MOLDARTPÓVOA makes the frame to measure at the factory.",
-      "MOLDARTPÓVOA produce el marco a medida en fábrica.",
+      "Em parceria com a fábrica MOLDARTPÓVOA, produzimos a moldura à medida.",
+      "In partnership with the MOLDARTPÓVOA factory, we make the frame to measure.",
+      "En colaboración con la fábrica MOLDARTPÓVOA, producimos el marco a medida.",
     ),
   },
   {

@@ -323,7 +323,7 @@ export const salas = sqliteTable(
     nome: localizado("nome").notNull(),
     texto: localizado("texto"),
     // Linha livre com o que está exposto na sala, ex. "Obras de
-    // Ana+Betânia e Vanessa Teodoro". Complementa a relação salas_obras,
+    // Ana+Betânia". Complementa a relação salas_obras,
     // que nem sempre está preenchida.
     notaObras: localizado("nota_obras"),
     fotografiaId: text("fotografia_id").references(() => media.id, {

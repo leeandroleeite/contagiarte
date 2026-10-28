@@ -408,9 +408,9 @@ export const TEXTOS: Array<{
     grupo: "artistas",
     nota: "Descrição da página nos motores de busca.",
     valor: L(
-      "Os artistas representados pela Galeria Contagiarte, entre pintura, escultura, cerâmica e colagem.",
-      "The artists represented by Galeria Contagiarte, across painting, sculpture, ceramics and collage.",
-      "Los artistas representados por la Galería Contagiarte, entre pintura, escultura, cerámica y collage.",
+      "Os artistas representados pela Galeria Contagiarte, entre obra gráfica, pintura, escultura e técnica mista.",
+      "The artists represented by Galeria Contagiarte, across prints, painting, sculpture and mixed media.",
+      "Los artistas representados por la Galería Contagiarte, entre obra gráfica, pintura, escultura y técnica mixta.",
     ),
   },
   {

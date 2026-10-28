@@ -149,6 +149,11 @@ separadores PT, EN e ES, e o que ficar vazio mostra o português. A
 ficha da obra é diferente: a língua escolhe-se uma vez no topo, e a
 pré-visualização ao lado mostra a obra nessa língua, desenhada pelo
 mesmo componente da página pública (`src/components/FichaObra.tsx`).
+A ficha da exposição segue o mesmo modelo, mas edita-se em cima das
+peças do site (`src/components/PecasExposicao.tsx`): o título por cima
+da capa, a ficha de visita no bloco escuro. As peças comuns às duas
+fichas (topo, língua, barra de alterações) estão em
+`src/components/admin/Ficha.tsx`.
 
 As frases fixas das páginas (tabela `textos`) editam-se em Backoffice →
 Textos do site, em cima da própria página: o editor mostra a página

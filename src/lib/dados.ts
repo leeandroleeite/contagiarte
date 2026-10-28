@@ -125,19 +125,8 @@ export async function exposicaoPorSlug(slug: string) {
 
 export type Exposicao = NonNullable<Awaited<ReturnType<typeof exposicaoPorSlug>>>;
 
-/** Situação de uma exposição face à data de hoje. */
-export function situacao(e: {
-  dataInicio: string | null;
-  dataFim: string | null;
-  permanente: boolean;
-}): "em_curso" | "permanente" | "proxima" | "arquivo" {
-  if (e.permanente) return "permanente";
-  const hoje = new Date().toISOString().slice(0, 10);
-  if (e.dataInicio && e.dataInicio > hoje) return "proxima";
-  if (e.dataFim && e.dataFim < hoje) return "arquivo";
-  if (e.dataInicio && e.dataInicio <= hoje) return "em_curso";
-  return "arquivo";
-}
+// A situação calcula-se também no navegador, na ficha do backoffice.
+export { situacao } from "@/lib/situacao";
 
 // --------------------------------------------------------------------
 // Obras

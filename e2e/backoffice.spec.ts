@@ -383,8 +383,8 @@ test.describe("Exposições", () => {
     const slug = `exposicao-teste-${m}`;
 
     await page.goto("/admin/exposicoes/novo");
-    await page.locator('input[name="titulo.pt"]').fill(titulo);
-    await page.locator('input[name="slug"]').fill(slug);
+    // O título escreve-se em cima da capa, as datas e o lugar por baixo.
+    await page.locator('[name="titulo.pt"]').fill(titulo);
     await page.locator('input[name="dataInicio"]').fill("2026-01-01");
     await page.locator('input[name="dataFim"]').fill("2026-06-30");
     await page.locator('input[name="curadoria"]').fill("Curadoria de teste");
@@ -393,15 +393,21 @@ test.describe("Exposições", () => {
       .fill("Primeiro parágrafo do texto.\n\nSegundo parágrafo do texto.");
     await page.locator('[name="horario.pt"]').fill("Todos os dias, das 10h às 18h.");
     await page.locator('select[name="lugarId"]').selectOption({ index: 1 });
-    await page.locator('select[name="estado"]').selectOption("publicado");
+    await maisOpcoesDaObra(page);
+    await page.locator('input[name="slug"]').fill(slug);
 
-    // Associar os dois primeiros artistas.
-    const caixas = page.locator('input[name="artistas"]');
-    await caixas.nth(0).check();
-    await caixas.nth(1).check();
+    // Juntar dois artistas: cada um passa a ter o seu cartão.
+    const juntar = page.getByLabel("Juntar artista");
+    await juntar.selectOption({ index: 1 });
+    await juntar.selectOption({ index: 1 });
+    await expect(page.locator('input[name="artistas"]')).toHaveCount(2);
+    await expect(
+      page.getByRole("button", { name: /^Tirar .* da exposição$/ }),
+    ).toHaveCount(2);
 
+    await page.getByRole("button", { name: "Escolher capa" }).click();
     await carregarImagem(page);
-    await guardar(page);
+    await guardarEPublicar(page);
     await expect(page.getByText("Exposição guardada.")).toBeVisible();
 
     // --- na página, com tudo o que foi preenchido ---
@@ -436,11 +442,11 @@ test.describe("Exposições", () => {
     const slug = `exposicao-teste-${m}`;
 
     await page.goto("/admin/exposicoes/novo");
-    await page.locator('input[name="titulo.pt"]').fill(`Destaque ${m}`);
+    await page.locator('[name="titulo.pt"]').fill(`Destaque ${m}`);
+    await maisOpcoesDaObra(page);
     await page.locator('input[name="slug"]').fill(slug);
-    await page.locator('select[name="estado"]').selectOption("publicado");
     await page.locator('input[name="destaque"]').check();
-    await guardar(page);
+    await guardarEPublicar(page);
     await expect(page.getByText("Exposição guardada.")).toBeVisible();
 
     // A que estava em destaque deixou de estar.
@@ -459,8 +465,49 @@ test.describe("Exposições", () => {
     await page.goto("/admin/exposicoes");
     await page.getByRole("link", { name: /A Pele da Terra/ }).click();
     await page.locator('input[name="destaque"]').check();
-    await guardar(page);
+    await guardarEPublicar(page);
     await expect(page.getByText("Exposição guardada.")).toBeVisible();
+  });
+});
+
+test.describe("Ficha da exposição", () => {
+  test("mudar o título no cabeçalho muda a pré-visualização e a barra conta a alteração", async ({
+    page,
+  }) => {
+    await entrarNoBackoffice(page);
+    await page.goto("/admin/exposicoes");
+    await page.getByRole("link", { name: /A Pele da Terra/ }).click();
+
+    const barra = page.getByRole("status").filter({ hasText: /guardad|guardar/ });
+    const topo = (titulo: string) =>
+      page.getByRole("heading", { level: 1, name: titulo, exact: true });
+    await expect(barra).toContainText("Tudo guardado");
+    await expect(topo("A Pele da Terra")).toBeVisible();
+
+    // O título escreve-se em cima da capa, e o topo acompanha.
+    const novo = `A Pele da Terra ${marca()}`;
+    await page.locator('[name="titulo.pt"]').fill(novo);
+    await expect(topo(novo)).toBeVisible();
+    await expect(barra).toContainText("1 alteração por guardar: Título");
+
+    // No telemóvel, "Ver no site" mostra a página com o título novo.
+    await page.setViewportSize({ width: 375, height: 812 });
+    await page
+      .getByRole("group", { name: "Modo" })
+      .getByRole("button", { name: "Ver no site" })
+      .click();
+    const previa = page.getByRole("complementary", {
+      name: "Pré-visualização da página da exposição",
+    });
+    await expect(previa).toBeVisible();
+    await expect(previa).toContainText(novo);
+    await expect(previa).toContainText("Quanta Terra");
+
+    // Desfazer volta ao que estava, na pré-visualização e na barra.
+    await page.getByRole("button", { name: "Desfazer" }).click();
+    await expect(previa).toContainText("A Pele da Terra");
+    await expect(previa).not.toContainText(novo);
+    await expect(barra).toContainText("Tudo guardado");
   });
 });
 
@@ -549,14 +596,21 @@ test.describe("Descarregáveis", () => {
     const nome = `Documento de teste ${m}`;
     const slug = `documento-teste-${m}`;
 
-    await page.goto("/admin/descarregaveis/novo");
+    // Começa na ficha de A Pele da Terra, que ainda não tem catálogo: a
+    // zona vazia leva a um documento novo já ligado a ela.
+    await page.goto("/admin/exposicoes");
+    await page.getByRole("link", { name: /A Pele da Terra/ }).click();
+    await expect(page).toHaveURL(/\/admin\/exposicoes\/[0-9a-f-]{36}$/);
+    const fichaExpo = page.url();
+    await page.getByRole("link", { name: /Juntar o catálogo em PDF/ }).click();
+    await expect(page).toHaveURL(/\/admin\/descarregaveis\/novo\?exposicao=/);
+    await expect(
+      page.locator('select[name="exposicaoId"] option:checked'),
+    ).toHaveText("A Pele da Terra");
+
     await page.locator('[name="nome.pt"]').fill(nome);
     await page.locator('input[name="slug"]').fill(slug);
     await page.locator('[name="descricao.pt"]').fill("PDF de teste");
-    // Fica como catálogo de A Pele da Terra, a exposição da Quanta Terra.
-    await page
-      .locator('select[name="exposicaoId"]')
-      .selectOption({ label: "A Pele da Terra" });
     await page.locator('select[name="estado"]').selectOption("publicado");
 
     const ficheiro = `teste-${m}.pdf`;
@@ -586,9 +640,19 @@ test.describe("Descarregáveis", () => {
     });
     expect([302, 307]).toContain(resposta.status());
 
-    // --- na página da exposição e no fim do percurso, o botão do catálogo ---
     const botaoCatalogo = (p: Page) =>
       p.getByRole("link", { name: /Descarregar o catálogo \(PDF\)/ });
+
+    // --- na ficha da exposição, o cartão do catálogo com o botão do site ---
+    await page.goto(fichaExpo);
+    const cartao = page.locator("section", {
+      has: page.getByRole("heading", { name: "Catálogo em PDF" }),
+    });
+    await expect(cartao).toContainText(nome);
+    await expect(cartao).toContainText(ficheiro);
+    await expect(cartao.getByText("Descarregar o catálogo (PDF) ↓")).toBeVisible();
+
+    // --- na página da exposição e no fim do percurso, o botão do catálogo ---
     await page.goto("/exposicoes/a-pele-da-terra");
     await expect(botaoCatalogo(page)).toHaveAttribute(
       "href",
@@ -611,9 +675,14 @@ test.describe("Descarregáveis", () => {
     await page.getByRole("button", { name: /Apagar documento/i }).click();
     await expect(page).toHaveURL(/\/admin\/descarregaveis$/);
 
-    // Sem documento ligado, o botão desaparece.
+    // Sem documento ligado, o botão desaparece, e a ficha volta a
+    // oferecer a zona para o juntar.
     await page.goto("/exposicoes/a-pele-da-terra");
     await expect(botaoCatalogo(page)).toHaveCount(0);
+    await page.goto(fichaExpo);
+    await expect(
+      page.getByRole("link", { name: /Juntar o catálogo em PDF/ }),
+    ).toBeVisible();
   });
 });
 

@@ -20,6 +20,7 @@ import {
   artistas,
   definicoes,
   descarregaveis,
+  disciplinas,
   exposicoes,
   exposicoesArtistas,
   lugares,
@@ -34,6 +35,7 @@ import { DEFINICOES_OMISSAO } from "../src/lib/db/omissoes";
 import { MEDIA_SEMENTE } from "./media-semente";
 import {
   ARTISTAS,
+  DISCIPLINAS,
   EXPOSICOES,
   LUGARES,
   MOLDURAS,
@@ -57,11 +59,26 @@ async function semearTextos() {
   console.log(`· ${TEXTOS.length} textos`);
 }
 
+async function semearDisciplinas() {
+  for (const d of DISCIPLINAS) {
+    await db.insert(disciplinas).values(d).onConflictDoNothing();
+  }
+  console.log(`· ${DISCIPLINAS.length} tipologias`);
+}
+
 async function semearArtistas() {
-  for (const a of ARTISTAS) {
+  const mapaDisciplinas = new Map(
+    (await db.select().from(disciplinas)).map((d) => [d.slug, d.id]),
+  );
+
+  for (const { disciplina, ...a } of ARTISTAS) {
     await db
       .insert(artistas)
-      .values({ ...a, estado: "publicado" })
+      .values({
+        ...a,
+        disciplinaId: mapaDisciplinas.get(disciplina) ?? null,
+        estado: "publicado",
+      })
       .onConflictDoNothing();
   }
   console.log(`· ${ARTISTAS.length} artistas`);
@@ -355,6 +372,7 @@ async function principal() {
   console.log("A semear a base de dados…");
   await semearDefinicoes();
   await semearTextos();
+  await semearDisciplinas();
   await semearArtistas();
   await semearLugares();
   await semearExposicoes();

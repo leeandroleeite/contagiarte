@@ -282,28 +282,6 @@ export const DICIONARIO = {
     es: "Disponibles",
   },
 
-  // Disciplinas -----------------------------------------------------
-  "disciplina.pintura": { pt: "Pintura", en: "Painting", es: "Pintura" },
-  "disciplina.escultura": { pt: "Escultura", en: "Sculpture", es: "Escultura" },
-  "disciplina.colagem": { pt: "Colagem", en: "Collage", es: "Collage" },
-  "disciplina.tecnica_mista": {
-    pt: "Técnica mista",
-    en: "Mixed media",
-    es: "Técnica mixta",
-  },
-  "disciplina.ceramica": { pt: "Cerâmica", en: "Ceramics", es: "Cerámica" },
-  "disciplina.fotografia": {
-    pt: "Fotografia",
-    en: "Photography",
-    es: "Fotografía",
-  },
-  "disciplina.desenho": { pt: "Desenho", en: "Drawing", es: "Dibujo" },
-  "disciplina.instalacao": {
-    pt: "Instalação",
-    en: "Installation",
-    es: "Instalación",
-  },
-
   // Formulários -----------------------------------------------------
   "campo.nome": { pt: "Nome", en: "Name", es: "Nombre" },
   "campo.email": { pt: "Email", en: "Email", es: "Email" },

@@ -18,14 +18,55 @@ export const L = (pt: string, en?: string, es?: string): Localizado => ({
 });
 
 // --------------------------------------------------------------------
+// Tipologias
+//
+// As mesmas quatro que a migração 0007 cria, pela ordem que a galeria
+// pediu. Ficam aqui para uma base criada sem migrações também as ter;
+// depois disso editam-se no backoffice.
+// --------------------------------------------------------------------
+
+export const DISCIPLINAS = [
+  {
+    slug: "obra-grafica",
+    nome: L("Obra gráfica", "Prints", "Obra gráfica"),
+    nota: L(
+      "serigrafia, gravura, litografia, giclée",
+      "screen print, etching, lithograph, giclée",
+      "serigrafía, grabado, litografía, giclée",
+    ),
+    ordem: 1,
+  },
+  {
+    slug: "pintura",
+    nome: L("Pintura", "Painting", "Pintura"),
+    nota: L("obras originais", "original works", "obras originales"),
+    ordem: 2,
+  },
+  {
+    slug: "escultura",
+    nome: L("Escultura", "Sculpture", "Escultura"),
+    nota: null,
+    ordem: 3,
+  },
+  {
+    slug: "tecnica-mista",
+    nome: L("Técnica mista", "Mixed media", "Técnica mixta"),
+    nota: null,
+    ordem: 4,
+  },
+];
+
+// --------------------------------------------------------------------
 // Artistas
+//
+// `disciplina` é o slug de uma das tipologias acima.
 // --------------------------------------------------------------------
 
 export const ARTISTAS = [
   {
     slug: "mario-ferreira",
     nome: "Mário Ferreira",
-    disciplina: "tecnica_mista",
+    disciplina: "tecnica-mista",
     naturalidade: "Porto",
     ordem: 1,
     etiqueta: L("ARTISTA · PORTO", "ARTIST · PORTO", "ARTISTA · OPORTO"),
@@ -73,7 +114,7 @@ export const ARTISTAS = [
   {
     slug: "pant",
     nome: "Pant.",
-    disciplina: "colagem",
+    disciplina: "tecnica-mista",
     naturalidade: null,
     ordem: 4,
     etiqueta: L(

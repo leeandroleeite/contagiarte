@@ -1,41 +1,46 @@
 "use client";
 
 import Link from "next/link";
-import { useMemo, useState } from "react";
-import { rotuloDisciplina, t } from "@/lib/i18n";
+import { useState } from "react";
+import { t } from "@/lib/i18n";
 import { caminho, type Idioma } from "@/lib/i18n/config";
 import { cx } from "@/lib/utils";
 
 export type ArtistaLinha = {
   slug: string;
   nome: string;
-  disciplina: string;
+  /** Slug da tipologia, ou nada quando o artista ainda não tem. */
+  disciplina: string | null;
   nota: string;
   temPagina: boolean;
 };
 
+/** Uma tipologia do filtro, já traduzida. */
+export type TipologiaFiltro = {
+  slug: string;
+  nome: string;
+  nota: string;
+};
+
 /**
- * Lista tipográfica de artistas com filtro por disciplina. Uma linha
+ * Lista tipográfica de artistas com filtro por tipologia. Uma linha
  * por artista, como no design: a lista cresce sem mudar o layout.
+ *
+ * As tipologias vêm do backoffice, já pela ordem certa e só as que têm
+ * artistas publicados.
  */
 export function ListaArtistas({
   artistas,
+  tipologias,
   idioma,
   nota,
 }: {
   artistas: ArtistaLinha[];
+  tipologias: TipologiaFiltro[];
   idioma: Idioma;
   nota?: string;
 }) {
   const [filtro, setFiltro] = useState("todos");
-
-  const disciplinas = useMemo(() => {
-    const vistas: string[] = [];
-    for (const a of artistas) {
-      if (!vistas.includes(a.disciplina)) vistas.push(a.disciplina);
-    }
-    return vistas;
-  }, [artistas]);
 
   const visiveis =
     filtro === "todos"
@@ -44,19 +49,20 @@ export function ListaArtistas({
 
   return (
     <>
-      {disciplinas.length > 1 && (
+      {tipologias.length > 1 && (
         <div className="mb-5 flex flex-wrap gap-2.5" role="group">
           <Chip
             activo={filtro === "todos"}
             onClick={() => setFiltro("todos")}
             rotulo={t("filtro.todos", idioma)}
           />
-          {disciplinas.map((d) => (
+          {tipologias.map((d) => (
             <Chip
-              key={d}
-              activo={filtro === d}
-              onClick={() => setFiltro(d)}
-              rotulo={rotuloDisciplina(d, idioma)}
+              key={d.slug}
+              activo={filtro === d.slug}
+              onClick={() => setFiltro(d.slug)}
+              rotulo={d.nome}
+              dica={d.nota}
             />
           ))}
         </div>
@@ -103,16 +109,20 @@ function Chip({
   activo,
   onClick,
   rotulo,
+  dica,
 }: {
   activo: boolean;
   onClick: () => void;
   rotulo: string;
+  /** O que a tipologia abrange, ex. "serigrafia, gravura". */
+  dica?: string;
 }) {
   return (
     <button
       type="button"
       onClick={onClick}
       aria-pressed={activo}
+      title={dica || undefined}
       className={cx(
         "etiqueta min-h-11 cursor-pointer border px-5 py-3 transition-colors",
         activo

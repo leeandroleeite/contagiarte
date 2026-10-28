@@ -6,6 +6,7 @@ import {
   artistas,
   definicoes as tDefinicoes,
   descarregaveis,
+  disciplinas,
   exposicoes,
   exposicoesArtistas,
   lugares,
@@ -240,7 +241,7 @@ export async function obrasRelacionadas(obra: Obra, limite = 3) {
 export async function listarArtistas() {
   return db.query.artistas.findMany({
     where: eq(artistas.estado, PUBLICADO),
-    with: { retrato: true },
+    with: { retrato: true, disciplina: true },
     orderBy: [asc(artistas.ordem), asc(artistas.nome)],
   });
 }
@@ -248,9 +249,30 @@ export async function listarArtistas() {
 export async function artistaPorSlug(slug: string) {
   const linha = await db.query.artistas.findFirst({
     where: and(eq(artistas.slug, slug), eq(artistas.estado, PUBLICADO)),
-    with: { retrato: true },
+    with: { retrato: true, disciplina: true },
   });
   return linha ?? null;
+}
+
+/**
+ * Tipologias para o filtro da lista de artistas, pela ordem do
+ * backoffice. Só entram as que têm artistas publicados: um filtro que
+ * leva a uma lista vazia ensina a não confiar nos filtros.
+ */
+export async function listarDisciplinasComArtistas() {
+  return db
+    .select()
+    .from(disciplinas)
+    .where(
+      inArray(
+        disciplinas.id,
+        db
+          .select({ id: artistas.disciplinaId })
+          .from(artistas)
+          .where(eq(artistas.estado, PUBLICADO)),
+      ),
+    )
+    .orderBy(asc(disciplinas.ordem));
 }
 
 export type Artista = NonNullable<Awaited<ReturnType<typeof artistaPorSlug>>>;

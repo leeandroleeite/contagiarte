@@ -15,6 +15,7 @@ import {
   exposicaoEmDestaque,
   listarArtistas,
   listarDescarregaveis,
+  listarDisciplinasComArtistas,
   listarExposicoes,
   listarLugares,
   listarObras,
@@ -53,17 +54,27 @@ export default async function Homepage({
 }) {
   const { lang: idioma } = await params;
 
-  const [def, txt, expo, obras, artistas, lugares, exposicoes, ficheiros] =
-    await Promise.all([
-      obterDefinicoes(),
-      obterTextos(),
-      exposicaoEmDestaque(),
-      listarObras({ destaque: true, limite: 8 }),
-      listarArtistas(),
-      listarLugares(),
-      listarExposicoes(),
-      listarDescarregaveis(),
-    ]);
+  const [
+    def,
+    txt,
+    expo,
+    obras,
+    artistas,
+    tipologias,
+    lugares,
+    exposicoes,
+    ficheiros,
+  ] = await Promise.all([
+    obterDefinicoes(),
+    obterTextos(),
+    exposicaoEmDestaque(),
+    listarObras({ destaque: true, limite: 8 }),
+    listarArtistas(),
+    listarDisciplinasComArtistas(),
+    listarLugares(),
+    listarExposicoes(),
+    listarDescarregaveis(),
+  ]);
   const imagens = await obterImagensDoSite(def);
 
   const T = (chave: string, omissao = "") =>
@@ -361,10 +372,15 @@ export default async function Homepage({
           <ListaArtistas
             idioma={idioma}
             nota={T("artistas.nota")}
+            tipologias={tipologias.map((d) => ({
+              slug: d.slug,
+              nome: texto(d.nome, idioma),
+              nota: texto(d.nota, idioma),
+            }))}
             artistas={artistas.map((a) => ({
               slug: a.slug,
               nome: a.nome,
-              disciplina: a.disciplina,
+              disciplina: a.disciplina?.slug ?? null,
               nota: texto(a.nota, idioma),
               temPagina: true,
             }))}

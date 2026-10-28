@@ -13,7 +13,7 @@ import {
   obterDefinicoes,
 } from "@/lib/dados";
 import { env } from "@/lib/env";
-import { anos, rotuloDisciplina, t, texto, type Idioma } from "@/lib/i18n";
+import { anos, t, texto, type Idioma } from "@/lib/i18n";
 import { caminho } from "@/lib/i18n/config";
 import { comMarca, metadados } from "@/lib/metadados";
 import { colunas, linkWhatsApp, resumir } from "@/lib/utils";
@@ -61,7 +61,7 @@ export default async function PaginaArtista({
   const etiqueta =
     texto(artista.etiqueta, idioma) ||
     [
-      rotuloDisciplina(artista.disciplina, idioma),
+      texto(artista.disciplina?.nome, idioma),
       artista.naturalidade,
     ]
       .filter(Boolean)

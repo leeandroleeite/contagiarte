@@ -14,6 +14,7 @@ import {
   artistas,
   definicoes,
   descarregaveis,
+  disciplinas,
   exposicoes,
   lugares,
   media as tMedia,
@@ -85,6 +86,14 @@ async function principal() {
         .delete(artistas)
         .where(like(artistas.slug, "artista-teste-%"))
         .returning({ id: artistas.id }),
+    ],
+    // Depois dos artistas, que são quem as prende.
+    [
+      "tipologias",
+      db
+        .delete(disciplinas)
+        .where(like(disciplinas.slug, "tipologia-teste-%"))
+        .returning({ id: disciplinas.id }),
     ],
     [
       "exposições",

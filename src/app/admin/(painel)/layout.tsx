@@ -11,6 +11,7 @@ import { db } from "@/lib/db";
 import {
   artistas,
   descarregaveis,
+  disciplinas,
   exposicoes,
   lugares,
   media,
@@ -40,6 +41,7 @@ export default async function LayoutPainel({
   const [
     nObras,
     nArtistas,
+    nTipologias,
     nExposicoes,
     nLugares,
     nSalas,
@@ -50,6 +52,7 @@ export default async function LayoutPainel({
   ] = await Promise.all([
     db.$count(obras),
     db.$count(artistas),
+    db.$count(disciplinas),
     db.$count(exposicoes),
     db.$count(lugares),
     db.$count(salas),
@@ -63,6 +66,7 @@ export default async function LayoutPainel({
   const contagens: ContagensAdmin = {
     obras: nObras,
     artistas: nArtistas,
+    tipologias: nTipologias,
     exposicoes: nExposicoes,
     lugares: nLugares,
     percurso: nSalas,

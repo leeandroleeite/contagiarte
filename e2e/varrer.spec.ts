@@ -32,6 +32,7 @@ const ADMIN = [
   "/admin",
   "/admin/obras",
   "/admin/artistas",
+  "/admin/tipologias",
   "/admin/exposicoes",
   "/admin/lugares",
   "/admin/percurso",

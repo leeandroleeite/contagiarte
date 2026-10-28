@@ -34,6 +34,7 @@ export function Bloco({
 
 export function CampoTexto({
   nome,
+  id = nome,
   rotulo,
   valor,
   nota,
@@ -43,6 +44,11 @@ export function CampoTexto({
   largo = false,
 }: {
   nome: string;
+  /**
+   * Só é preciso quando a página tem vários formulários com o mesmo
+   * campo: sem ids diferentes, o rótulo de um apontava para o outro.
+   */
+  id?: string;
   rotulo: string;
   valor?: string | number | null;
   nota?: string;
@@ -52,9 +58,9 @@ export function CampoTexto({
   largo?: boolean;
 }) {
   return (
-    <Bloco rotulo={rotulo} nota={nota} htmlFor={nome} largo={largo}>
+    <Bloco rotulo={rotulo} nota={nota} htmlFor={id} largo={largo}>
       <input
-        id={nome}
+        id={id}
         name={nome}
         type={tipo}
         defaultValue={valor ?? ""}

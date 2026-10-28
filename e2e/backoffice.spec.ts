@@ -1,5 +1,5 @@
 import { expect, test, type Page } from "@playwright/test";
-import { entrarNoBackoffice } from "./ajudas";
+import { entrarNoBackoffice, maisOpcoesDaObra } from "./ajudas";
 
 /**
  * O backoffice a sério, secção a secção.
@@ -33,6 +33,11 @@ async function carregarImagem(page: Page, nome = `teste-${marca()}.png`) {
 
 async function guardar(page: Page) {
   await page.getByRole("button", { name: /^Guardar$/ }).click();
+}
+
+/** A ficha da obra guarda e põe no site com um só botão. */
+async function guardarEPublicar(page: Page) {
+  await page.getByRole("button", { name: "Guardar e publicar" }).click();
 }
 
 /** Muda o separador de idioma de um campo traduzível concreto. */
@@ -102,9 +107,10 @@ test.describe("Media", () => {
 
     await page.goto("/admin/obras/novo");
     await page.locator('input[name="titulo.pt"]').fill(titulo);
+    await maisOpcoesDaObra(page);
     await page.locator('input[name="slug"]').fill(slug);
     const nome = await carregarImagem(page);
-    await guardar(page);
+    await page.getByRole("button", { name: "Guardar sem publicar" }).click();
     await expect(page.getByText("Obra guardada.")).toBeVisible();
 
     // O cartão da imagem passa a dizer a que obra pertence. Sem isto,
@@ -147,14 +153,14 @@ test.describe("Obras", () => {
 
     await page.goto("/admin/obras/novo");
     await page.locator('input[name="titulo.pt"]').fill(titulo);
-    await page.locator('input[name="slug"]').fill(slug);
     await page.locator('input[name="dimensoes"]').fill("30 × 20 cm");
+    await maisOpcoesDaObra(page);
+    await page.locator('input[name="slug"]').fill(slug);
     await page.locator('input[name="larguraCm"]').fill("30");
     await page.locator('input[name="alturaCm"]').fill("20");
-    await page.locator('select[name="estado"]').selectOption("publicado");
 
     const primeira = await carregarImagem(page);
-    await guardar(page);
+    await guardarEPublicar(page);
     await expect(page.getByText("Obra guardada.")).toBeVisible();
 
     // --- no site, com a fotografia ---
@@ -170,7 +176,7 @@ test.describe("Obras", () => {
     await expect(page.getByText(primeira)).toBeVisible();
     const segunda = await carregarImagem(page);
     expect(segunda).not.toBe(primeira);
-    await guardar(page);
+    await guardarEPublicar(page);
     await expect(page.getByText("Obra guardada.")).toBeVisible();
 
     await page.goto(`/obras/${slug}`);
@@ -195,10 +201,13 @@ test.describe("Obras", () => {
 
     await page.goto("/admin/obras/novo");
     await page.locator('input[name="titulo.pt"]').fill(`Vendida ${m}`);
+    // O rádio está escondido por baixo do botão grande que o envolve:
+    // carrega-se no botão, como quem usa a página.
+    await page.locator('label:has(input[value="vendida"])').click();
+    await expect(page.getByRole("radio", { name: /^Vendida/ })).toBeChecked();
+    await maisOpcoesDaObra(page);
     await page.locator('input[name="slug"]').fill(slug);
-    await page.locator('select[name="estado"]').selectOption("publicado");
-    await page.locator('select[name="disponibilidade"]').selectOption("vendida");
-    await guardar(page);
+    await guardarEPublicar(page);
     await expect(page.getByText("Obra guardada.")).toBeVisible();
 
     await page.goto(`/obras/${slug}`);
@@ -725,9 +734,9 @@ test.describe("Segurança do conteúdo", () => {
 
     await page.goto("/admin/obras/novo");
     await page.locator('input[name="titulo.pt"]').fill(titulo);
+    await maisOpcoesDaObra(page);
     await page.locator('input[name="slug"]').fill(slug);
-    await page.locator('select[name="estado"]').selectOption("publicado");
-    await guardar(page);
+    await guardarEPublicar(page);
     await expect(page.getByText("Obra guardada.")).toBeVisible();
 
     try {

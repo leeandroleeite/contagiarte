@@ -25,6 +25,8 @@ export function CampoMedia({
   tipo = "imagem",
   nota,
   largo = false,
+  grande = false,
+  aoMudar,
 }: {
   nome: string;
   rotulo: string;
@@ -33,10 +35,19 @@ export function CampoMedia({
   tipo?: "imagem" | "documento";
   nota?: string;
   largo?: boolean;
+  /** Miniatura maior, para quando a imagem é o assunto da página. */
+  grande?: boolean;
+  /** Para quem precisa de saber da escolha antes de se guardar, como
+   *  a pré-visualização da ficha da obra. */
+  aoMudar?: (media: MediaEscolhivel | null) => void;
 }) {
-  const [escolhido, setEscolhido] = useState<MediaEscolhivel | null>(
+  const [escolhido, setEscolhidoLocal] = useState<MediaEscolhivel | null>(
     valor ?? null,
   );
+  const setEscolhido = (media: MediaEscolhivel | null) => {
+    setEscolhidoLocal(media);
+    aoMudar?.(media);
+  };
   const [erro, setErro] = useState<string | null>(null);
   const [aCarregar, iniciar] = useTransition();
   const [aBiblioteca, setABiblioteca] = useState(false);
@@ -80,7 +91,12 @@ export function CampoMedia({
       <input type="hidden" name={nome} value={escolhido?.id ?? ""} />
 
       <div className="flex flex-wrap items-start gap-4 border border-adm-fio bg-adm-cartao p-4">
-        <div className="flex h-[120px] w-[120px] shrink-0 items-center justify-center border border-adm-fio bg-white">
+        <div
+          className={cx(
+            "flex shrink-0 items-center justify-center border border-adm-fio bg-white",
+            grande ? "h-[176px] w-[144px]" : "h-[120px] w-[120px]",
+          )}
+        >
           {url && !ePdf ? (
             /* eslint-disable-next-line @next/next/no-img-element */
             <img

@@ -145,7 +145,10 @@ para não haver dois endereços com o mesmo conteúdo.
 
 Os textos de interface estão em `src/lib/i18n/dicionario.ts`. O conteúdo
 editorial é traduzido campo a campo no backoffice: cada campo tem
-separadores PT, EN e ES, e o que ficar vazio mostra o português.
+separadores PT, EN e ES, e o que ficar vazio mostra o português. A
+ficha da obra é diferente: a língua escolhe-se uma vez no topo, e a
+pré-visualização ao lado mostra a obra nessa língua, desenhada pelo
+mesmo componente da página pública (`src/components/FichaObra.tsx`).
 
 ### Entrar no backoffice
 

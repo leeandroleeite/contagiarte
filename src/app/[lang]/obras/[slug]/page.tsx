@@ -1,10 +1,9 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { ViewTransition } from "react";
 import { notFound } from "next/navigation";
-import { Botao } from "@/components/Botao";
 import { FormularioPedido } from "@/components/FormularioPedido";
 import { CartaoObra } from "@/components/CartaoObra";
+import { FichaObra } from "@/components/FichaObra";
 import { Imagem } from "@/components/Imagem";
 import { Seccao } from "@/components/Seccao";
 import {
@@ -18,7 +17,7 @@ import { env } from "@/lib/env";
 import { t, texto, type Idioma } from "@/lib/i18n";
 import { caminho } from "@/lib/i18n/config";
 import { comMarca, metadados } from "@/lib/metadados";
-import { colunas, linkEmail, linkWhatsApp, resumir } from "@/lib/utils";
+import { colunas, resumir } from "@/lib/utils";
 import { DadosEstruturados, migalhas } from "@/lib/dados-estruturados";
 
 export const dynamic = "force-dynamic";
@@ -79,25 +78,6 @@ export default async function PaginaObra({
   const T = (chave: string) => texto(txt[chave], idioma);
   const titulo = texto(obra.titulo, idioma) || t("obra.sem_titulo", idioma);
   const autor = obra.artista?.nome ?? "";
-  const vendida = obra.disponibilidade === "vendida";
-
-  const preco = vendida
-    ? t("estado.vendida", idioma)
-    : obra.disponibilidade === "reservada"
-      ? t("estado.reservada", idioma)
-      : texto(obra.preco, idioma) || t("obra.sob_consulta", idioma);
-
-  const mensagem = t("whatsapp.obra", idioma, {
-    titulo,
-    autor: autor ? t("whatsapp.obra_autor", idioma, { autor }) : "",
-  });
-
-  // Proporção real da obra, quando conhecida: uma peça alta não deve
-  // ser mostrada dentro de um quadrado.
-  const proporcao =
-    obra.larguraCm && obra.alturaCm
-      ? `${obra.larguraCm}/${obra.alturaCm}`
-      : "1/1";
 
   const jsonLd = {
     "@context": "https://schema.org",
@@ -112,33 +92,6 @@ export default async function PaginaObra({
     url: `${env.urlPublico}${caminho(idioma, `/obras/${slug}`)}`,
   };
 
-  const ficha: Array<[string, React.ReactNode]> = (
-    [
-      [t("obra.tecnica", idioma), texto(obra.tecnica, idioma)],
-      [t("obra.dimensoes", idioma), obra.dimensoes ?? ""],
-      [t("obra.ano", idioma), obra.ano ? String(obra.ano) : ""],
-      [
-        t("obra.exposicao", idioma),
-        obra.exposicao ? (
-          <Link
-            key="expo"
-            href={caminho(idioma, `/exposicoes/${obra.exposicao.slug}`)}
-          >
-            {texto(obra.exposicao.titulo, idioma)}
-          </Link>
-        ) : (
-          ""
-        ),
-      ],
-      [
-        t("obra.preco", idioma),
-        <span key="preco" className="text-ouro">
-          {preco}
-        </span>,
-      ],
-    ] as Array<[string, React.ReactNode]>
-  ).filter(([, v]) => v);
-
   return (
     <>
       <DadosEstruturados dados={jsonLd} />
@@ -151,96 +104,14 @@ export default async function PaginaObra({
       />
 
       <Seccao semFio className="px-margem pt-[120px] pb-20">
-        <div className="grid gap-14" style={colunas(340)}>
-          {/* A obra inteira, sem cortes, sobre o fundo mais escuro. */}
-          <ViewTransition
-            name={`obra-${slug}`}
-            share="obra-voo"
-            default="none"
-          >
-            <div className="bg-tinta-obra">
-              <Imagem
-                media={obra.fotografia}
-                alt={
-                  autor
-                    ? t("obra.alt", idioma, { titulo, autor })
-                    : titulo
-                }
-                proporcao={proporcao}
-                ajuste="contain"
-                legenda={`${titulo}, alta resolução`}
-                prioridade
-                revelar={false}
-                sizes="(max-width: 900px) 100vw, 50vw"
-              />
-            </div>
-          </ViewTransition>
-
-          <div className="flex flex-col gap-6 self-center">
-            {autor && (
-              <Link
-                href={caminho(idioma, `/artistas/${obra.artista!.slug}`)}
-                className="etiqueta inline-flex min-h-11 items-center"
-              >
-                {autor} →
-              </Link>
-            )}
-
-            <h1 className="titulo d-ficha tracking-[-0.02em]">
-              {titulo}
-            </h1>
-
-            <dl className="grid">
-              {ficha.map(([rotulo, valor], i) => (
-                <div
-                  key={rotulo}
-                  className={`flex justify-between gap-4 border-t border-fio py-3.5 text-[15px] ${
-                    i === ficha.length - 1
-                      ? "border-b border-b-fio"
-                      : ""
-                  }`}
-                >
-                  <dt className="text-claro-55">{rotulo}</dt>
-                  <dd className="m-0 text-right">{valor}</dd>
-                </div>
-              ))}
-            </dl>
-
-            {texto(obra.descricao, idioma) && (
-              <p className="corpo max-w-[48ch] text-claro-80">
-                {texto(obra.descricao, idioma)}
-              </p>
-            )}
-
-            {!vendida && (
-              <div className="flex flex-col gap-3">
-                <Botao externo href={linkWhatsApp(def.whatsapp, mensagem)}>
-                  {t("acao.preco_whatsapp", idioma)}
-                </Botao>
-                <Botao
-                  variante="linha"
-                  href={linkEmail(
-                    def.email,
-                    t("whatsapp.obra_assunto", idioma, { titulo }),
-                    mensagem,
-                  )}
-                >
-                  {t("acao.preco_email", idioma)}
-                </Botao>
-                <span className="meta text-center text-claro-55">
-                  {T("obra.nota.servico")}
-                </span>
-              </div>
-            )}
-
-            <Link
-              href={caminho(idioma, `/ver-na-parede?obra=${obra.slug}`)}
-              className="etiqueta inline-flex min-h-11 items-center"
-            >
-              {t("acao.parede", idioma)}
-            </Link>
-          </div>
-        </div>
+        <FichaObra
+          obra={obra}
+          idioma={idioma}
+          whatsapp={def.whatsapp}
+          email={def.email}
+          nota={T("obra.nota.servico")}
+          transicao
+        />
       </Seccao>
 
       {/* Imagens adicionais da obra. */}

@@ -27,6 +27,7 @@ const PAGINAS: Array<[caminho: string, identificador: string]> = [
   ["/a-galeria", "pagina=a-galeria"],
   ["/descarregar", "pagina=descarregar"],
   ["/contactos", "pagina=contactos"],
+  ["/newsletter", "pagina=newsletter"],
   ["/ver-na-parede", "pagina=ver-na-parede"],
   ["/a-obra-como-ativo", "pagina=a-obra-como-ativo"],
   ["/privacidade", "pagina=privacidade"],

@@ -32,7 +32,7 @@ const PUBLICADO = "publicado" as const;
 // Definições e textos
 // --------------------------------------------------------------------
 
-export { DEFINICOES_OMISSAO } from "@/lib/db/omissoes";
+export { DEFINICOES_OMISSAO, TEXTOS_OMISSAO } from "@/lib/db/omissoes";
 
 export async function obterDefinicoes(): Promise<Definicoes> {
   const [linha] = await db

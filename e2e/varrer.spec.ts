@@ -22,6 +22,7 @@ const PUBLICAS = [
   "/molduras",
   "/descarregar",
   "/contactos",
+  "/newsletter",
   "/a-galeria",
   "/a-obra-como-ativo",
   "/privacidade",

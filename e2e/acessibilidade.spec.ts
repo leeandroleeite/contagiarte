@@ -20,6 +20,7 @@ const PAGINAS = [
   "/molduras",
   "/descarregar",
   "/contactos",
+  "/newsletter",
   "/a-galeria",
   "/ver-na-parede",
 ];

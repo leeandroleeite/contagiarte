@@ -1,3 +1,4 @@
+import { TEXTOS_OMISSAO } from "../src/lib/db/omissoes";
 import type { Localizado } from "../src/lib/db/schema";
 import { L } from "./conteudo";
 import { PRIVACIDADE } from "./textos-legais";
@@ -327,7 +328,7 @@ export const TEXTOS: Array<{
   {
     chave: "newsletter.etiqueta",
     grupo: "newsletter",
-    nota: "Etiqueta por cima do bloco de subscrição, na entrada e nos contactos.",
+    nota: "Etiqueta por cima do bloco de subscrição, na entrada, nos contactos e na página da newsletter.",
     valor: L("NEWSLETTER"),
   },
   {
@@ -511,6 +512,86 @@ export const TEXTOS: Array<{
       "New exhibitions, works arriving at the gallery and invitations to openings. One message a month, no more.",
       "Nuevas exposiciones, obras que llegan a la galería e invitaciones a inauguraciones. Un mensaje al mes, nada más.",
     ),
+  },
+  // Página própria da newsletter. O texto vive nas omissões, que a
+  // página usa enquanto a base não tiver a linha, e a semente lê-o de lá.
+  {
+    chave: "newsletter.descricao",
+    grupo: "newsletter",
+    nota: "Descrição da página da newsletter nos motores de busca e nos cartões de partilha.",
+    valor: TEXTOS_OMISSAO["newsletter.descricao"],
+  },
+  {
+    chave: "newsletter.pagina.titulo",
+    grupo: "newsletter",
+    nota: "Título grande da página da newsletter.",
+    valor: TEXTOS_OMISSAO["newsletter.pagina.titulo"],
+  },
+  {
+    chave: "newsletter.pagina.intro",
+    grupo: "newsletter",
+    nota: "Frase de abertura da página da newsletter, por baixo do título.",
+    valor: TEXTOS_OMISSAO["newsletter.pagina.intro"],
+  },
+  {
+    chave: "newsletter.vantagem.1.titulo",
+    grupo: "newsletter",
+    nota: "Página da newsletter: título da primeira vantagem.",
+    valor: TEXTOS_OMISSAO["newsletter.vantagem.1.titulo"],
+  },
+  {
+    chave: "newsletter.vantagem.1.texto",
+    grupo: "newsletter",
+    nota: "Página da newsletter: texto da primeira vantagem.",
+    valor: TEXTOS_OMISSAO["newsletter.vantagem.1.texto"],
+  },
+  {
+    chave: "newsletter.vantagem.2.titulo",
+    grupo: "newsletter",
+    nota: "Página da newsletter: título da segunda vantagem.",
+    valor: TEXTOS_OMISSAO["newsletter.vantagem.2.titulo"],
+  },
+  {
+    chave: "newsletter.vantagem.2.texto",
+    grupo: "newsletter",
+    nota: "Página da newsletter: texto da segunda vantagem.",
+    valor: TEXTOS_OMISSAO["newsletter.vantagem.2.texto"],
+  },
+  {
+    chave: "newsletter.vantagem.3.titulo",
+    grupo: "newsletter",
+    nota: "Página da newsletter: título da terceira vantagem.",
+    valor: TEXTOS_OMISSAO["newsletter.vantagem.3.titulo"],
+  },
+  {
+    chave: "newsletter.vantagem.3.texto",
+    grupo: "newsletter",
+    nota: "Página da newsletter: texto da terceira vantagem.",
+    valor: TEXTOS_OMISSAO["newsletter.vantagem.3.texto"],
+  },
+  {
+    chave: "newsletter.vantagem.4.titulo",
+    grupo: "newsletter",
+    nota: "Página da newsletter: título da quarta vantagem.",
+    valor: TEXTOS_OMISSAO["newsletter.vantagem.4.titulo"],
+  },
+  {
+    chave: "newsletter.vantagem.4.texto",
+    grupo: "newsletter",
+    nota: "Página da newsletter: texto da quarta vantagem. Não prometer o que a galeria ainda não decidiu.",
+    valor: TEXTOS_OMISSAO["newsletter.vantagem.4.texto"],
+  },
+  {
+    chave: "newsletter.pagina.subscrever",
+    grupo: "newsletter",
+    nota: "Página da newsletter: título do bloco claro, ao lado do campo de email.",
+    valor: TEXTOS_OMISSAO["newsletter.pagina.subscrever"],
+  },
+  {
+    chave: "newsletter.pagina.nota",
+    grupo: "newsletter",
+    nota: "Página da newsletter: frase ao lado do campo de email.",
+    valor: TEXTOS_OMISSAO["newsletter.pagina.nota"],
   },
   {
     chave: "arquivo.nota",

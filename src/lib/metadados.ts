@@ -36,6 +36,7 @@ export const PAGINAS_COM_CARTAO = {
   "a-galeria": "nav.galeria",
   descarregar: "nav.descarregar",
   contactos: "nav.contactos",
+  newsletter: "nav.newsletter",
   "ver-na-parede": "parede.titulo",
   "a-obra-como-ativo": "nav.ativo",
   privacidade: "privacidade.titulo",

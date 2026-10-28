@@ -29,6 +29,7 @@ const ESTATICAS = [
   { path: "/a-obra-como-ativo", prioridade: 0.5, frequencia: "yearly" as const },
   { path: "/descarregar", prioridade: 0.6, frequencia: "monthly" as const },
   { path: "/contactos", prioridade: 0.7, frequencia: "yearly" as const },
+  { path: "/newsletter", prioridade: 0.5, frequencia: "yearly" as const },
   { path: "/privacidade", prioridade: 0.2, frequencia: "yearly" as const },
 ];
 

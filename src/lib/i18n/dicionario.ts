@@ -19,6 +19,7 @@ export const DICIONARIO = {
   "nav.galeria": { pt: "A galeria", en: "The gallery", es: "La galería" },
   "nav.descarregar": { pt: "Descarregar", en: "Downloads", es: "Descargas" },
   "nav.contactos": { pt: "Contactos", en: "Contact", es: "Contacto" },
+  "nav.newsletter": { pt: "Newsletter", en: "Newsletter", es: "Newsletter" },
   "nav.parede": {
     pt: "Ver na parede",
     en: "See it on your wall",

@@ -10,7 +10,7 @@ import { colunas, linkWhatsApp } from "@/lib/utils";
  * design, com o título grande e as colunas de contacto.
  *
  * A coluna "Explorar" existe por necessidade de navegação: a barra de
- * topo só tem sete entradas, e abaixo de 1120px as restantes vivem no
+ * topo só tem oito entradas, e abaixo de 1120px as restantes vivem no
  * menu compacto. Sem esta coluna, quem está num ecrã grande não teria
  * como chegar a "Ver na parede", "A obra como ativo", "Os lugares" ou
  * "A galeria" a não ser por uma frase solta na homepage.
@@ -64,6 +64,9 @@ export function Rodape({
           >
             <Icone nome="instagram" />@{d.instagram}
           </a>
+          <Link href={caminho(idioma, "/newsletter")}>
+            {t("nav.newsletter", idioma)} →
+          </Link>
           {d.morada && (
             <span className="text-claro-55">
               <Icone nome="morada" />

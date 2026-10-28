@@ -52,6 +52,7 @@ test.describe("Navegação e estrutura", () => {
       "/a-galeria",
       "/descarregar",
       "/contactos",
+      "/newsletter",
       "/ver-na-parede",
       "/a-obra-como-ativo",
       "/privacidade",

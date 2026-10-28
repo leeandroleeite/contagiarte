@@ -14,6 +14,7 @@ const LIGACOES = [
   { chave: "nav.arquivo", href: "/arquivo" },
   { chave: "nav.molduras", href: "/molduras" },
   { chave: "nav.descarregar", href: "/descarregar" },
+  { chave: "nav.newsletter", href: "/newsletter" },
   { chave: "nav.contactos", href: "/contactos" },
 ] as const;
 
@@ -121,9 +122,12 @@ export function Cabecalho({ idioma }: { idioma: Idioma }) {
           CONTAGIARTE®
         </Link>
 
+        {/* Oito entradas a 22px umas das outras. Com a Newsletter, aos
+            26px de antes a barra passava os 1120px do ponto de quebra e
+            os idiomas caíam para uma segunda linha. */}
         <nav
           aria-label={t("nav.principal", idioma)}
-          className="hidden items-center gap-[26px] text-[11px] tracking-[0.18em] whitespace-nowrap uppercase menu:flex"
+          className="hidden items-center gap-[22px] text-[11px] tracking-[0.18em] whitespace-nowrap uppercase menu:flex"
         >
           {LIGACOES.map((l) => {
             const activo = actual === l.href || actual.startsWith(`${l.href}/`);

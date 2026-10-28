@@ -1,18 +1,31 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useRef, useState } from "react";
-import { flushSync, useFormStatus } from "react-dom";
+import { useRef, useState } from "react";
+import { flushSync } from "react-dom";
 import type { ObraFicha, ParteFicha } from "@/components/FichaObra";
 import { BotaoApagar } from "@/components/admin/BotaoApagar";
 import {
   CampoMedia,
   type MediaEscolhivel,
 } from "@/components/admin/CampoMedia";
+import {
+  AvisoTraducao,
+  BarraAlteracoes,
+  BotaoGuardar,
+  Campo,
+  CampoTraduzivel,
+  listarAlteracoes,
+  NOME_LINGUA,
+  SeloEstado,
+  TopoFicha,
+  useAvisoAoSair,
+  type TresLinguas,
+} from "@/components/admin/Ficha";
 import { PreviaObra } from "@/components/admin/PreviaObra";
 import type { Localizado } from "@/lib/db/schema";
 import { texto } from "@/lib/i18n";
-import { caminho, IDIOMAS, type Idioma } from "@/lib/i18n/config";
+import { caminho, type Idioma } from "@/lib/i18n/config";
 import { cx, slugificar } from "@/lib/utils";
 
 /**
@@ -30,7 +43,6 @@ import { cx, slugificar } from "@/lib/utils";
  * `disponibilidade`...): a acção `guardarObra` não mudou.
  */
 
-type TresLinguas = Record<Idioma, string>;
 const TRADUZIVEIS = ["titulo", "tecnica", "descricao", "preco"] as const;
 type Traduzivel = (typeof TRADUZIVEIS)[number];
 
@@ -73,12 +85,6 @@ const ROTULOS: Record<keyof DadosObra, string> = {
   estado: "Estado",
 };
 
-const NOME_LINGUA: Record<Idioma, string> = {
-  pt: "português",
-  en: "inglês",
-  es: "espanhol",
-};
-
 /** Os estados de venda do esquema, com o efeito de cada um no site. */
 const DISPONIBILIDADES = [
   {
@@ -102,35 +108,6 @@ const DISPONIBILIDADES = [
     efeito: "Fica de fora do filtro das obras disponíveis",
   },
 ] as const;
-
-const SELO: Record<string, string> = {
-  publicado: "No site",
-  rascunho: "Rascunho",
-  arquivado: "Arquivada",
-};
-
-/** Lista os campos que mudaram, com a língua quando não é o português. */
-function alteracoes(antes: DadosObra, agora: DadosObra): string[] {
-  const lista: string[] = [];
-  for (const campo of Object.keys(ROTULOS) as Array<keyof DadosObra>) {
-    const a = antes[campo];
-    const b = agora[campo];
-    if ((TRADUZIVEIS as readonly string[]).includes(campo)) {
-      for (const l of IDIOMAS) {
-        if ((a as TresLinguas)[l] !== (b as TresLinguas)[l]) {
-          lista.push(
-            l === "pt" ? ROTULOS[campo] : `${ROTULOS[campo]} (${l.toUpperCase()})`,
-          );
-        }
-      }
-    } else if (campo === "fotografia") {
-      if (antes.fotografia?.id !== agora.fotografia?.id) lista.push(ROTULOS[campo]);
-    } else if (a !== b) {
-      lista.push(ROTULOS[campo]);
-    }
-  }
-  return lista;
-}
 
 /**
  * Uma língua está completa quando todos os campos traduzíveis que têm
@@ -188,7 +165,7 @@ export function EditorObra({
   const formulario = useRef<HTMLFormElement>(null);
   const aEnviar = useRef(false);
 
-  const mudancas = alteracoes(inicial, dados);
+  const mudancas = listarAlteracoes(inicial, dados, ROTULOS);
   const porGuardar = mudancas.length > 0;
   const publicada = inicial.estado === "publicado";
 
@@ -197,33 +174,7 @@ export function EditorObra({
   const mudaTraducao = (campo: Traduzivel, valor: string) =>
     setDados((d) => ({ ...d, [campo]: { ...d[campo], [lingua]: valor } }));
 
-  // Sair com alterações por guardar pede confirmação: ao fechar o
-  // separador ou recarregar (beforeunload), e ao carregar num link do
-  // painel, que muda de página sem o navegador perguntar nada.
-  useEffect(() => {
-    if (!porGuardar) return;
-    const aoSair = (e: BeforeUnloadEvent) => {
-      if (aEnviar.current) return;
-      e.preventDefault();
-      e.returnValue = "";
-    };
-    const aoClicar = (e: MouseEvent) => {
-      if (aEnviar.current || e.defaultPrevented) return;
-      const link = (e.target as Element | null)?.closest?.("a[href]");
-      if (!(link instanceof HTMLAnchorElement)) return;
-      if (link.target === "_blank" || link.origin !== location.origin) return;
-      if (!window.confirm("Tem alterações por guardar. Sair sem guardar?")) {
-        e.preventDefault();
-        e.stopPropagation();
-      }
-    };
-    window.addEventListener("beforeunload", aoSair);
-    document.addEventListener("click", aoClicar, true);
-    return () => {
-      window.removeEventListener("beforeunload", aoSair);
-      document.removeEventListener("click", aoClicar, true);
-    };
-  }, [porGuardar]);
+  useAvisoAoSair(porGuardar, aEnviar);
 
   // A ficha como o site a desenharia com o que está escrito agora.
   const artista = artistas.find((a) => a.id === dados.artistaId) ?? null;
@@ -297,117 +248,17 @@ export function EditorObra({
       className="flex min-h-[calc(100dvh-56px)] flex-col lg:min-h-dvh"
     >
       {/* Topo: de que obra se trata, se está no site, e a língua. */}
-      <header className="z-30 flex flex-col gap-3 border-b border-adm-fio bg-adm-cartao px-6 py-3 lg:sticky lg:top-0 lg:px-8">
-        <div className="flex flex-wrap items-center gap-x-5 gap-y-3">
-          <Link
-            href="/admin/obras"
-            className="inline-flex min-h-11 items-center gap-2 text-[13px] no-underline"
-          >
-            <span aria-hidden="true">←</span> Obras
-          </Link>
-
-          <div className="flex min-w-[12rem] flex-1 items-center gap-3">
-            <h1
-              className="titulo min-w-0 truncate text-[clamp(22px,2.4vw,28px)] leading-[1.1]"
-              style={{ fontStretch: "112%" }}
-            >
-              {tituloPagina}
-            </h1>
-            <span
-              className={cx(
-                "shrink-0 px-2 py-1 text-[10px] tracking-[0.16em] uppercase",
-                publicada
-                  ? "bg-tinta text-papel"
-                  : "border border-adm-fio-forte text-adm-suave",
-              )}
-            >
-              {nova ? "Nova" : (SELO[inicial.estado] ?? inicial.estado)}
-            </span>
-          </div>
-
-          <div className="flex items-center gap-4">
-            <div
-              role="group"
-              aria-label="Língua a editar"
-              className="flex border border-adm-fio-forte"
-            >
-              {IDIOMAS.map((l) => {
-                const cheia = completa(dados, l);
-                return (
-                  <button
-                    key={l}
-                    type="button"
-                    aria-pressed={l === lingua}
-                    onClick={() => setLingua(l)}
-                    title={`${NOME_LINGUA[l]}: ${cheia ? "completo" : "por traduzir"}`}
-                    className={cx(
-                      "flex min-h-11 min-w-[52px] cursor-pointer items-center justify-center gap-1.5 border-0 px-3 text-[12px] tracking-[0.14em] uppercase",
-                      l === lingua
-                        ? "bg-tinta text-papel"
-                        : "bg-transparent text-tinta hover:bg-adm-fundo",
-                    )}
-                  >
-                    {l}
-                    <span
-                      aria-hidden="true"
-                      className={cx(
-                        "inline-block size-1.5 border border-ouro",
-                        cheia && "bg-ouro",
-                      )}
-                    />
-                    <span className="so-leitor">
-                      {cheia ? ", completo" : ", por traduzir"}
-                    </span>
-                  </button>
-                );
-              })}
-            </div>
-
-            {publicada && (
-              <a
-                href={caminho(lingua, `/obras/${inicial.slug}`)}
-                target="_blank"
-                rel="noopener"
-                className="hidden min-h-11 items-center text-[12px] tracking-[0.14em] uppercase no-underline sm:inline-flex"
-              >
-                Ver no site ↗
-              </a>
-            )}
-          </div>
-        </div>
-
-        {/* No telemóvel não cabem duas colunas: ou se edita, ou se vê. */}
-        <div
-          role="group"
-          aria-label="Modo"
-          className="grid grid-cols-2 border border-adm-fio-forte lg:hidden"
-        >
-          {(
-            [
-              ["editar", "Editar"],
-              ["ver", "Ver no site"],
-            ] as const
-          ).map(([valor, rotulo]) => (
-            <button
-              key={valor}
-              type="button"
-              aria-pressed={modo === valor}
-              onClick={() => {
-                setModo(valor);
-                // A troca acontece no topo, e o que se queria ver pode
-                // estar lá em baixo: volta-se ao princípio, sem deslizar.
-                window.scrollTo({ top: 0, behavior: "instant" });
-              }}
-              className={cx(
-                "min-h-11 cursor-pointer border-0 text-[12px] tracking-[0.14em] uppercase",
-                modo === valor ? "bg-tinta text-papel" : "bg-transparent text-tinta",
-              )}
-            >
-              {rotulo}
-            </button>
-          ))}
-        </div>
-      </header>
+      <TopoFicha
+        voltar={{ href: "/admin/obras", rotulo: "Obras" }}
+        titulo={tituloPagina}
+        selos={<SeloEstado nova={nova} estado={inicial.estado} />}
+        lingua={lingua}
+        aoMudarLingua={setLingua}
+        completa={(l) => completa(dados, l)}
+        verNoSite={publicada ? caminho(lingua, `/obras/${inicial.slug}`) : null}
+        modo={modo}
+        aoMudarModo={setModo}
+      />
 
       <div className="grid flex-1 items-start gap-10 px-6 pt-7 pb-12 lg:grid-cols-2 lg:px-8">
         <div
@@ -447,13 +298,7 @@ export function EditorObra({
               </span>
             </legend>
 
-            {semTraducao && (
-              <p className="m-0 border-l-2 border-l-ouro bg-ouro-lavado px-4 py-3 text-[14px]">
-                Ainda sem tradução completa: quem visita em{" "}
-                {NOME_LINGUA[lingua]} lê o português onde estiver vazio. O que
-                escrever aqui só muda a versão em {NOME_LINGUA[lingua]}.
-              </p>
-            )}
+            {semTraducao && <AvisoTraducao lingua={lingua} />}
 
             <CampoTraduzivel
               campo="titulo"
@@ -713,186 +558,31 @@ export function EditorObra({
       </div>
 
       {/* A barra de baixo diz sempre em que pé se está. */}
-      <div className="sticky bottom-0 z-20 flex flex-wrap items-center gap-x-5 gap-y-3 border-t border-adm-fio-forte bg-adm-cartao px-6 py-3.5 lg:px-8">
-        {porGuardar ? (
-          <>
-            <p
-              role="status"
-              className="m-0 flex min-w-0 flex-1 basis-64 items-baseline gap-2.5 text-[14px]"
-            >
-              <span aria-hidden="true" className="inline-block size-2.5 shrink-0 bg-ouro" />
-              <span>
-                <strong className="font-semibold">
-                  {mudancas.length === 1
-                    ? "1 alteração por guardar:"
-                    : `${mudancas.length} alterações por guardar:`}
-                </strong>{" "}
-                {mudancas.join(", ")}
-              </span>
-            </p>
-            <div className="flex flex-wrap gap-2.5">
-              <button
-                type="button"
-                onClick={desfazer}
-                className="adm-botao adm-botao-linha"
-              >
-                Desfazer
-              </button>
-              {dados.estado === "publicado" ? (
-                <BotaoGuardar rotulo="Guardar e publicar" />
-              ) : (
-                <>
-                  <BotaoGuardar rotulo="Guardar sem publicar" linha />
-                  <BotaoGuardar rotulo="Guardar e publicar" aoClicar={publicar} />
-                </>
-              )}
-            </div>
-          </>
-        ) : (
-          <>
-            <p role="status" className="m-0 min-w-0 flex-1 basis-64 text-[14px] text-adm-suave">
-              {nova
-                ? "Obra nova. Comece pela fotografia e pelo título."
-                : publicada
-                  ? "Tudo guardado. O que vê na pré-visualização é o que está no site."
-                  : "Tudo guardado. Esta obra ainda não aparece no site."}
-            </p>
-            <div className="flex flex-wrap gap-2.5">
-              {nova ? (
-                <Link href="/admin/obras" className="adm-botao adm-botao-linha no-underline">
-                  Cancelar
-                </Link>
-              ) : (
-                <>
-                  {!publicada && (
-                    <BotaoGuardar rotulo="Publicar" aoClicar={publicar} />
-                  )}
-                  {apagar && <BotaoApagar accao={apagar} rotulo="Apagar obra" />}
-                </>
-              )}
-            </div>
-          </>
-        )}
-      </div>
+      <BarraAlteracoes
+        mudancas={mudancas}
+        publicar={dados.estado === "publicado"}
+        aoDesfazer={desfazer}
+        aoPublicar={publicar}
+        repouso={
+          nova
+            ? "Obra nova. Comece pela fotografia e pelo título."
+            : publicada
+              ? "Tudo guardado. O que vê na pré-visualização é o que está no site."
+              : "Tudo guardado. Esta obra ainda não aparece no site."
+        }
+        accoesRepouso={
+          nova ? (
+            <Link href="/admin/obras" className="adm-botao adm-botao-linha no-underline">
+              Cancelar
+            </Link>
+          ) : (
+            <>
+              {!publicada && <BotaoGuardar rotulo="Publicar" aoClicar={publicar} />}
+              {apagar && <BotaoApagar accao={apagar} rotulo="Apagar obra" />}
+            </>
+          )
+        }
+      />
     </form>
-  );
-}
-
-/** Rótulo, campo e nota, com a parte da ficha que o campo mexe. */
-function Campo({
-  rotulo,
-  id,
-  parte,
-  nota,
-  largo = false,
-  children,
-}: {
-  rotulo: React.ReactNode;
-  id: string;
-  parte?: ParteFicha;
-  nota?: string;
-  largo?: boolean;
-  children: React.ReactNode;
-}) {
-  return (
-    <div data-parte={parte} className={cx("flex flex-col", largo && "sm:col-span-2")}>
-      <label className="adm-rotulo" htmlFor={id}>
-        {rotulo}
-      </label>
-      {children}
-      {nota && <span className="mt-1.5 text-[13px] text-adm-suave">{nota}</span>}
-    </div>
-  );
-}
-
-/**
- * Um campo traduzível mostra só a língua escolhida no topo. As outras
- * duas viajam escondidas no mesmo formulário, com os nomes de sempre
- * (`titulo.pt`, `titulo.en`, `titulo.es`). Vazio, o placeholder mostra
- * o português, que é o que o visitante lê nessa língua.
- */
-function CampoTraduzivel({
-  campo,
-  parte,
-  rotulo,
-  lingua,
-  valor,
-  aoMudar,
-  nota,
-  linhas = 0,
-  obrigatorio = false,
-}: {
-  campo: Traduzivel;
-  parte: ParteFicha;
-  rotulo: string;
-  lingua: Idioma;
-  valor: TresLinguas;
-  aoMudar: (campo: Traduzivel, valor: string) => void;
-  nota?: string;
-  linhas?: number;
-  obrigatorio?: boolean;
-}) {
-  const id = `campo-${campo}`;
-  const props = {
-    id,
-    name: `${campo}.${lingua}`,
-    value: valor[lingua],
-    required: obrigatorio && lingua === "pt",
-    placeholder: lingua === "pt" ? undefined : valor.pt,
-    onChange: (
-      e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
-    ) => aoMudar(campo, e.target.value),
-  };
-
-  return (
-    <Campo
-      id={id}
-      parte={parte}
-      nota={nota}
-      rotulo={
-        <>
-          {rotulo}
-          {lingua !== "pt" && (
-            <span className="ml-2 text-tinta">
-              · {lingua}
-              <span className="so-leitor"> ({NOME_LINGUA[lingua]})</span>
-            </span>
-          )}
-        </>
-      }
-    >
-      {linhas > 0 ? (
-        <textarea rows={linhas} {...props} />
-      ) : (
-        <input type="text" {...props} />
-      )}
-      {IDIOMAS.filter((l) => l !== lingua).map((l) => (
-        <input key={l} type="hidden" name={`${campo}.${l}`} value={valor[l]} />
-      ))}
-    </Campo>
-  );
-}
-
-/** Enquanto a acção corre, o botão diz que está a guardar. */
-function BotaoGuardar({
-  rotulo,
-  linha = false,
-  aoClicar,
-}: {
-  rotulo: string;
-  linha?: boolean;
-  /** Sem isto é um botão de enviar, que guarda o estado tal como está. */
-  aoClicar?: () => void;
-}) {
-  const { pending } = useFormStatus();
-  return (
-    <button
-      type={aoClicar ? "button" : "submit"}
-      onClick={aoClicar}
-      disabled={pending}
-      className={cx("adm-botao", linha && "adm-botao-linha")}
-    >
-      {pending ? "A guardar…" : rotulo}
-    </button>
   );
 }

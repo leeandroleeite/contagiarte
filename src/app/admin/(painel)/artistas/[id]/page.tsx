@@ -1,4 +1,4 @@
-import { eq } from "drizzle-orm";
+import { asc, eq } from "drizzle-orm";
 import { notFound } from "next/navigation";
 import { BarraGuardar } from "@/components/admin/BarraGuardar";
 import { BotaoApagar } from "@/components/admin/BotaoApagar";
@@ -12,21 +12,9 @@ import { Grelha, CabecalhoSeccao, Conteudo } from "@/components/admin/Pecas";
 import { apagarArtista, guardarArtista } from "@/lib/admin/accoes";
 import { listarMedia } from "@/lib/admin/media";
 import { db } from "@/lib/db";
-import { artistas } from "@/lib/db/schema";
-import { rotuloDisciplina } from "@/lib/i18n";
+import { artistas, disciplinas } from "@/lib/db/schema";
 
 export const dynamic = "force-dynamic";
-
-const DISCIPLINAS = [
-  "pintura",
-  "escultura",
-  "colagem",
-  "tecnica_mista",
-  "ceramica",
-  "fotografia",
-  "desenho",
-  "instalacao",
-];
 
 export default async function EditarArtista({
   params,
@@ -36,7 +24,7 @@ export default async function EditarArtista({
   const { id } = await params;
   const novo = id === "novo";
 
-  const [artista, biblioteca] = await Promise.all([
+  const [artista, biblioteca, tipologias] = await Promise.all([
     novo
       ? null
       : db.query.artistas.findFirst({
@@ -44,6 +32,7 @@ export default async function EditarArtista({
           with: { retrato: true },
         }),
     listarMedia("imagem"),
+    db.query.disciplinas.findMany({ orderBy: [asc(disciplinas.ordem)] }),
   ]);
 
   if (!novo && !artista) notFound();
@@ -76,14 +65,19 @@ export default async function EditarArtista({
           />
 
           <CampoSelect
-            nome="disciplina"
-            rotulo="Disciplina"
-            valor={artista?.disciplina ?? "pintura"}
-            opcoes={DISCIPLINAS.map((d) => ({
-              valor: d,
-              rotulo: rotuloDisciplina(d, "pt"),
-            }))}
-            nota="Alimenta os filtros da lista de artistas."
+            nome="disciplinaId"
+            rotulo="Tipologia"
+            // Um artista novo começa na primeira da lista; um que já
+            // existe e não tem nenhuma fica em "Sem tipologia".
+            valor={novo ? (tipologias[0]?.id ?? "") : (artista!.disciplinaId ?? "")}
+            opcoes={[
+              ...tipologias.map((d) => ({
+                valor: d.id,
+                rotulo: d.nota?.pt ? `${d.nome.pt} (${d.nota.pt})` : d.nome.pt,
+              })),
+              { valor: "", rotulo: "Sem tipologia" },
+            ]}
+            nota="Alimenta o filtro da lista de artistas. A lista edita-se em Tipologias."
           />
 
           <CampoTexto

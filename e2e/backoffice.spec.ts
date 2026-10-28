@@ -229,7 +229,9 @@ test.describe("Artistas", () => {
     await page.goto("/admin/artistas/novo");
     await page.locator('input[name="nome"]').fill(nome);
     await page.locator('input[name="slug"]').fill(slug);
-    await page.locator('select[name="disciplina"]').selectOption("escultura");
+    await page
+      .locator('select[name="disciplinaId"]')
+      .selectOption({ label: "Escultura" });
     await page.locator('select[name="estado"]').selectOption("publicado");
 
     // Campo traduzível: o separador EN tem de guardar o seu próprio valor.
@@ -269,6 +271,97 @@ test.describe("Artistas", () => {
     page.once("dialog", (d) => d.accept());
     await page.getByRole("button", { name: /Apagar artista/i }).click();
     await expect(page).toHaveURL(/\/admin\/artistas$/);
+  });
+});
+
+test.describe("Tipologias", () => {
+  test("as quatro da galeria, por ordem, e uma nova que filtra e não se apaga em uso", async ({
+    page,
+  }) => {
+    await entrarNoBackoffice(page);
+
+    // --- as quatro que a migração semeia, pela ordem pedida ---
+    await page.goto("/admin/tipologias");
+    const titulos = await page.locator("main section h2").allInnerTexts();
+    expect(titulos.slice(0, 4)).toEqual([
+      "Obra gráfica",
+      "Pintura",
+      "Escultura",
+      "Técnica mista",
+    ]);
+
+    // --- acrescentar uma, com tradução ---
+    const m = marca();
+    const nome = `Tipologia teste ${m}`;
+    const nova = page.locator("main section").last();
+    await nova.locator('[name="nome.pt"]').fill(nome);
+    await nova
+      .locator('[data-campo="nome"]')
+      .getByRole("button", { name: "en", exact: true })
+      .click();
+    await nova.locator('[name="nome.en"]').fill(`Test type ${m}`);
+    await nova.locator('input[name="ordem"]').fill("0");
+    await nova.getByRole("button", { name: /^Guardar$/ }).click();
+    await expect(page.getByText("Tipologia guardada.")).toBeVisible();
+    // Ordem zero: passa para o topo da lista.
+    await expect(page.locator("main section h2").first()).toHaveText(nome);
+
+    // --- um artista publicado com ela ---
+    const artista = `Artista Teste ${m}`;
+    await page.goto("/admin/artistas/novo");
+    await page.locator('input[name="nome"]').fill(artista);
+    await page.locator('input[name="slug"]').fill(`artista-teste-${m}`);
+    await page
+      .locator('select[name="disciplinaId"]')
+      .selectOption({ label: nome });
+    await page.locator('select[name="estado"]').selectOption("publicado");
+    await guardar(page);
+    await expect(page.getByText("Artista guardado.")).toBeVisible();
+
+    // --- no site, o filtro tem a tipologia nova e filtra por ela ---
+    await page.goto("/artistas");
+    const filtro = page.getByRole("button", { name: nome });
+    await expect(filtro).toBeVisible();
+    await filtro.click();
+    const linhas = page.locator('main a[href^="/artistas/"]');
+    await expect(
+      linhas.filter({ hasText: new RegExp(artista, "i") }).first(),
+    ).toBeVisible();
+    await expect(linhas.filter({ hasText: /Mário Ferreira/i })).toHaveCount(
+      // A lista filtrada não o mostra; a grelha de retratos por baixo sim.
+      1,
+    );
+    await page.goto("/en/artistas");
+    await expect(
+      page.getByRole("button", { name: `Test type ${m}` }),
+    ).toBeVisible();
+
+    // --- em uso, não se apaga ---
+    await page.goto("/admin/tipologias");
+    const cartao = page.locator(`main section[data-tipologia^="tipologia-teste-${m}"]`);
+    await expect(cartao.getByText("1 artista")).toBeVisible();
+    await expect(
+      cartao.getByRole("button", { name: /Apagar tipologia/ }),
+    ).toHaveCount(0);
+
+    // --- sem artistas, apaga-se, e o filtro desaparece ---
+    await page.goto("/admin/artistas");
+    await page
+      .locator("main li")
+      .filter({ hasText: artista })
+      .getByRole("link", { name: "Editar →" })
+      .click();
+    page.once("dialog", (d) => d.accept());
+    await page.getByRole("button", { name: /Apagar artista/i }).click();
+    await expect(page).toHaveURL(/\/admin\/artistas$/);
+
+    await page.goto("/admin/tipologias");
+    page.once("dialog", (d) => d.accept());
+    await cartao.getByRole("button", { name: /Apagar tipologia/ }).click();
+    await expect(page.getByRole("heading", { name: nome })).toHaveCount(0);
+
+    await page.goto("/artistas");
+    await expect(page.getByRole("button", { name: nome })).toHaveCount(0);
   });
 });
 
@@ -451,6 +544,10 @@ test.describe("Descarregáveis", () => {
     await page.locator('[name="nome.pt"]').fill(nome);
     await page.locator('input[name="slug"]').fill(slug);
     await page.locator('[name="descricao.pt"]').fill("PDF de teste");
+    // Fica como catálogo de A Pele da Terra, a exposição da Quanta Terra.
+    await page
+      .locator('select[name="exposicaoId"]')
+      .selectOption({ label: "A Pele da Terra" });
     await page.locator('select[name="estado"]').selectOption("publicado");
 
     const ficheiro = `teste-${m}.pdf`;
@@ -480,11 +577,34 @@ test.describe("Descarregáveis", () => {
     });
     expect([302, 307]).toContain(resposta.status());
 
+    // --- na página da exposição e no fim do percurso, o botão do catálogo ---
+    const botaoCatalogo = (p: Page) =>
+      p.getByRole("link", { name: /Descarregar o catálogo \(PDF\)/ });
+    await page.goto("/exposicoes/a-pele-da-terra");
+    await expect(botaoCatalogo(page)).toHaveAttribute(
+      "href",
+      `/api/descarregar/${slug}`,
+    );
+    await page.goto("/en/exposicoes/a-pele-da-terra");
+    await expect(
+      page.getByRole("link", { name: /Download the catalogue \(PDF\)/ }),
+    ).toBeVisible();
+    await page.goto("/exposicoes/a-pele-da-terra/percurso");
+    await expect(botaoCatalogo(page)).toHaveAttribute(
+      "href",
+      `/api/descarregar/${slug}`,
+    );
+
     // Limpar.
     await page.goto("/admin/descarregaveis");
     await page.getByRole("link", { name: nome }).click();
     page.once("dialog", (d) => d.accept());
     await page.getByRole("button", { name: /Apagar documento/i }).click();
+    await expect(page).toHaveURL(/\/admin\/descarregaveis$/);
+
+    // Sem documento ligado, o botão desaparece.
+    await page.goto("/exposicoes/a-pele-da-terra");
+    await expect(botaoCatalogo(page)).toHaveCount(0);
   });
 });
 

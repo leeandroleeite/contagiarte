@@ -19,6 +19,7 @@ export const DICIONARIO = {
   "nav.galeria": { pt: "A galeria", en: "The gallery", es: "La galería" },
   "nav.descarregar": { pt: "Descarregar", en: "Downloads", es: "Descargas" },
   "nav.contactos": { pt: "Contactos", en: "Contact", es: "Contacto" },
+  "nav.newsletter": { pt: "Newsletter", en: "Newsletter", es: "Newsletter" },
   "nav.parede": {
     pt: "Ver na parede",
     en: "See it on your wall",
@@ -116,6 +117,11 @@ export const DICIONARIO = {
     pt: "Descarregar ↓",
     en: "Download ↓",
     es: "Descargar ↓",
+  },
+  "acao.descarregar_catalogo": {
+    pt: "Descarregar o catálogo (PDF) ↓",
+    en: "Download the catalogue (PDF) ↓",
+    es: "Descargar el catálogo (PDF) ↓",
   },
   "acao.subscrever": { pt: "Subscrever", en: "Subscribe", es: "Suscribirse" },
   "acao.enviar": {
@@ -275,28 +281,6 @@ export const DICIONARIO = {
     pt: "Disponíveis",
     en: "Available",
     es: "Disponibles",
-  },
-
-  // Disciplinas -----------------------------------------------------
-  "disciplina.pintura": { pt: "Pintura", en: "Painting", es: "Pintura" },
-  "disciplina.escultura": { pt: "Escultura", en: "Sculpture", es: "Escultura" },
-  "disciplina.colagem": { pt: "Colagem", en: "Collage", es: "Collage" },
-  "disciplina.tecnica_mista": {
-    pt: "Técnica mista",
-    en: "Mixed media",
-    es: "Técnica mixta",
-  },
-  "disciplina.ceramica": { pt: "Cerâmica", en: "Ceramics", es: "Cerámica" },
-  "disciplina.fotografia": {
-    pt: "Fotografia",
-    en: "Photography",
-    es: "Fotografía",
-  },
-  "disciplina.desenho": { pt: "Desenho", en: "Drawing", es: "Dibujo" },
-  "disciplina.instalacao": {
-    pt: "Instalação",
-    en: "Installation",
-    es: "Instalación",
   },
 
   // Formulários -----------------------------------------------------

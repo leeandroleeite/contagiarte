@@ -18,14 +18,55 @@ export const L = (pt: string, en?: string, es?: string): Localizado => ({
 });
 
 // --------------------------------------------------------------------
+// Tipologias
+//
+// As mesmas quatro que a migração 0007 cria, pela ordem que a galeria
+// pediu. Ficam aqui para uma base criada sem migrações também as ter;
+// depois disso editam-se no backoffice.
+// --------------------------------------------------------------------
+
+export const DISCIPLINAS = [
+  {
+    slug: "obra-grafica",
+    nome: L("Obra gráfica", "Prints", "Obra gráfica"),
+    nota: L(
+      "serigrafia, gravura, litografia, giclée",
+      "screen print, etching, lithograph, giclée",
+      "serigrafía, grabado, litografía, giclée",
+    ),
+    ordem: 1,
+  },
+  {
+    slug: "pintura",
+    nome: L("Pintura", "Painting", "Pintura"),
+    nota: L("obras originais", "original works", "obras originales"),
+    ordem: 2,
+  },
+  {
+    slug: "escultura",
+    nome: L("Escultura", "Sculpture", "Escultura"),
+    nota: null,
+    ordem: 3,
+  },
+  {
+    slug: "tecnica-mista",
+    nome: L("Técnica mista", "Mixed media", "Técnica mixta"),
+    nota: null,
+    ordem: 4,
+  },
+];
+
+// --------------------------------------------------------------------
 // Artistas
+//
+// `disciplina` é o slug de uma das tipologias acima.
 // --------------------------------------------------------------------
 
 export const ARTISTAS = [
   {
     slug: "mario-ferreira",
     nome: "Mário Ferreira",
-    disciplina: "tecnica_mista",
+    disciplina: "tecnica-mista",
     naturalidade: "Porto",
     ordem: 1,
     etiqueta: L("ARTISTA · PORTO", "ARTIST · PORTO", "ARTISTA · OPORTO"),
@@ -71,33 +112,9 @@ export const ARTISTAS = [
     citacaoFonte: "ANA+BETÂNIA, SOBRE EXPOR NA QUANTA TERRA",
   },
   {
-    slug: "vanessa-teodoro",
-    nome: "Vanessa Teodoro",
-    disciplina: "escultura",
-    naturalidade: null,
-    ordem: 3,
-    etiqueta: L("ARTISTA · CONVIDADA", "ARTIST · GUEST", "ARTISTA · INVITADA"),
-    nota: L(
-      "Matéria e volume, entre pintura e escultura.",
-      "Matter and volume, between painting and sculpture.",
-      "Materia y volumen, entre pintura y escultura.",
-    ),
-    biografia: L(
-      "Prática assente na matéria e no volume, no espaço entre a pintura e a escultura. Integra A Pele da Terra, na Quanta Terra, a convite da Galeria Contagiarte.",
-      "A practice grounded in matter and volume, in the space between painting and sculpture. She takes part in The Skin of the Earth, at Quanta Terra, at the invitation of Galeria Contagiarte.",
-      "Práctica asentada en la materia y el volumen, en el espacio entre la pintura y la escultura. Integra La Piel de la Tierra, en Quanta Terra, por invitación de la Galería Contagiarte.",
-    ),
-    citacao: L(
-      "“Barro, cerâmica, grés, madeira, gesso, pigmentos e técnicas mistas afirmam-se como matéria primordial.”",
-      "“Clay, ceramics, stoneware, wood, plaster, pigments and mixed media assert themselves as primordial matter.”",
-      "“Barro, cerámica, gres, madera, yeso, pigmentos y técnicas mixtas se afirman como materia primordial.”",
-    ),
-    citacaoFonte: "TEXTO CURATORIAL · A PELE DA TERRA",
-  },
-  {
     slug: "pant",
     nome: "Pant.",
-    disciplina: "colagem",
+    disciplina: "tecnica-mista",
     naturalidade: null,
     ordem: 4,
     etiqueta: L(
@@ -193,19 +210,19 @@ export const LUGARES = [
 
 const TEXTO_PELE_DA_TERRA_PT = [
   "No coração do Douro Vinhateiro, onde a paisagem se desenha em socalcos e camadas moldadas por séculos de trabalho humano e de diálogo com a natureza, nasce A Pele da Terra, uma exposição que procura estabelecer uma relação íntima entre arte contemporânea, território e matéria.",
-  "Integrada na Quanta Terra, em Favaios, esta mostra reúne, pela primeira vez, quatro artistas portugueses, Vanessa Teodoro, Ana+Betânia, Mário Ferreira e Pant., convidados pela Galeria Contagiarte, cujas práticas artísticas partilham uma abordagem comum: a exploração da arte enquanto matéria viva, construída em camadas, volumes e gestos tridimensionais.",
+  "Integrada na Quanta Terra, em Favaios, esta mostra reúne, pela primeira vez, três artistas portugueses, Ana+Betânia, Mário Ferreira e Pant., convidados pela Galeria Contagiarte, cujas práticas artísticas partilham uma abordagem comum: a exploração da arte enquanto matéria viva, construída em camadas, volumes e gestos tridimensionais.",
   "Mais do que uma exposição convencional, esta proposta assume-se como uma experiência imersiva. As obras distribuem-se pelos vários espaços da adega, entre salas de barricas onde o vinho envelhece lentamente, cubas centenárias revestidas a azulejo e salas de prova, criando um percurso sensorial em que arte e vinho partilham o mesmo tempo de contemplação.",
 ].join("\n\n");
 
 const TEXTO_PELE_DA_TERRA_EN = [
   "In the heart of the Douro wine region, where the landscape is drawn in terraces and layers shaped by centuries of human work and dialogue with nature, The Skin of the Earth is born, an exhibition that seeks an intimate relationship between contemporary art, territory and matter.",
-  "Held at Quanta Terra, in Favaios, this show brings together, for the first time, four Portuguese artists, Vanessa Teodoro, Ana+Betânia, Mário Ferreira and Pant., invited by Galeria Contagiarte, whose practices share a common approach: the exploration of art as living matter, built up in layers, volumes and three-dimensional gestures.",
+  "Held at Quanta Terra, in Favaios, this show brings together, for the first time, three Portuguese artists, Ana+Betânia, Mário Ferreira and Pant., invited by Galeria Contagiarte, whose practices share a common approach: the exploration of art as living matter, built up in layers, volumes and three-dimensional gestures.",
   "More than a conventional exhibition, this is an immersive experience. The works are spread across the winery: barrel rooms where wine ages slowly, century-old tiled vats and tasting rooms, creating a sensory route in which art and wine share the same time of contemplation.",
 ].join("\n\n");
 
 const TEXTO_PELE_DA_TERRA_ES = [
   "En el corazón del Duero vitícola, donde el paisaje se dibuja en bancales y capas moldeadas por siglos de trabajo humano y de diálogo con la naturaleza, nace La Piel de la Tierra, una exposición que busca establecer una relación íntima entre arte contemporáneo, territorio y materia.",
-  "Integrada en Quanta Terra, en Favaios, esta muestra reúne, por primera vez, a cuatro artistas portugueses, Vanessa Teodoro, Ana+Betânia, Mário Ferreira y Pant., invitados por la Galería Contagiarte, cuyas prácticas artísticas comparten un enfoque común: la exploración del arte como materia viva, construida en capas, volúmenes y gestos tridimensionales.",
+  "Integrada en Quanta Terra, en Favaios, esta muestra reúne, por primera vez, a tres artistas portugueses, Ana+Betânia, Mário Ferreira y Pant., invitados por la Galería Contagiarte, cuyas prácticas artísticas comparten un enfoque común: la exploración del arte como materia viva, construida en capas, volúmenes y gestos tridimensionales.",
   "Más que una exposición convencional, esta propuesta se asume como una experiencia inmersiva. Las obras se distribuyen por los distintos espacios de la bodega, entre salas de barricas donde el vino envejece lentamente, cubas centenarias revestidas de azulejo y salas de cata, creando un recorrido sensorial en el que arte y vino comparten el mismo tiempo de contemplación.",
 ].join("\n\n");
 
@@ -234,7 +251,7 @@ export const EXPOSICOES = [
       "Access to the winery, to the works on show and a wine tasting.",
       "Acceso a la bodega, a las obras de la exposición y cata de vinos.",
     ),
-    reservas: L("+351 93 590 75 57 · info@quantaterradouro.com"),
+    reservas: L("(+351) 914 152 451 · info@quantaterradouro.com"),
     citacao: L(
       "“Vinho e arte partilham a mesma essência: transformar a matéria-prima em algo único e memorável.”",
       "“Wine and art share the same essence: turning raw material into something unique and memorable.”",
@@ -245,7 +262,6 @@ export const EXPOSICOES = [
     artistasSlugs: [
       "mario-ferreira",
       "ana-betania",
-      "vanessa-teodoro",
       "pant",
     ],
     ordem: 1,
@@ -576,9 +592,9 @@ export const SALAS = [
       "Donde el vino envejece lentamente. Las piezas comparten el silencio, la temperatura y el olor de la madera: la contemplación pasa a tener el mismo tiempo que el vino.",
     ),
     notaObras: L(
-      "Obras de Ana+Betânia e Vanessa Teodoro",
-      "Works by Ana+Betânia and Vanessa Teodoro",
-      "Obras de Ana+Betânia y Vanessa Teodoro",
+      "Obras de Ana+Betânia",
+      "Works by Ana+Betânia",
+      "Obras de Ana+Betânia",
     ),
     ordem: 2,
   },

@@ -1,9 +1,11 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { Botao } from "@/components/Botao";
+import { BotoesCatalogo } from "@/components/BotoesCatalogo";
 import { Percurso } from "@/components/Percurso";
 import { Seccao } from "@/components/Seccao";
 import {
+  catalogosDaExposicao,
   exposicaoPorSlug,
   obterDefinicoes,
   obterTextos,
@@ -44,7 +46,11 @@ export default async function PaginaPercurso({
   const expo = await exposicaoPorSlug(slug);
   if (!expo || expo.salas.length === 0) notFound();
 
-  const [txt, def] = await Promise.all([obterTextos(), obterDefinicoes()]);
+  const [txt, def, catalogos] = await Promise.all([
+    obterTextos(),
+    obterDefinicoes(),
+    catalogosDaExposicao(expo.id),
+  ]);
   const T = (chave: string) => texto(txt[chave], idioma);
 
   const fim: Array<[string, string]> = [
@@ -125,6 +131,9 @@ export default async function PaginaPercurso({
               >
                 {t("acao.ver_exposicao", idioma)}
               </Botao>
+              {/* Quem chega ao fim do percurso é quem mais quer levar o
+                  catálogo consigo. */}
+              <BotoesCatalogo catalogos={catalogos} idioma={idioma} />
             </div>
           </div>
 

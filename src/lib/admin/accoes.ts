@@ -10,6 +10,7 @@ import {
   artistas,
   definicoes,
   descarregaveis,
+  disciplinas,
   exposicoes,
   exposicoesArtistas,
   lugares,
@@ -109,7 +110,7 @@ export async function guardarArtista(id: string | null, dados: FormData) {
   const valores = {
     slug: lerSlug(dados, "slug", nome),
     nome,
-    disciplina: lerTexto(dados, "disciplina") ?? "pintura",
+    disciplinaId: lerRelacao(dados, "disciplinaId"),
     naturalidade: lerTexto(dados, "naturalidade"),
     instagram: (lerTexto(dados, "instagram") ?? "").replace(/^@/, "") || null,
     website: lerTexto(dados, "website"),
@@ -141,6 +142,63 @@ export async function apagarArtista(id: string) {
   await registar(sessao, "apagou", "artista", id);
   limparCache();
   redirect("/admin/artistas");
+}
+
+// --------------------------------------------------------------------
+// Tipologias
+// --------------------------------------------------------------------
+
+export async function guardarDisciplina(id: string | null, dados: FormData) {
+  const sessao = await exigirSessao();
+
+  const nome = lerLocalizadoObrigatorio(dados, "nome", "Sem nome");
+  const valores = {
+    nome,
+    nota: lerLocalizado(dados, "nota"),
+    ordem: lerInteiro(dados, "ordem"),
+  };
+
+  if (id) {
+    // O slug não muda ao mudar o nome: é por ele que a semente e os
+    // testes encontram a tipologia.
+    await db.update(disciplinas).set(valores).where(eq(disciplinas.id, id));
+    await registar(sessao, "editou", "tipologia", id, nome.pt);
+  } else {
+    let slug = lerSlug(dados, "slug", nome.pt);
+    const [repetido] = await db
+      .select({ id: disciplinas.id })
+      .from(disciplinas)
+      .where(eq(disciplinas.slug, slug))
+      .limit(1);
+    if (repetido) slug = `${slug}-${Date.now().toString(36)}`;
+
+    const [nova] = await db
+      .insert(disciplinas)
+      .values({ ...valores, slug })
+      .returning();
+    await registar(sessao, "criou", "tipologia", nova.id, nome.pt);
+    id = nova.id;
+  }
+
+  limparCache();
+  redirect(`/admin/tipologias?guardado=${id}`);
+}
+
+/**
+ * Uma tipologia com artistas não se apaga: os artistas ficavam sem
+ * nenhuma e saíam dos filtros sem ninguém dar por isso. Quem gere
+ * muda-lhes primeiro a tipologia, e só depois apaga.
+ */
+export async function apagarDisciplina(id: string) {
+  const sessao = await exigirSessao();
+
+  const emUso = await db.$count(artistas, eq(artistas.disciplinaId, id));
+  if (emUso > 0) redirect(`/admin/tipologias?erro=em-uso&id=${id}`);
+
+  await db.delete(disciplinas).where(eq(disciplinas.id, id));
+  await registar(sessao, "apagou", "tipologia", id);
+  limparCache();
+  redirect("/admin/tipologias");
 }
 
 // --------------------------------------------------------------------
@@ -324,6 +382,7 @@ export async function guardarDescarregavel(
     nome,
     descricao: lerLocalizado(dados, "descricao"),
     ficheiroId: lerRelacao(dados, "ficheiroId"),
+    exposicaoId: lerRelacao(dados, "exposicaoId"),
     data: lerData(dados, "data"),
     estado: lerEstado(dados),
     ordem: lerInteiro(dados, "ordem"),

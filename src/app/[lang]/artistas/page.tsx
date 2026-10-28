@@ -2,7 +2,11 @@ import type { Metadata } from "next";
 import { Imagem } from "@/components/Imagem";
 import { ListaArtistas } from "@/components/ListaArtistas";
 import { Seccao, TituloSeccao } from "@/components/Seccao";
-import { listarArtistas, obterTextos } from "@/lib/dados";
+import {
+  listarArtistas,
+  listarDisciplinasComArtistas,
+  obterTextos,
+} from "@/lib/dados";
 import { t, texto, type Idioma } from "@/lib/i18n";
 import { caminho } from "@/lib/i18n/config";
 import { comMarca, metadados } from "@/lib/metadados";
@@ -33,7 +37,11 @@ export default async function PaginaArtistas({
   params: Promise<{ lang: Idioma }>;
 }) {
   const { lang: idioma } = await params;
-  const [artistas, txt] = await Promise.all([listarArtistas(), obterTextos()]);
+  const [artistas, tipologias, txt] = await Promise.all([
+    listarArtistas(),
+    listarDisciplinasComArtistas(),
+    obterTextos(),
+  ]);
 
   return (
     <>
@@ -53,10 +61,15 @@ export default async function PaginaArtistas({
         <ListaArtistas
           idioma={idioma}
           nota={texto(txt["artistas.nota"], idioma)}
+          tipologias={tipologias.map((d) => ({
+            slug: d.slug,
+            nome: texto(d.nome, idioma),
+            nota: texto(d.nota, idioma),
+          }))}
           artistas={artistas.map((a) => ({
             slug: a.slug,
             nome: a.nome,
-            disciplina: a.disciplina,
+            disciplina: a.disciplina?.slug ?? null,
             nota: texto(a.nota, idioma),
             temPagina: true,
           }))}

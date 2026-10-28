@@ -15,7 +15,7 @@ const MOTOR = process.argv[3] === "webkit" ? webkit : chromium;
 
 const CAMINHOS = [
   "/", "/exposicoes", "/obras", "/artistas", "/lugares", "/arquivo",
-  "/molduras", "/descarregar", "/contactos", "/a-galeria",
+  "/molduras", "/descarregar", "/contactos", "/newsletter", "/a-galeria",
   "/a-obra-como-ativo", "/privacidade", "/ver-na-parede",
   "/nao-existe-de-certeza",
 ];

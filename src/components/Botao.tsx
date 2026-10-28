@@ -50,7 +50,16 @@ export function Botao({
 
   if (!href) return null;
 
-  if (externo || href.startsWith("http") || href.startsWith("mailto:") || href.startsWith("tel:")) {
+  // As rotas de `/api/` não são páginas: o `Link` tentava navegar para
+  // elas dentro da aplicação e, pior, pré-carregava-as ao aparecerem no
+  // ecrã, o que em `/api/descarregar` contava descargas que ninguém fez.
+  if (
+    externo ||
+    href.startsWith("http") ||
+    href.startsWith("mailto:") ||
+    href.startsWith("tel:") ||
+    href.startsWith("/api/")
+  ) {
     return (
       <a
         href={href}

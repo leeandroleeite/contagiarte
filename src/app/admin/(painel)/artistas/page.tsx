@@ -10,7 +10,6 @@ import {
 } from "@/components/admin/Pecas";
 import { db } from "@/lib/db";
 import { artistas, obras } from "@/lib/db/schema";
-import { rotuloDisciplina } from "@/lib/i18n";
 import { urlMedia } from "@/lib/media/url";
 import { colunas } from "@/lib/utils";
 
@@ -25,7 +24,7 @@ export default async function ListaArtistasAdmin({
 
   const [lista, todasObras] = await Promise.all([
     db.query.artistas.findMany({
-      with: { retrato: true },
+      with: { retrato: true, disciplina: true },
       orderBy: [asc(artistas.ordem), asc(artistas.nome)],
     }),
     db.select({ artistaId: obras.artistaId }).from(obras),
@@ -77,7 +76,7 @@ export default async function ListaArtistasAdmin({
 
                 <div className="flex items-center justify-between gap-3 border-t border-adm-fio pt-3 text-[13px] text-adm-suave">
                   <span>
-                    {contar(a.id)} obras · {rotuloDisciplina(a.disciplina, "pt")}
+                    {contar(a.id)} obras · {a.disciplina?.nome.pt ?? "Sem tipologia"}
                   </span>
                   <Link href={`/admin/artistas/${a.id}`}>Editar →</Link>
                 </div>

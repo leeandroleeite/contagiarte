@@ -36,6 +36,34 @@
       "when": 1790258113608,
       "tag": "0004_paginas_restantes",
       "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "6",
+      "when": 1793202952509,
+      "tag": "0005_conteudo_outubro",
+      "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "6",
+      "when": 1793203240861,
+      "tag": "0006_catalogo_da_exposicao",
+      "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "6",
+      "when": 1793203402318,
+      "tag": "0007_tipologias_editaveis",
+      "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "6",
+      "when": 1793204051317,
+      "tag": "0008_textos_da_newsletter",
+      "breakpoints": true
     }
   ]
 }

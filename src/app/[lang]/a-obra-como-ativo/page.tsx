@@ -61,20 +61,20 @@ export default async function PaginaAtivo({
       ? [
           ["Certificado de autenticidade", "Em todas as obras"],
           ["Historial do artista", "A pedido"],
-          ["Conservação e moldagem", "MOLDARTPÓVOA"],
+          ["Conservação e moldagem", "CONTAGIARTE / MOLDARTPÓVOA"],
           ["Revenda futura", "Acompanhamos"],
         ]
       : idioma === "en"
         ? [
             ["Certificate of authenticity", "On every work"],
             ["Artist's history", "On request"],
-            ["Conservation and framing", "MOLDARTPÓVOA"],
+            ["Conservation and framing", "CONTAGIARTE / MOLDARTPÓVOA"],
             ["Future resale", "We help"],
           ]
         : [
             ["Certificado de autenticidad", "En todas las obras"],
             ["Historial del artista", "A petición"],
-            ["Conservación y enmarcado", "MOLDARTPÓVOA"],
+            ["Conservación y enmarcado", "CONTAGIARTE / MOLDARTPÓVOA"],
             ["Reventa futura", "Acompañamos"],
           ];
 

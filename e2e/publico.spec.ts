@@ -52,6 +52,7 @@ test.describe("Navegação e estrutura", () => {
       "/a-galeria",
       "/descarregar",
       "/contactos",
+      "/newsletter",
       "/ver-na-parede",
       "/a-obra-como-ativo",
       "/privacidade",
@@ -258,10 +259,10 @@ test.describe("Artistas e exposições", () => {
     ).toBeVisible();
     await expect(page.getByText(/Quarta a domingo/)).toBeVisible();
     await expect(page.getByText(/prova de vinhos/)).toBeVisible();
-    await expect(page.getByText(/\+351 93 590 75 57/)).toBeVisible();
+    await expect(page.getByText(/\(\+351\) 914 152 451 · info@quantaterradouro/)).toBeVisible();
 
-    // Os quatro artistas convidados estão listados.
-    for (const nome of ["Mário Ferreira", "Ana+Betânia", "Vanessa Teodoro", "Pant."]) {
+    // Os três artistas convidados estão listados.
+    for (const nome of ["Mário Ferreira", "Ana+Betânia", "Pant."]) {
       await expect(page.getByText(nome, { exact: false }).first()).toBeVisible();
     }
   });

@@ -101,6 +101,28 @@ export const media = sqliteTable("media", {
 });
 
 // --------------------------------------------------------------------
+// Tipologias: o que serve de filtro na lista de artistas
+// --------------------------------------------------------------------
+
+export const disciplinas = sqliteTable(
+  "disciplinas",
+  {
+    id: text("id")
+      .primaryKey()
+      .$defaultFn(() => randomUUID()),
+    // Gerado do nome quando a tipologia é criada, e fixo daí em diante:
+    // é o que a semente e os testes usam para a encontrar.
+    slug: text("slug").notNull(),
+    nome: localizado("nome").notNull(),
+    // O que a galeria escreve entre parênteses, ex. "serigrafia,
+    // gravura, litografia, giclée" na obra gráfica.
+    nota: localizado("nota"),
+    ordem: integer("ordem").notNull().default(0),
+  },
+  (t) => [uniqueIndex("disciplinas_slug_idx").on(t.slug)],
+);
+
+// --------------------------------------------------------------------
 // Artistas
 // --------------------------------------------------------------------
 
@@ -112,9 +134,11 @@ export const artistas = sqliteTable(
       .$defaultFn(() => randomUUID()),
     slug: text("slug").notNull(),
     nome: text("nome").notNull(),
-    // Chave de disciplina ('pintura', 'escultura', ...). A tradução do
-    // rótulo vive no dicionário, para os filtros serem consistentes.
-    disciplina: text("disciplina").notNull().default("pintura"),
+    // Tipologia, editável no backoffice. Uma tipologia em uso não se
+    // apaga: primeiro muda-se a dos artistas que a têm.
+    disciplinaId: text("disciplina_id").references(() => disciplinas.id, {
+      onDelete: "restrict",
+    }),
     naturalidade: text("naturalidade"),
     instagram: text("instagram"),
     website: text("website"),
@@ -323,7 +347,7 @@ export const salas = sqliteTable(
     nome: localizado("nome").notNull(),
     texto: localizado("texto"),
     // Linha livre com o que está exposto na sala, ex. "Obras de
-    // Ana+Betânia e Vanessa Teodoro". Complementa a relação salas_obras,
+    // Ana+Betânia". Complementa a relação salas_obras,
     // que nem sempre está preenchida.
     notaObras: localizado("nota_obras"),
     fotografiaId: text("fotografia_id").references(() => media.id, {
@@ -409,6 +433,12 @@ export const descarregaveis = sqliteTable(
     nome: localizado("nome").notNull(),
     descricao: localizado("descricao"),
     ficheiroId: text("ficheiro_id").references(() => media.id, {
+      onDelete: "set null",
+    }),
+    // Exposição de que este documento é o catálogo. Opcional: um dossier
+    // geral da galeria não pertence a nenhuma. Com ela preenchida, a
+    // página da exposição mostra o botão de descarregar.
+    exposicaoId: text("exposicao_id").references(() => exposicoes.id, {
       onDelete: "set null",
     }),
     data: text("data"),

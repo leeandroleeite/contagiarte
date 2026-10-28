@@ -6,6 +6,7 @@ import {
   artistas,
   definicoes as tDefinicoes,
   descarregaveis,
+  disciplinas,
   exposicoes,
   exposicoesArtistas,
   lugares,
@@ -31,7 +32,7 @@ const PUBLICADO = "publicado" as const;
 // Definições e textos
 // --------------------------------------------------------------------
 
-export { DEFINICOES_OMISSAO } from "@/lib/db/omissoes";
+export { DEFINICOES_OMISSAO, TEXTOS_OMISSAO } from "@/lib/db/omissoes";
 
 export async function obterDefinicoes(): Promise<Definicoes> {
   const [linha] = await db
@@ -240,7 +241,7 @@ export async function obrasRelacionadas(obra: Obra, limite = 3) {
 export async function listarArtistas() {
   return db.query.artistas.findMany({
     where: eq(artistas.estado, PUBLICADO),
-    with: { retrato: true },
+    with: { retrato: true, disciplina: true },
     orderBy: [asc(artistas.ordem), asc(artistas.nome)],
   });
 }
@@ -248,9 +249,30 @@ export async function listarArtistas() {
 export async function artistaPorSlug(slug: string) {
   const linha = await db.query.artistas.findFirst({
     where: and(eq(artistas.slug, slug), eq(artistas.estado, PUBLICADO)),
-    with: { retrato: true },
+    with: { retrato: true, disciplina: true },
   });
   return linha ?? null;
+}
+
+/**
+ * Tipologias para o filtro da lista de artistas, pela ordem do
+ * backoffice. Só entram as que têm artistas publicados: um filtro que
+ * leva a uma lista vazia ensina a não confiar nos filtros.
+ */
+export async function listarDisciplinasComArtistas() {
+  return db
+    .select()
+    .from(disciplinas)
+    .where(
+      inArray(
+        disciplinas.id,
+        db
+          .select({ id: artistas.disciplinaId })
+          .from(artistas)
+          .where(eq(artistas.estado, PUBLICADO)),
+      ),
+    )
+    .orderBy(asc(disciplinas.ordem));
 }
 
 export type Artista = NonNullable<Awaited<ReturnType<typeof artistaPorSlug>>>;
@@ -317,6 +339,24 @@ export async function descarregavelPorSlug(slug: string) {
     with: { ficheiro: true },
   });
   return linha ?? null;
+}
+
+/**
+ * Catálogos de uma exposição: os descarregáveis publicados que o
+ * backoffice ligou a ela. Só contam os que já têm PDF, para a página
+ * não mostrar um botão que dá 404.
+ */
+export async function catalogosDaExposicao(exposicaoId: string) {
+  const linhas = await db.query.descarregaveis.findMany({
+    where: and(
+      eq(descarregaveis.exposicaoId, exposicaoId),
+      eq(descarregaveis.estado, PUBLICADO),
+      sql`${descarregaveis.ficheiroId} is not null`,
+    ),
+    with: { ficheiro: true },
+    orderBy: [asc(descarregaveis.ordem), desc(descarregaveis.data)],
+  });
+  return linhas.filter((d) => d.ficheiro);
 }
 
 /** Conta uma descarga sem bloquear a resposta do ficheiro. */

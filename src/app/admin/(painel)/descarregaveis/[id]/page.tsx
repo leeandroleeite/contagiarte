@@ -1,4 +1,4 @@
-import { eq } from "drizzle-orm";
+import { desc, eq } from "drizzle-orm";
 import { notFound } from "next/navigation";
 import { BarraGuardar } from "@/components/admin/BarraGuardar";
 import { BotaoApagar } from "@/components/admin/BotaoApagar";
@@ -15,7 +15,7 @@ import {
 } from "@/lib/admin/accoes";
 import { listarMedia } from "@/lib/admin/media";
 import { db } from "@/lib/db";
-import { descarregaveis } from "@/lib/db/schema";
+import { descarregaveis, exposicoes } from "@/lib/db/schema";
 
 export const dynamic = "force-dynamic";
 
@@ -27,7 +27,7 @@ export default async function EditarDescarregavel({
   const { id } = await params;
   const novo = id === "novo";
 
-  const [doc, biblioteca] = await Promise.all([
+  const [doc, biblioteca, listaExpo] = await Promise.all([
     novo
       ? null
       : db.query.descarregaveis.findFirst({
@@ -35,6 +35,10 @@ export default async function EditarDescarregavel({
           with: { ficheiro: true },
         }),
     listarMedia("documento"),
+    db
+      .select({ id: exposicoes.id, titulo: exposicoes.titulo })
+      .from(exposicoes)
+      .orderBy(desc(exposicoes.dataInicio)),
   ]);
 
   if (!novo && !doc) notFound();
@@ -83,6 +87,17 @@ export default async function EditarDescarregavel({
             valor={doc?.ficheiro ?? null}
             biblioteca={biblioteca}
             tipo="documento"
+            largo
+          />
+          <CampoSelect
+            nome="exposicaoId"
+            rotulo="Catálogo da exposição"
+            valor={doc?.exposicaoId ?? ""}
+            opcoes={[
+              { valor: "", rotulo: "Nenhuma" },
+              ...listaExpo.map((e) => ({ valor: e.id, rotulo: e.titulo.pt })),
+            ]}
+            nota="Com uma exposição escolhida, a página dela mostra o botão para descarregar este PDF, depois de publicado."
             largo
           />
           <CampoSelect

@@ -62,13 +62,6 @@ export function tradutor(idioma: Idioma) {
 
 export type Tradutor = ReturnType<typeof tradutor>;
 
-/** Rótulo traduzido de uma disciplina, com recurso à própria chave. */
-export function rotuloDisciplina(chave: string, idioma: Idioma): string {
-  const k = `disciplina.${chave.replace(/-/g, "_")}` as ChaveTexto;
-  if (k in DICIONARIO) return t(k, idioma);
-  return chave.charAt(0).toUpperCase() + chave.slice(1).replace(/[-_]/g, " ");
-}
-
 const LOCALE: Record<Idioma, string> = {
   pt: "pt-PT",
   en: "en-GB",

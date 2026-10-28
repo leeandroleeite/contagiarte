@@ -13,7 +13,7 @@ import { expect, test } from "@playwright/test";
  */
 
 const PAGINAS = ["/", "/obras", "/artistas", "/exposicoes", "/lugares", "/molduras",
-  "/contactos", "/a-galeria", "/descarregar", "/arquivo", "/ver-na-parede",
+  "/contactos", "/newsletter", "/a-galeria", "/descarregar", "/arquivo", "/ver-na-parede",
   "/obras/wonder-frida", "/artistas/mario-ferreira", "/exposicoes/a-pele-da-terra"];
 
 test("nenhuma página tem texto abaixo do contraste mínimo", async ({ page }) => {

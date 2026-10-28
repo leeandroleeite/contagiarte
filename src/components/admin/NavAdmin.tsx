@@ -10,6 +10,7 @@ export const SECCOES = [
   { id: "painel", href: "/admin", rotulo: "Painel", exacto: true },
   { id: "obras", href: "/admin/obras", rotulo: "Obras" },
   { id: "artistas", href: "/admin/artistas", rotulo: "Artistas" },
+  { id: "tipologias", href: "/admin/tipologias", rotulo: "Tipologias" },
   { id: "exposicoes", href: "/admin/exposicoes", rotulo: "Exposições" },
   { id: "lugares", href: "/admin/lugares", rotulo: "Lugares" },
   { id: "percurso", href: "/admin/percurso", rotulo: "Percurso da adega" },

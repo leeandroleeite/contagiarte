@@ -57,7 +57,7 @@ export const MEDIA_SEMENTE: Semente[] = [
 
   // Do catálogo da galeria, onde cada um aparece ao lado do seu nome.
   // Os dois que lá estavam, do protótipo, eram de Armanda Passos e de
-  // Júlio Pomar. Para a Vanessa Teodoro e o Pant. não há fotografia
+  // Júlio Pomar. Para o Pant. não há fotografia
   // verificada, e um marcador com o nome é melhor do que a cara de
   // outra pessoa.
   {

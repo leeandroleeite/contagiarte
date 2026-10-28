@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { Icone } from "@/components/Icones";
 import type { Definicoes } from "@/lib/db/schema";
 import { t, type Idioma } from "@/lib/i18n";
 import { caminho } from "@/lib/i18n/config";
@@ -9,7 +10,7 @@ import { colunas, linkWhatsApp } from "@/lib/utils";
  * design, com o título grande e as colunas de contacto.
  *
  * A coluna "Explorar" existe por necessidade de navegação: a barra de
- * topo só tem sete entradas, e abaixo de 1120px as restantes vivem no
+ * topo só tem oito entradas, e abaixo de 1120px as restantes vivem no
  * menu compacto. Sem esta coluna, quem está num ecrã grande não teria
  * como chegar a "Ver na parede", "A obra como ativo", "Os lugares" ou
  * "A galeria" a não ser por uma frase solta na homepage.
@@ -42,10 +43,17 @@ export function Rodape({
             target="_blank"
             rel="noopener noreferrer"
           >
+            <Icone nome="whatsapp" />
             WhatsApp →
           </a>
-          <a href={`mailto:${d.email}`}>{d.email}</a>
-          <a href={`tel:${d.telefone.replace(/\s/g, "")}`}>{d.telefone}</a>
+          <a href={`mailto:${d.email}`}>
+            <Icone nome="email" />
+            {d.email}
+          </a>
+          <a href={`tel:${d.telefone.replace(/\s/g, "")}`}>
+            <Icone nome="telefone" />
+            {d.telefone}
+          </a>
         </Coluna>
 
         <Coluna titulo={t("rodape.seguir", idioma)}>
@@ -54,9 +62,17 @@ export function Rodape({
             target="_blank"
             rel="noopener noreferrer"
           >
-            @{d.instagram}
+            <Icone nome="instagram" />@{d.instagram}
           </a>
-          {d.morada && <span className="text-claro-55">{d.morada}</span>}
+          <Link href={caminho(idioma, "/newsletter")}>
+            {t("nav.newsletter", idioma)} →
+          </Link>
+          {d.morada && (
+            <span className="text-claro-55">
+              <Icone nome="morada" />
+              {d.morada}
+            </span>
+          )}
           {d.responsavel && (
             <span className="text-claro-55">{d.responsavel}</span>
           )}
@@ -114,7 +130,7 @@ function Coluna({
   children: React.ReactNode;
 }) {
   return (
-    <div className="flex flex-col gap-1 text-[17px] [&_a]:flex [&_a]:min-h-11 [&_a]:items-center [&_span]:flex [&_span]:min-h-11 [&_span]:items-center">
+    <div className="flex flex-col gap-1 text-[17px] [&_a]:flex [&_a]:min-h-11 [&_a]:items-center [&_a]:gap-2.5 [&_span]:flex [&_span]:min-h-11 [&_span]:items-center [&_span]:gap-2.5">
       <span className="etiqueta mb-1 text-claro-55">
         {titulo}
       </span>

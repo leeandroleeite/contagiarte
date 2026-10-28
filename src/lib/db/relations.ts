@@ -2,6 +2,7 @@ import { relations } from "drizzle-orm";
 import {
   artistas,
   descarregaveis,
+  disciplinas,
   exposicoes,
   exposicoesArtistas,
   lugares,
@@ -13,8 +14,16 @@ import {
   salasObras,
 } from "./schema";
 
+export const disciplinasRel = relations(disciplinas, ({ many }) => ({
+  artistas: many(artistas),
+}));
+
 export const artistasRel = relations(artistas, ({ one, many }) => ({
   retrato: one(media, { fields: [artistas.retratoId], references: [media.id] }),
+  disciplina: one(disciplinas, {
+    fields: [artistas.disciplinaId],
+    references: [disciplinas.id],
+  }),
   obras: many(obras),
   exposicoes: many(exposicoesArtistas),
 }));
@@ -39,6 +48,7 @@ export const exposicoesRel = relations(exposicoes, ({ one, many }) => ({
   artistas: many(exposicoesArtistas),
   obras: many(obras),
   salas: many(salas),
+  descarregaveis: many(descarregaveis),
 }));
 
 export const exposicoesArtistasRel = relations(
@@ -98,6 +108,10 @@ export const descarregaveisRel = relations(descarregaveis, ({ one }) => ({
   ficheiro: one(media, {
     fields: [descarregaveis.ficheiroId],
     references: [media.id],
+  }),
+  exposicao: one(exposicoes, {
+    fields: [descarregaveis.exposicaoId],
+    references: [exposicoes.id],
   }),
 }));
 

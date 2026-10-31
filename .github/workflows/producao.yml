@@ -53,19 +53,24 @@ jobs:
       COMMIT: ${{ inputs.commit || github.sha }}
       URL: https://novo.contagiarte.pt
     steps:
-      - uses: actions/checkout@v4
-        with:
-          ref: ${{ inputs.commit || github.sha }}
-
+      # Um sha curto, à mão, passa a inteiro antes do checkout: o
+      # actions/checkout toma um sha curto por nome de ramo e falha. É o
+      # inteiro que a imagem leva e que a produção responde no fim.
       - name: Qual é o commit que vai
+        id: commit
+        env:
+          GH_TOKEN: ${{ github.token }}
         run: |
           set -e
-          # Um sha curto, à mão, passa a inteiro: é o inteiro que a
-          # imagem leva e que a produção responde no fim.
-          COMMIT=$(git rev-parse HEAD)
+          COMMIT=$(gh api "repos/${{ github.repository }}/commits/$COMMIT" --jq .sha)
+          echo "sha=$COMMIT" >> "$GITHUB_OUTPUT"
           echo "COMMIT=$COMMIT" >> "$GITHUB_ENV"
           echo "vai $COMMIT"
           echo "TAG=registry.fly.io/contagiarte:$COMMIT" >> "$GITHUB_ENV"
+
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ steps.commit.outputs.sha }}
 
       - name: "Portão 1: a Verificação deste commit está verde"
         env:

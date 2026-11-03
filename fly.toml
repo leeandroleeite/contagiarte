@@ -5,6 +5,9 @@ primary_region = "cdg"          # Paris: a mais perto de Portugal desde
                                 # que o Fly fechou Madrid
 kill_signal = "SIGINT"
 kill_timeout = 30
+# Margem para os picos de fotografias: converter várias obras ao mesmo
+# tempo pode passar por momentos dos 512 MB da máquina.
+swap_size_mb = 512
 
 [build]
   dockerfile = "Dockerfile"
@@ -45,6 +48,11 @@ kill_timeout = 30
   LITESTREAM_REGION = "auto"
   LITESTREAM_CAMINHO = "producao"
   PORT = "3000"
+  # Uma conversão de imagem de cada vez. Num teste só com o sharp, 1 CPU e
+  # doze fotografias novas ao mesmo tempo, o valor de origem (4) chegou a
+  # 870 MB e o processo morreu com o limite da máquina; com 1 ficou abaixo
+  # de 400 MB e demorou o mesmo.
+  UV_THREADPOOL_SIZE = "1"
 
 [[mounts]]
   # A base de dados é um ficheiro e vive aqui. O volume prende a app a
@@ -85,5 +93,6 @@ kill_timeout = 30
   path = "/api/saude"
 
 [[vm]]
+  # Em repouso gasta cerca de 270 MB. Antes tinha 1 GB, o dobro do preço.
   size = "shared-cpu-1x"
-  memory = "1gb"
+  memory = "512mb"
